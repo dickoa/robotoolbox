@@ -1,0 +1,13 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^CONDUCT\.md$
+^NEWS\.md$
+^cran-comments\.md$
+^README\.Rmd$
+^\.appveyor\.yml$
+^\.gitlab-ci\.yml$
+^\.codecov\.yml$
+^\.lintr$
+^revdep$
+^docs$
+^public$

@@ -1,0 +1,30 @@
+Package: robotoolbox
+Title: An R client to the KoboToolbox API
+Version: 0.0.1.9000
+Authors@R: person("Ahmadou", "Dicko",
+	   email = "mail@ahmadoudicko.com",
+	   role = c("aut", "cre"))
+Description: Utilities to access data from KoboToolbox API
+    <https://support.kobotoolbox.org/api.html>.
+Depends: R (>= 3.5)
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+URL: https://gitlab.com/dickoa/robotoolbox
+BugReports: https://gitlab.com/dickoa/robotoolbox/issues
+Imports:
+    crul,
+    jsonlite,
+    readr,
+    dplyr,
+    tidyr,
+    magrittr
+Suggests:
+    roxygen2,
+    devtools,
+    vcr,
+    knitr,
+    testthat,
+    covr
+VignetteBuilder: knitr
+RoxygenNote: 7.1.1
