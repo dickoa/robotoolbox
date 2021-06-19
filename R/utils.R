@@ -20,34 +20,6 @@ user_agent <- function(x) {
 }
 
 #' @noRd
-kobo_settings <- function() {
-  ops <- list(token = Sys.getenv("KOBOTOOLBOX_TOKEN", ""),
-              url = Sys.getenv("KOBOTOOLBOX_URL", ""))
-  structure(ops, class = "kobo_settings")
-}
-
-#' @noRd
-kobo_setup <- function(url = NULL, token = NULL) {
-  if (!is.null(token))
-    Sys.setenv("KOBOTOOLBOX_TOKEN" = token)
-  if (!is.null(url))
-    Sys.setenv("KOBOTOOLBOX_URL" = url)
-}
-
-#' Custom printing for KoBoToolbox API settings
-#'
-#' Custom printing for KoBoToolbox API settings
-#'
-#' @param x kobo_settings, the asset
-#' @param ... non used
-#' @noRd
-print.kobo_settings <- function(x, ...) {
-  cat("<KoBoToolbox Settings> \n")
-  cat("   URL: ", kobo_settings()$url, "\n", sep = "")
-  cat("   Token: ", kobo_settings()$token, "\n", sep = "")
-}
-
-#' @noRd
 xget <- function(path, args = list(), ...) {
   headers <- list(Authorization = paste("Token",
                                         Sys.getenv("KOBOTOOLBOX_TOKEN")))
@@ -59,11 +31,18 @@ xget <- function(path, args = list(), ...) {
 }
 
 #' @noRd
-parse_kobo_date <- function(date)
-  as.character(as.POSIXct(date,
-                          format = "%Y-%m-%dT%H:%M:%OS",
-                          tz = "GMT"))
+map_char <- function(x, key)
+  vapply(x, function(l) l[[key]], character(1))
 
+#' @noRd
+map_int <- function(x, key)
+  vapply(x, function(l) l[[key]], integer(1))
+
+#' @noRd
+parse_kobo_date <- function(date)
+  as.POSIXct(date,
+             format = "%Y-%m-%dT%H:%M:%OS",
+             tz = "GMT")
 #' @noRd
 is_list_cols <- function(df)
   which(vapply(df, is.list, logical(1)))
@@ -87,12 +66,4 @@ drop_nulls <- function(x) {
 as_log <- function(x) {
   stopifnot(is.logical(x))
   tolower(x)
-}
-
-#' @importFrom readr type_convert
-#' @importFrom stats setNames
-postprocess_submission <- function(x) {
-  res <- setNames(type_convert(x),
-                  basename(names(x)))
-  res
 }

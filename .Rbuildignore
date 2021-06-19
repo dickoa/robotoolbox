@@ -11,3 +11,4 @@
 ^revdep$
 ^docs$
 ^public$
+^README\.html$

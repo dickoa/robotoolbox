@@ -1,10 +1,10 @@
 Package: robotoolbox
-Title: An R client to the KoboToolbox API
+Title: An R Client for the KoBoToolbox API
 Version: 0.0.1.9000
 Authors@R: person("Ahmadou", "Dicko",
 	   email = "mail@ahmadoudicko.com",
 	   role = c("aut", "cre"))
-Description: Utilities to access data from KoboToolbox API
+Description: Utilities to access data from KoBoToolbox API
     <https://support.kobotoolbox.org/api.html>.
 Depends: R (>= 3.5)
 License: MIT + file LICENSE
@@ -18,7 +18,9 @@ Imports:
     readr,
     dplyr,
     tidyr,
-    magrittr
+    magrittr,
+    tibble,
+    labelled
 Suggests:
     roxygen2,
     devtools,

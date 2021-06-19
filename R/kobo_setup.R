@@ -1,48 +1,26 @@
-#' @noRd
+#' Get \code{robotoolbox} settings
+#' @export
 kobo_settings <- function() {
-  ops <- list(
-    token = Sys.getenv("KOBOTOOLBOX_TOKEN", ""),
-    url = Sys.getenv("KOBOTOOLBOX_URL", ""),
-    username = Sys.getenv("KOBOTOOLBOX_USERNAME", ""),
-    password = Sys.getenv("KOBOTOOLBOX_PASSWORD", ""))
+  ops <- list(token = Sys.getenv("KOBOTOOLBOX_TOKEN", ""),
+              url = Sys.getenv("KOBOTOOLBOX_URL", ""))
   structure(ops, class = "kobo_settings")
 }
 
-#' @noRd
-kobo_setup <- function(token = NULL, url = NULL) {
+#' Set \code{robotoolbox} settings
+#' @param url the base url of the KoboToolbox server
+#' @param token the API token
+#' @export
+kobo_setup <- function(url = NULL, token = NULL) {
   if (!is.null(token))
     Sys.setenv("KOBOTOOLBOX_TOKEN" = token)
   if (!is.null(url))
     Sys.setenv("KOBOTOOLBOX_URL" = url)
+  invisible(kobo_settings())
 }
 
-#' Get the KoBoToolbox API url
-#'
-#' @return character, the API url
 #' @export
-kobo_url <- function() {
-  r <- Sys.getenv("KOBOTOOLBOX_URL")
-  if (r == "")
-    stop("KoBoToolbox API URL not set, please use kobo_setup()",
-         call. = FALSE)
-  r
-}
-
-#' Get verbs
-#'
-#' Get verbs
-#' @param path character, api endpoint
-#' @param args API call payload
-#' @param ... Option to pass to the get method
-#'
-#' @return character, API call response
-#' @noRd
-xget <- function(path, args = list(), ...) {
-  token <- paste("Token", kobo_token())
-  cli <- crul::HttpClient$new(get_kpi_url(),
-                              headers = list(Authorization = token),
-                              opts = list(...))
-  res <- cli$get(path = path, query = args)
-  res$raise_for_status()
-  res$parse("UTF-8")
+print.kobo_settings <- function(x, ...) {
+  cat("<robotoolbox settings> \n")
+  cat("   KoBoToolbox URL: ", x$url, "\n", sep = "")
+  cat("   KoBoToolbox API Token: ", x$token, "\n", sep = "")
 }

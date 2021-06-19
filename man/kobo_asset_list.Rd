@@ -8,8 +8,6 @@ kobo_asset_list()
 }
 \value{
 a list of kobo_asset
-
-a list of kobo_asset
 }
 \description{
 List all available KoBoToolbox API assets

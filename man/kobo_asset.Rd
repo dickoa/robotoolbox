@@ -10,8 +10,6 @@ kobo_asset(uid)
 \item{uid}{the unique identifier of a specific asset}
 }
 \value{
-
-
 a kobo_asset object
 }
 \description{
