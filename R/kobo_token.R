@@ -1,12 +1,13 @@
-#' Get your KoBoToolbox API token
+#' Get your KoBoToolbox API token from your username and password
 #'
-#' Get your KoBoToolbox API token
+#' Get your KoBoToolbox API token from your username and password
+#'
 #'
 #' @importFrom crul auth HttpClient
 #' @importFrom jsonlite fromJSON
 #' @param username character, KoBoToolbox username
 #' @param password character, KoBoToolbox password
-#' @param url character, KoBoToolbox url
+#' @param url character, KoBoToolbox server url
 #'
 #' @return character, the KoBoToolbox API token
 #' @export

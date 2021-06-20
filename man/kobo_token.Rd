@@ -2,7 +2,7 @@
 % Please edit documentation in R/kobo_token.R
 \name{kobo_token}
 \alias{kobo_token}
-\title{Get your KoBoToolbox API token}
+\title{Get your KoBoToolbox API token from your username and password}
 \usage{
 kobo_token(username = NULL, password = NULL, url = NULL)
 }
@@ -11,11 +11,11 @@ kobo_token(username = NULL, password = NULL, url = NULL)
 
 \item{password}{character, KoBoToolbox password}
 
-\item{url}{character, KoBoToolbox url}
+\item{url}{character, KoBoToolbox server url}
 }
 \value{
 character, the KoBoToolbox API token
 }
 \description{
-Get your KoBoToolbox API token
+Get your KoBoToolbox API token from your username and password
 }

@@ -67,3 +67,11 @@ as_log <- function(x) {
   stopifnot(is.logical(x))
   tolower(x)
 }
+
+#' @noRd
+clean_colnames <- function(x) {
+  nm <- names(x)
+  nm <- iconv(tolower(x), to = "ASCII//TRANSLIT")
+  nm <- gsub("\\/", "\\_", nm)
+  nm
+}
