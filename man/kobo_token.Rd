@@ -4,7 +4,7 @@
 \alias{kobo_token}
 \title{Get your KoBoToolbox API token from your username and password}
 \usage{
-kobo_token(username = NULL, password = NULL, url = NULL)
+kobo_token(username = NULL, password = NULL, url = NULL, overwrite = FALSE)
 }
 \arguments{
 \item{username}{character, KoBoToolbox username}
@@ -12,6 +12,8 @@ kobo_token(username = NULL, password = NULL, url = NULL)
 \item{password}{character, KoBoToolbox password}
 
 \item{url}{character, KoBoToolbox server url}
+
+\item{overwrite}{logical, if TRUE overwrite existing token}
 }
 \value{
 character, the KoBoToolbox API token

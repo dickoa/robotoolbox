@@ -46,11 +46,11 @@ kobo_asset_list <- function() {
 #' @export
 print.kobo_asset <- function(x, ...) {
   cat("<robotoolbox asset> ", x$uid, "\n")
-  cat("   Asset Name: ", x$name, "\n", sep = "")
-  cat("   Asset Type: ", x$asset_type, "\n", sep = "")
-  cat("   Created: ",
+  cat("  Asset Name: ", x$name, "\n", sep = "")
+  cat("  Asset Type: ", x$asset_type, "\n", sep = "")
+  cat("  Created: ",
       as.character(parse_kobo_date(x$date_created)),  "\n", sep = "")
-  cat("   Last modified: ",
+  cat("  Last modified: ",
       as.character(parse_kobo_date(x$date_modified)),  "\n", sep = "")
-  cat("   Submissions: ", x$deployment__submission_count, "\n", sep = "")
+  cat("  Submissions: ", x$deployment__submission_count, "\n", sep = "")
 }

@@ -8,14 +8,15 @@
 #' @param username character, KoBoToolbox username
 #' @param password character, KoBoToolbox password
 #' @param url character, KoBoToolbox server url
+#' @param overwrite logical, if TRUE overwrite existing token
 #'
 #' @return character, the KoBoToolbox API token
 #' @export
-kobo_token <- function(username = NULL, password = NULL, url = NULL) {
+kobo_token <- function(username = NULL, password = NULL, url = NULL, overwrite = FALSE) {
   if (!is.null(url) & !nzchar(Sys.getenv("KOBOTOOLBOX_URL")))
      Sys.setenv("KOBOTOOLBOX_URL" = url)
 
-  if (nzchar(Sys.getenv("KOBOTOOLBOX_TOKEN"))) {
+  if (nzchar(Sys.getenv("KOBOTOOLBOX_TOKEN")) & !overwrite) {
     token <- Sys.getenv("KOBOTOOLBOX_TOKEN")
   } else {
     cli <- crul::HttpClient$new(url = Sys.getenv("KOBOTOOLBOX_URL"),
