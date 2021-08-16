@@ -4,14 +4,14 @@
 #' @noRd
 format_kobo_submissions <- function(x) {
   res <- setNames(type_convert(x),
-                  clean_colnames(names(x)))
+                  clean_subs_colnames(names(x)))
   as_tibble(res,
-            .name_repair = "unique")
+            .name_repair = "universal")
 }
 
 #' @export
 #' @rdname kobo_submissions
-kobo_submissions <- function(asset)
+kobo_submissions <- function(asset, ...)
   UseMethod("kobo_submissions")
 
 #' Get all submissions from a project
@@ -27,9 +27,10 @@ kobo_submissions <- function(asset)
 #' @importFrom tidyr unnest
 #'
 #' @param asset kobo_asset, the asset
+#' @param group_names logical, keep the group names as prefix
 #' @return data.frame, all submissions
 #' @export
-kobo_submissions.kobo_asset <- function(asset) {
+kobo_submissions.kobo_asset <- function(asset, group_names = TRUE) {
   path <- paste0("api/v2/assets/", asset$uid, "/data.json")
   res <- xget(path = path)
   res <- fromJSON(res,
@@ -42,9 +43,9 @@ kobo_submissions.kobo_asset <- function(asset) {
     subs <- unnest(subs, cols = cols_to_unnest)
   }
   subs <- format_kobo_submissions(subs)
-  ## labels <- kobo_form_to_list(kobo_form(asset))
-  ## labels <- drop_nulls(labels[names(subs)])
-  ## var_label(subs) <- labels
+  labels <- kobo_form_to_list(kobo_form(asset))
+  labels <- drop_nulls(labels[names(subs)])
+  var_label(subs) <- labels
   subs <- select(subs,
                  -any_of(c("_attachments", "imei",
                            "formhub_uuid", "meta_instanceid",

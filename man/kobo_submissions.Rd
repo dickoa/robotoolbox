@@ -5,12 +5,14 @@
 \alias{kobo_submissions.kobo_asset}
 \title{Get all submissions from a project}
 \usage{
-kobo_submissions(asset)
+kobo_submissions(asset, ...)
 
-\method{kobo_submissions}{kobo_asset}(asset)
+\method{kobo_submissions}{kobo_asset}(asset, group_names = TRUE)
 }
 \arguments{
 \item{asset}{kobo_asset, the asset}
+
+\item{group_names}{logical, keep the group names as prefix}
 }
 \value{
 data.frame, all submissions
