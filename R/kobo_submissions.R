@@ -2,9 +2,9 @@
 #' @importFrom tibble as_tibble
 #' @importFrom stats setNames
 #' @noRd
-format_kobo_submissions <- function(x) {
+format_kobo_submissions <- function(x, group_names = FALSE) {
   res <- setNames(type_convert(x),
-                  clean_subs_colnames(names(x)))
+                  clean_subs_colnames(names(x), group_names = group_names))
   as_tibble(res,
             .name_repair = "universal")
 }
@@ -30,7 +30,7 @@ kobo_submissions <- function(asset, ...)
 #' @param group_names logical, keep the group names as prefix
 #' @return data.frame, all submissions
 #' @export
-kobo_submissions.kobo_asset <- function(asset, group_names = TRUE) {
+kobo_submissions.kobo_asset <- function(asset, group_names = FALSE) {
   path <- paste0("api/v2/assets/", asset$uid, "/data.json")
   res <- xget(path = path)
   res <- fromJSON(res,
@@ -42,22 +42,24 @@ kobo_submissions.kobo_asset <- function(asset, group_names = TRUE) {
     cols_to_unnest <- form$survey$name[is_repeat]
     subs <- unnest(subs, cols = cols_to_unnest)
   }
-  subs <- format_kobo_submissions(subs)
-  labels <- kobo_form_to_list(kobo_form(asset))
-  labels <- drop_nulls(labels[names(subs)])
-  var_label(subs) <- labels
+  subs <- format_kobo_submissions(subs, group_names = group_names)
+  if (isFALSE(group_names)) {
+    labels <- kobo_form_to_list(kobo_form(asset))
+    labels <- drop_nulls(labels[names(subs)])
+    var_label(subs) <- labels
+  }
   subs <- select(subs,
                  -any_of(c("_attachments", "imei",
                            "formhub_uuid", "meta_instanceid",
                            "meta_deprecatedid", "subscriberid")))
   subs <- relocate(subs,
-                   starts_with("_"),
-                   .after = last_col())
-  subs <- relocate(subs,
                    any_of(c("start", "end", "today",
                             "username", "simserial",
                             "deviceid", "phonenumber", "audit")),
                    .before = 1L)
+  subs <- relocate(subs,
+                   starts_with("\\._"),
+                   .after = last_col())
   subs
 }
 

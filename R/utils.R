@@ -69,9 +69,13 @@ as_log <- function(x) {
 }
 
 #' @noRd
-clean_subs_colnames <- function(x, group = FALSE) {
+clean_subs_colnames <- function(x, group_names = FALSE) {
   nm <- names(x)
   nm <- iconv(tolower(x), to = "ASCII//TRANSLIT")
-  nm <- gsub("\\/", "\\_", nm)
+  if (isTRUE(group_names)) {
+    nm <- gsub("\\/", "\\_", nm)
+  } else {
+    nm <- basename(nm)
+  }
   nm
 }

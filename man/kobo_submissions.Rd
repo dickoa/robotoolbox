@@ -7,7 +7,7 @@
 \usage{
 kobo_submissions(asset, ...)
 
-\method{kobo_submissions}{kobo_asset}(asset, group_names = TRUE)
+\method{kobo_submissions}{kobo_asset}(asset, group_names = FALSE)
 }
 \arguments{
 \item{asset}{kobo_asset, the asset}
