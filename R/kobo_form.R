@@ -1,10 +1,9 @@
 #' @noRd
-kobo_form_to_list <- function(x) {
+kobo_form_to_list <- function(x, key) {
   x <- x$survey[!x$survey$type %in% c("begin_group", "end_group", "note"), ]
-  key <- x$name
-  label <- x$label
-  setNames(as.list(label),
-           key)
+  nm <- x$name
+  setNames(as.list(x[[key]]),
+           nm)
 }
 
 #' @export
@@ -20,19 +19,21 @@ kobo_form <- function(asset)
 #'
 #' @rdname kobo_form
 #'
-#' @importFrom dplyr bind_rows
+#' @importFrom data.table rbindlist
+#' @importFrom tibble as_tibble
 #' @importFrom tidyr unnest
 #' @return kobo_form, the project form
 #'
 #' @export
 kobo_form.kobo_asset <- function(asset) {
-  survey <- bind_rows(asset$content$survey)
+  survey <- rbindlist(asset$content$survey, fill = TRUE)
   survey <- setNames(unnest(survey, cols = is_list_cols(survey)),
                      gsub("^\\$", "", names(survey)))
-  choices <- bind_rows(asset$content$choices)
+  choices <- rbindlist(asset$content$choices, fill = TRUE)
   choices <- setNames(unnest(choices, cols = is_list_cols(choices)),
                       gsub("^\\$", "", names(choices)))
-  settings <- bind_rows(asset$content$settings)
+  settings <- as_tibble(asset$content$settings,
+                        .name_repair = "universal")
   structure(list(survey = survey,
                  choices = choices,
                  settings = settings,

@@ -18,6 +18,8 @@ Imports:
     readr,
     dplyr,
     tidyr,
+    tidyselect,
+    data.table,
     magrittr,
     tibble,
     labelled

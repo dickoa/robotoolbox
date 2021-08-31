@@ -4,14 +4,15 @@
 #' @noRd
 format_kobo_submissions <- function(x, group_names = FALSE) {
   res <- setNames(type_convert(x),
-                  clean_subs_colnames(names(x), group_names = group_names))
+                  clean_subs_colnames(names(x),
+                                      group_names = group_names))
   as_tibble(res,
             .name_repair = "universal")
 }
 
 #' @export
 #' @rdname kobo_submissions
-kobo_submissions <- function(asset, ...)
+kobo_submissions <- function(asset, group_names)
   UseMethod("kobo_submissions")
 
 #' Get all submissions from a project
@@ -42,12 +43,14 @@ kobo_submissions.kobo_asset <- function(asset, group_names = FALSE) {
     cols_to_unnest <- form$survey$name[is_repeat]
     subs <- unnest(subs, cols = cols_to_unnest)
   }
-  subs <- format_kobo_submissions(subs, group_names = group_names)
-  if (isFALSE(group_names)) {
-    labels <- kobo_form_to_list(kobo_form(asset))
-    labels <- drop_nulls(labels[names(subs)])
-    var_label(subs) <- labels
-  }
+  subs <- format_kobo_submissions(subs,
+                                  group_names = group_names)
+  ## labels <- kobo_form_to_list(kobo_form(asset), "label")
+  ## labels <- drop_nulls(labels[names(subs)])
+  ## .var_label(subs) <- labels
+  ## qtype <- kobo_form_to_list(kobo_form(asset), "type")
+  ## qtype <- drop_nulls(qtype[names(subs)])
+  ## .var_qtype(subs) <- labels
   subs <- select(subs,
                  -any_of(c("_attachments", "imei",
                            "formhub_uuid", "meta_instanceid",
@@ -62,8 +65,3 @@ kobo_submissions.kobo_asset <- function(asset, group_names = FALSE) {
                    .after = last_col())
   subs
 }
-
-## path <- paste0("api/v2/assets/", "a7kgvVN75RQCmo4yyZEUEp", "/data.json")
-## res <- xget(path = path)
-## res <- fromJSON(res, simplifyVector = TRUE)
-## str(res)

@@ -5,7 +5,7 @@
 \alias{kobo_submissions.kobo_asset}
 \title{Get all submissions from a project}
 \usage{
-kobo_submissions(asset, ...)
+kobo_submissions(asset, group_names)
 
 \method{kobo_submissions}{kobo_asset}(asset, group_names = FALSE)
 }

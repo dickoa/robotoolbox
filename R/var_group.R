@@ -32,7 +32,7 @@
 #' var_group(iris, unlist = TRUE)
 #'
 #' @export
-var_group <- function(x) {
+var_group <- function(x, unlist) {
   UseMethod("var_group")
 }
 
@@ -95,68 +95,4 @@ var_group.data.frame <- function(x, unlist = FALSE) {
   value <- value[names(value) %in% names(x)]
   for (var in names(value)) var_group(x[[var]]) <- value[[var]]
   x
-}
-
-#' @rdname var_group
-#' @param .data a data frame
-#' @param ... name-value pairs of variable groups (see examples)
-#' @param .groups variable groups to be applied to the data.frame,
-#'   using the same syntax as `value` in `var_group(df) <- value`.
-#' @param .strict should an error be returned if some groups
-#'   doesn't correspond to a column of `x`?
-#' @note
-#'   `set_variable_groups()` could be used with \pkg{dplyr} syntax.
-#' @return
-#'  `set_variable_groups()` will return an updated copy of `.data`.
-#' @examples
-#' if (require(dplyr)) {
-#'   # adding some variable groups
-#'   df <- tibble(s1 = c("M", "M", "F"), s2 = c(1, 1, 2)) %>%
-#'     set_variable_groups(s1 = "demography", s2 = "group1")
-#'   var_group(df)
-#'
-#'   # removing a variable group
-#'   df <- df %>% set_variable_groups(s2 = NULL)
-#'   var_group(df$s2)
-#'
-#'   # Set groups from dictionary, e.g. as read from external file
-#'   # One description is missing, one has no match
-#'   description = tibble(
-#'     name = c(
-#'       "Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width",
-#'       "Something"),
-#'     group = c(
-#'       "length group", "width group",  "length group", "width group",
-#'       "something")
-#'   )
-#'   var_groups <- setNames(as.list(description$group), description$name)
-#'   iris_groupled <- iris %>%
-#'     set_variable_groups(.groups = var_groups, .strict = FALSE)
-#'   var_group(iris_groupled)
-#'
-#'   # defining variable groups derived from variable names
-#'   if (require(snakecase)) {
-#'     iris <- iris %>%
-#'       set_variable_groups(.groups = to_sentence_case(names(iris)))
-#'     var_group(iris)
-#'   }
-#' }
-#'
-#' @export
-set_variables_group <- function(.data, ..., .groups = NA, .strict = TRUE) {
-  if (!identical(.groups, NA)) {
-    if (!.strict)
-      .groups <- .groups[intersect(names(.groups), names(.data))]
-    var_group(.data) <- .groups
-  }
-  values <- rlang::dots_list(...)
-  if (length(values) > 0) {
-    if (.strict & !all(names(values) %in% names(.data)))
-      stop("some variables not found in .data")
-
-    for (v in intersect(names(values), names(.data)))
-      var_group(.data[[v]]) <- values[[v]]
-  }
-
-  .data
 }
