@@ -78,3 +78,10 @@ clean_subs_colnames <- function(x, group_names = FALSE) {
   }
   nm
 }
+
+#' @noRd
+form_lang <- function(x, lang) {
+  ss <- sum(lengths(x$label))
+  x$lang <- lang[seq.int(ss)]
+  x
+}

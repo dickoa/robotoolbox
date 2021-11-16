@@ -22,29 +22,43 @@ kobo_form <- function(asset)
 #' @importFrom data.table rbindlist
 #' @importFrom dplyr select nest_join
 #' @importFrom tibble as_tibble new_tibble
-#' @importFrom tidyr unnest
+#' @importFrom tidyr unnest drop_na
 #' @return tbl_form, the project form
 #'
 #' @export
 kobo_form.kobo_asset <- function(asset) {
-  asset_content <- names(asset$content)
-  survey <- rbindlist(asset$content$survey, fill = TRUE)
+  asset_content_nm <- names(asset$content)
+  if ("translations" %in% asset_content_nm)
+    lang <- asset$content$translations
+  survey <- lapply(asset$content$survey, function(l) {
+    x <- form_lang(l, lang)
+    x
+  })
+  survey <- rbindlist(survey, fill = TRUE)
   survey <- select(.data = survey,
                    name = "$autoname",
                    list_name = "select_from_list_name",
                    type = "type",
                    label = "label",
+                   lang = "lang",
                    contains("appearance"))
   survey <- setNames(unnest(survey,
                             cols = is_list_cols(survey),
                             keep_empty = TRUE),
                      gsub("^\\$", "", names(survey)))
-  if ("choices" %in% asset_content) {
-    choices <- rbindlist(asset$content$choices, fill = TRUE)
+  is.na(survey$lang) <- is.na(survey$label)
+  if ("choices" %in% asset_content_nm) {
+    choices <- lapply(asset$content$choices, function(l) {
+      x <- form_lang(l, lang)
+      x
+    })
+    choices <- rbindlist(choices, fill = TRUE)
     choices <- select(.data = choices,
                       list_name = "list_name",
                       value_name = "$autovalue",
-                      value_label = "label")
+                      value_label = "label",
+                      value_lang = "lang")
+    choices <- drop_na(choices, "value_label")
     choices <- setNames(unnest(choices,
                                cols = is_list_cols(choices),
                                keep_empty = TRUE),
@@ -54,7 +68,6 @@ kobo_form.kobo_asset <- function(asset) {
     form <- survey
   }
   form$name <- iconv(tolower(form$name), to = "ASCII//TRANSLIT")
-  form$lang <- rep(unlist(asset$content$translations), length.out = nrow(form))
   new_tibble(form, class = "tbl_form")
 }
 
@@ -71,8 +84,7 @@ tbl_sum.tbl_form <- function(x, ...) {
                     "geoshape", "date", "time", "dateTime",
                     "image", "audio", "background-audio", "video", "file",
                     "barcode", "calculate", "acknowledge","hidden", "xml-external")
-  lang <- unique(x$lang)[1]
-  n_q <- nrow(x[x$type %in% list_of_type & x$lang %in% lang, , drop = FALSE])
+  n_q <- nrow(x[x$type %in% list_of_type, , drop = FALSE])
   default <- NextMethod()
   c("A robotoolbox form" = paste(n_q, "questions"), default)
 }
