@@ -7,12 +7,14 @@
 \usage{
 kobo_submissions(asset, group_names)
 
-\method{kobo_submissions}{kobo_asset}(asset, group_names = FALSE)
+\method{kobo_submissions}{kobo_asset}(asset, group_names = FALSE, ...)
 }
 \arguments{
 \item{asset}{kobo_asset, the asset}
 
 \item{group_names}{logical, keep the group names as prefix}
+
+\item{...}{extra parameters for the KPI data endpoints e.g limit, start}
 }
 \value{
 data.frame, all submissions

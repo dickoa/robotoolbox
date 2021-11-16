@@ -13,7 +13,7 @@ kobo_form(asset)
 \item{asset}{kobo_asset, the asset}
 }
 \value{
-kobo_form, the project form
+tbl_form, the project form
 }
 \description{
 Get the form used for this asset

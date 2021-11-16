@@ -20,32 +20,59 @@ kobo_form <- function(asset)
 #' @rdname kobo_form
 #'
 #' @importFrom data.table rbindlist
-#' @importFrom tibble as_tibble
+#' @importFrom dplyr select nest_join
+#' @importFrom tibble as_tibble new_tibble
 #' @importFrom tidyr unnest
-#' @return kobo_form, the project form
+#' @return tbl_form, the project form
 #'
 #' @export
 kobo_form.kobo_asset <- function(asset) {
+  asset_content <- names(asset$content)
   survey <- rbindlist(asset$content$survey, fill = TRUE)
-  survey <- setNames(unnest(survey, cols = is_list_cols(survey)),
+  survey <- select(.data = survey,
+                   name = "$autoname",
+                   list_name = "select_from_list_name",
+                   type = "type",
+                   label = "label",
+                   contains("appearance"))
+  survey <- setNames(unnest(survey,
+                            cols = is_list_cols(survey),
+                            keep_empty = TRUE),
                      gsub("^\\$", "", names(survey)))
-  choices <- rbindlist(asset$content$choices, fill = TRUE)
-  choices <- setNames(unnest(choices, cols = is_list_cols(choices)),
-                      gsub("^\\$", "", names(choices)))
-  settings <- as_tibble(asset$content$settings,
-                        .name_repair = "universal")
-  structure(list(survey = survey,
-                 choices = choices,
-                 settings = settings,
-                 asset = asset),
-            class = "kobo_form")
+  if ("choices" %in% asset_content) {
+    choices <- rbindlist(asset$content$choices, fill = TRUE)
+    choices <- select(.data = choices,
+                      list_name = "list_name",
+                      value_name = "$autovalue",
+                      value_label = "label")
+    choices <- setNames(unnest(choices,
+                               cols = is_list_cols(choices),
+                               keep_empty = TRUE),
+                        gsub("^\\$", "", names(choices)))
+    form <- nest_join(survey, choices, by = "list_name")
+  } else {
+    form <- survey
+  }
+  form$name <- iconv(tolower(form$name), to = "ASCII//TRANSLIT")
+  form$lang <- rep(unlist(asset$content$translations), length.out = nrow(form))
+  new_tibble(form, class = "tbl_form")
 }
 
+
 #' @noRd
+#' @importFrom tibble tbl_sum
 #' @export
-print.kobo_form <- function(x, ...) {
-  cat("<robotoolbox form> ", x$asset$uid, "\n")
-  cat("   Asset name: ", x$asset$name, "\n", sep = "")
-  cat("   Language(s): ",
-      print_list_res(x$asset$content$translations), "\n", sep = "")
+tbl_sum.tbl_form <- function(x, ...) {
+  list_of_type <- c("decimal", "range", "text", "integer",
+                    "select_one", "select_multiple",
+                    "select_one_from_file",
+                    "select_multiple_from_file",
+                    "rank", "note", "geopoint", "geotrace",
+                    "geoshape", "date", "time", "dateTime",
+                    "image", "audio", "background-audio", "video", "file",
+                    "barcode", "calculate", "acknowledge","hidden", "xml-external")
+  lang <- unique(x$lang)[1]
+  n_q <- nrow(x[x$type %in% list_of_type & x$lang %in% lang, , drop = FALSE])
+  default <- NextMethod()
+  c("A robotoolbox form" = paste(n_q, "questions"), default)
 }

@@ -22,7 +22,9 @@ Imports:
     data.table,
     magrittr,
     tibble,
-    labelled
+    labelled,
+    janitor,
+    fastDummies
 Suggests:
     roxygen2,
     devtools,
@@ -31,4 +33,4 @@ Suggests:
     testthat,
     covr
 VignetteBuilder: knitr
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
