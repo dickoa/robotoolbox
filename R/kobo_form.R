@@ -76,7 +76,7 @@ kobo_form.kobo_asset <- function(asset) {
   } else {
     form <- survey
   }
-  form$name <- iconv(tolower(form$name), to = "ASCII//TRANSLIT")
+  form$name <- iconv(form$name, to = "ASCII//TRANSLIT")
   new_tibble(form, class = "tbl_form")
 }
 

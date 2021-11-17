@@ -13,8 +13,6 @@ format_kobo_submissions <- function(x, group_names = FALSE) {
                 -matches("^_version_$", perl = TRUE, ignore.case = TRUE))
     new_names <- clean_subs_colnames(names(x),
                                      group_names = group_names)
-    ## res <- suppressMessages(type_convert(x,
-    ##                                      col_types = list(.default = col_character())))
     res <- suppressMessages(type_convert(x))
     res <- setNames(res,
                     new_names)
@@ -112,7 +110,7 @@ kobo_submissions.kobo_asset <- function(asset, group_names = FALSE, value_label 
 
   is_repeat <- form$type %in% "begin_repeat"
   if (any(is_repeat)) {
-    cols_to_unnest <- unique(tolower(form$name[is_repeat]))
+    cols_to_unnest <- unique(form$name[is_repeat])
     cols_to_unnest <- intersect(names(subs), cols_to_unnest)
     for (cols in cols_to_unnest)
       subs[[cols]] <- lapply(subs[[cols]], function(df) {
@@ -123,11 +121,10 @@ kobo_submissions.kobo_asset <- function(asset, group_names = FALSE, value_label 
 
   is_multiple_choice <- form$type %in% "select_multiple"
   if (any(is_multiple_choice)) {
-    nm <- form$name[is_multiple_choice]
+    nm <- unique(form$name[is_multiple_choice])
     nm <- intersect(names(subs), nm)
     subs <- dummify_kobo_submissions(subs,
                                      nm)
   }
-
-  clean_names(subs)
+  subs
 }

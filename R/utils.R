@@ -70,7 +70,7 @@ as_log <- function(x) {
 
 #' @noRd
 clean_subs_colnames <- function(x, group_names = FALSE) {
-  nm <- iconv(tolower(x), to = "ASCII//TRANSLIT")
+  nm <- iconv(x, to = "ASCII//TRANSLIT")
   if (isTRUE(group_names)) {
     nm <- gsub("\\/", "\\_", nm)
   } else {
