@@ -9,7 +9,6 @@ Description: Utilities to access data from KoBoToolbox API
 Depends: R (>= 3.5)
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
 URL: https://gitlab.com/dickoa/robotoolbox
 BugReports: https://gitlab.com/dickoa/robotoolbox/issues
 Imports:
@@ -24,7 +23,8 @@ Imports:
     tibble,
     labelled,
     janitor,
-    fastDummies
+    fastDummies,
+    mgsub
 Suggests:
     roxygen2,
     devtools,

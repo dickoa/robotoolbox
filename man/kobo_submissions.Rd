@@ -5,14 +5,16 @@
 \alias{kobo_submissions.kobo_asset}
 \title{Get all submissions from a project}
 \usage{
-kobo_submissions(asset, group_names)
+kobo_submissions(asset, group_names, value_label)
 
-\method{kobo_submissions}{kobo_asset}(asset, group_names = FALSE, ...)
+\method{kobo_submissions}{kobo_asset}(asset, group_names = FALSE, value_label = TRUE, ...)
 }
 \arguments{
 \item{asset}{kobo_asset, the asset}
 
 \item{group_names}{logical, keep the group names as prefix}
+
+\item{value_label}{logical, use label instead of XML values}
 
 \item{...}{extra parameters for the KPI data endpoints e.g limit, start}
 }

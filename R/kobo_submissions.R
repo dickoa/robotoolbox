@@ -2,7 +2,6 @@
 #' @importFrom readr type_convert col_character
 #' @importFrom tibble as_tibble
 #' @importFrom stats setNames
-#' @importFrom janitor clean_names
 #' @importFrom dplyr select
 #' @importFrom tidyselect contains matches
 format_kobo_submissions <- function(x, group_names = FALSE) {
@@ -21,7 +20,7 @@ format_kobo_submissions <- function(x, group_names = FALSE) {
                     new_names)
     res <- suppressMessages(as_tibble(res,
                                       .name_repair = "universal"))
-    x <- clean_names(res)
+    x <- res
   }
   x
 }
@@ -36,7 +35,7 @@ dummify_kobo_submissions <- function(x, cols, split = " ",
 
 #' @export
 #' @rdname kobo_submissions
-kobo_submissions <- function(asset, group_names)
+kobo_submissions <- function(asset, group_names, value_label)
   UseMethod("kobo_submissions")
 
 #' Get all submissions from a project
@@ -46,20 +45,23 @@ kobo_submissions <- function(asset, group_names)
 #' @rdname kobo_submissions
 #'
 #' @importFrom jsonlite fromJSON
-#' @importFrom labelled var_label<-
+#' @importFrom labelled val_labels<-
+#' @importFrom tibble deframe
 #' @importFrom dplyr select
-#' @importFrom tidyselect starts_with any_of all_of last_col
+#' @importFrom mgsub mgsub
 #' @importFrom tidyr unnest
+#' @importFrom janitor clean_names
 #'
 #' @param asset kobo_asset, the asset
 #' @param group_names logical, keep the group names as prefix
+#' @param value_label logical, use label instead of XML values
 #' @param ... extra parameters for the KPI data endpoints e.g limit, start
 #' @return data.frame, all submissions
 #' @export
-kobo_submissions.kobo_asset <- function(asset, group_names = FALSE, ...) {
+kobo_submissions.kobo_asset <- function(asset, group_names = FALSE, value_label = TRUE, ...) {
   path <- paste0("api/v2/assets/", asset$uid, "/data.json")
-  res <- xget(path = path)
-  ##res <- xget(path = path, ...)
+  ## res <- xget(path = path)
+  res <- xget(path = path, ...)
   res <- fromJSON(res,
                   simplifyVector = TRUE)
   subs <- res$results
@@ -67,6 +69,50 @@ kobo_submissions.kobo_asset <- function(asset, group_names = FALSE, ...) {
 
   subs <- format_kobo_submissions(subs,
                                   group_names = group_names)
+
+  ###
+  is_select_o <- grepl("^select_one", form$type)
+  is_select_m <- grepl("^select_multiple", form$type)
+  is_select <- is_select_o | is_select_m
+  is_search <- grepl("^search", form$appearance)
+  lang <- kobo_form_lang(asset)[[1]]
+
+  if (isTRUE(value_label) & any(is_select_o)) {
+    form_o <- form[is_select_o & form$lang %in% lang & !is_search, ]
+    choices_o <- form_o$choices
+    choices_o <- lapply(choices_o, function(ch) {
+      ch <- ch[ch$value_lang == lang, 2:1]
+      ch <- deframe(ch)
+      ch
+    })
+    select_o <- form_o$name
+    names(choices_o) <- select_o
+    select_o <- intersect(names(subs), select_o)
+    for (cols in select_o) {
+      cat(cols, "\n")
+      subs[[cols]] <- as.character(subs[[cols]])
+      val_labels(subs[[cols]]) <- choices_o[[cols]]
+    }
+  }
+
+  if (isTRUE(value_label) & any(is_select_m)) {
+    form_m <- form[is_select_m & form$lang %in% lang & !is_search, ]
+    choices_m <- form_m$choices
+    choices_m <- lapply(choices_m, function(ch) {
+      ch <- ch[ch$value_lang == lang, ]
+      ch
+    })
+    select_m <- form_m$name
+    names(choices_m) <- select_m
+    select_m <- intersect(names(subs), select_m)
+    for (cols in select_m) {
+      cat(cols, "\n")
+      ch <- choices_m[[cols]]
+      subs[[cols]] <- mgsub(as.character(subs[[cols]]),
+                            pattern = ch$value_name,
+                            replacement = ch$value_label)
+    }
+  }
 
   is_repeat <- form$type %in% "begin_repeat"
   if (any(is_repeat)) {
@@ -87,23 +133,5 @@ kobo_submissions.kobo_asset <- function(asset, group_names = FALSE, ...) {
                                      nm)
   }
 
-  ## labels <- kobo_form_to_list(kobo_form(asset), "label")
-  ## labels <- drop_nulls(labels[names(subs)])
-  ## .var_label(subs) <- labels
-  ## qtype <- kobo_form_to_list(kobo_form(asset), "type")
-  ## qtype <- drop_nulls(qtype[names(subs)])
-  ## .var_qtype(subs) <- labels
-  ## subs <- select(subs,
-  ##                -any_of(c("_attachments", "imei",
-  ##                          "formhub_uuid", "meta_instanceid",
-  ##                          "meta_deprecatedid", "subscriberid")))
-  ## subs <- relocate(subs,
-  ##                  any_of(c("start", "end", "today",
-  ##                           "username", "simserial",
-  ##                           "deviceid", "phonenumber", "audit")),
-  ##                  .before = 1L)
-  ## subs <- relocate(subs,
-  ##                  starts_with("\\._"),
-  ##                  .after = last_col())
-  subs
+  clean_names(subs)
 }

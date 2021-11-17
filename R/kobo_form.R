@@ -6,6 +6,13 @@ kobo_form_to_list <- function(x, key) {
            nm)
 }
 
+#' @noRd
+kobo_form_lang <- function(asset) {
+  asset_content_nm <- names(asset$content)
+  if ("translations" %in% asset_content_nm)
+    asset$content$translations
+}
+
 #' @export
 #' @rdname kobo_form
 kobo_form <- function(asset)
@@ -41,12 +48,14 @@ kobo_form.kobo_asset <- function(asset) {
                    type = "type",
                    label = "label",
                    lang = "lang",
-                   contains("appearance"))
+                   contains("appearance"),
+                   contains("calculation"))
   survey <- setNames(unnest(survey,
                             cols = is_list_cols(survey),
                             keep_empty = TRUE),
                      gsub("^\\$", "", names(survey)))
   is.na(survey$lang) <- is.na(survey$label)
+  survey <- drop_na(survey, "name")
   if ("choices" %in% asset_content_nm) {
     choices <- lapply(asset$content$choices, function(l) {
       x <- form_lang(l, lang)
@@ -74,6 +83,7 @@ kobo_form.kobo_asset <- function(asset) {
 
 #' @noRd
 #' @importFrom tibble tbl_sum
+#' @importFrom stats na.omit
 #' @export
 tbl_sum.tbl_form <- function(x, ...) {
   list_of_type <- c("decimal", "range", "text", "integer",
@@ -84,7 +94,8 @@ tbl_sum.tbl_form <- function(x, ...) {
                     "geoshape", "date", "time", "dateTime",
                     "image", "audio", "background-audio", "video", "file",
                     "barcode", "calculate", "acknowledge","hidden", "xml-external")
-  n_q <- nrow(x[x$type %in% list_of_type, , drop = FALSE])
+  lang <- unique(na.omit(x$lang))[1]
+  n_q <- nrow(x[x$type %in% list_of_type & x$lang %in% lang, , drop = FALSE])
   default <- NextMethod()
   c("A robotoolbox form" = paste(n_q, "questions"), default)
 }
