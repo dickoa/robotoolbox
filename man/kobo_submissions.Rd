@@ -19,7 +19,7 @@ kobo_submissions(asset, group_names, value_label)
 \item{...}{extra parameters for the KPI data endpoints e.g limit, start}
 }
 \value{
-data.frame, all submissions
+data.frame, all submissions with `select_one` being labelled columns
 }
 \description{
 Get all submissions from a project

@@ -56,11 +56,10 @@ kobo_submissions <- function(asset, group_names, value_label)
 #' @param group_names logical, keep the group names as prefix
 #' @param value_label logical, use label instead of XML values
 #' @param ... extra parameters for the KPI data endpoints e.g limit, start
-#' @return data.frame, all submissions
+#' @return data.frame, all submissions with `select_one` being labelled columns
 #' @export
 kobo_submissions.kobo_asset <- function(asset, group_names = FALSE, value_label = TRUE, ...) {
   path <- paste0("api/v2/assets/", asset$uid, "/data.json")
-  ## res <- xget(path = path)
   res <- xget(path = path, ...)
   res <- fromJSON(res,
                   simplifyVector = TRUE)
@@ -70,7 +69,6 @@ kobo_submissions.kobo_asset <- function(asset, group_names = FALSE, value_label 
   subs <- format_kobo_submissions(subs,
                                   group_names = group_names)
 
-  ###
   is_select_o <- grepl("^select_one", form$type)
   is_select_m <- grepl("^select_multiple", form$type)
   is_select <- is_select_o | is_select_m
@@ -89,7 +87,6 @@ kobo_submissions.kobo_asset <- function(asset, group_names = FALSE, value_label 
     names(choices_o) <- select_o
     select_o <- intersect(names(subs), select_o)
     for (cols in select_o) {
-      cat(cols, "\n")
       subs[[cols]] <- as.character(subs[[cols]])
       val_labels(subs[[cols]]) <- choices_o[[cols]]
     }
@@ -106,7 +103,6 @@ kobo_submissions.kobo_asset <- function(asset, group_names = FALSE, value_label 
     names(choices_m) <- select_m
     select_m <- intersect(names(subs), select_m)
     for (cols in select_m) {
-      cat(cols, "\n")
       ch <- choices_m[[cols]]
       subs[[cols]] <- mgsub(as.character(subs[[cols]]),
                             pattern = ch$value_name,
