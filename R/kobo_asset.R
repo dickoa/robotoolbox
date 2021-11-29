@@ -1,6 +1,6 @@
-#' Get a specific KoBoToolbox asset from a uid
+#' Get a specific KoBoToolbox Asset from a uid
 #'
-#' Get a specific KoBoToolbox asset from a uid
+#' Get a specific KoBoToolbox Asset from a uid
 #'
 #' @param uid the unique identifier of a specific asset
 #'
@@ -32,13 +32,13 @@ kobo_asset_list <- function() {
               args = list(metadata = "on"))
   res <- fromJSON(res,
                   simplifyVector = FALSE)$results
-  tibble(uid = map_char(res, "uid"),
-         name = map_char(res, "name"),
-         asset_type = map_char(res, "asset_type"),
-         owner_username = map_char(res, "owner__username"),
-         date_created = parse_kobo_date(map_char(res, "date_created")),
-         date_modified = parse_kobo_date(map_char(res, "date_modified")),
-         submissions = map_int(res, "deployment__submission_count"),
+  tibble(uid = map_character(res, "uid"),
+         name = map_character(res, "name"),
+         asset_type = map_character(res, "asset_type"),
+         owner_username = map_character(res, "owner__username"),
+         date_created = parse_kobo_date(map_character(res, "date_created")),
+         date_modified = parse_kobo_date(map_character(res, "date_modified")),
+         submissions = map_integer(res, "deployment__submission_count"),
          asset = lapply(res, structure, class = "kobo_asset"))
 }
 

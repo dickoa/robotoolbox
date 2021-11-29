@@ -8,9 +8,10 @@ kobo_form_to_list <- function(x, key) {
 
 #' @noRd
 kobo_form_lang <- function(asset) {
-  asset_content_nm <- names(asset$content)
-  if ("translations" %in% asset_content_nm)
-    asset$content$translations
+  lng <- asset$content$translations
+  if (sum(lengths(lng)) <= 0)
+    lng <- NA
+  lng
 }
 
 #' @export
@@ -30,6 +31,8 @@ kobo_form <- function(asset)
 #' @importFrom dplyr select nest_join
 #' @importFrom tibble as_tibble new_tibble
 #' @importFrom tidyr unnest drop_na
+#' @importFrom stringi stri_trans_general
+
 #' @return tbl_form, the project form
 #'
 #' @export
@@ -44,7 +47,7 @@ kobo_form.kobo_asset <- function(asset) {
   survey <- rbindlist(survey, fill = TRUE)
   survey <- select(.data = survey,
                    name = "$autoname",
-                   list_name = "select_from_list_name",
+                   list_name = contains("select_from_list_name"),
                    type = "type",
                    label = "label",
                    lang = "lang",
@@ -68,6 +71,8 @@ kobo_form.kobo_asset <- function(asset) {
                       value_label = "label",
                       value_lang = "lang")
     choices <- drop_na(choices, "value_label")
+    choices$value_label <- stri_trans_general(choices$value_label,
+                                              id = "Latin-ASCII")
     choices <- setNames(unnest(choices,
                                cols = is_list_cols(choices),
                                keep_empty = TRUE),
@@ -76,7 +81,7 @@ kobo_form.kobo_asset <- function(asset) {
   } else {
     form <- survey
   }
-  form$name <- iconv(form$name, to = "ASCII//TRANSLIT")
+  form$name <- stri_trans_general(form$name, "Latin-ASCII")
   new_tibble(form, class = "tbl_form")
 }
 

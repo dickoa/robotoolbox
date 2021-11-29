@@ -2,7 +2,7 @@
 % Please edit documentation in R/kobo_asset.R
 \name{kobo_asset}
 \alias{kobo_asset}
-\title{Get a specific KoBoToolbox asset from a uid}
+\title{Get a specific KoBoToolbox Asset from a uid}
 \usage{
 kobo_asset(uid)
 }
@@ -13,5 +13,5 @@ kobo_asset(uid)
 a kobo_asset object
 }
 \description{
-Get a specific KoBoToolbox asset from a uid
+Get a specific KoBoToolbox Asset from a uid
 }

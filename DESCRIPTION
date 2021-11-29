@@ -19,12 +19,12 @@ Imports:
     tidyr,
     tidyselect,
     data.table,
-    magrittr,
     tibble,
     labelled,
     janitor,
     fastDummies,
-    mgsub
+    stringr,
+    stringi
 Suggests:
     roxygen2,
     devtools,
