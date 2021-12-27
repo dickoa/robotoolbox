@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# robotoolbox <img src="https://gitlab.com/dickoa/robotoolbox/-/raw/master/inst/img/hex_robotoolbox.png" align="right" height="139" />
+# robotoolbox <img src="man/figures/hex_robotoolbox.png" align="right" width="140" />
 
 [![Project Status: Active - Initial development is in progress, but
 there has not yet been a stable, usable release suitable for the
@@ -82,7 +82,7 @@ project, etc).
 library("dplyr")
 l <- kobo_asset_list()
 l
-# A tibble: 24 x 8
+# A tibble: 24 x 7
    uid     name     asset_type owner_username date_created
    <chr>   <chr>    <chr>      <chr>          <dttm>
  1 b9kgvd… Proj_A1… survey     xxxxxxxxxxxxx… 2020-04-27 20:34:23
@@ -96,7 +96,7 @@ l
  9 aCVr2Q… Proj_A9… survey     xxxxxxxxxxxxx… 2021-05-25 13:30:24
 10 aPxNao… Proj_A10… survey    xxxxxxxxxxxxx… 2020-04-27 11:37:34
 # … with 14 more rows, and 3 more variables:
-#   date_modified <dttm>, submissions <int>, asset <list>
+#   date_modified <dttm>, submissions <int>
 glimpse(l)
 $ uid            <chr> "b9kgvd7AXQCmo5qyUOBEl", "aRfJMpTSGRLzZ…"
 $ name           <chr> "Proj_A1", "Proj_A2", "Proj_A3", "Proj_A…"
@@ -105,10 +105,9 @@ $ owner_username <chr> "xxxxxxxxxxxxxx", "xxxxxxxxxxxxxxx", "xx…"
 $ date_created   <dttm> 2020-04-27 20:34:23, 2020-04-27 21:21:1…
 $ date_modified  <dttm> 2021-06-17 01:52:57, 2021-06-17 01:52:5…
 $ submissions    <int> 2951, 2679, 2, 1, 0, 0, 287, 73, 0, 274,…
-$ asset          <list> [https://kobo.unhcr.org/api/v2/assets/a…
 ```
 
-We can select one `asset` to read its submissions it contains
+We can select one `asset uid` to read its submissions it contains
 
 ``` r
 uid <- l |>
@@ -128,10 +127,10 @@ asset
 ##   Submissions: 941
 ```
 
-Now with the `asset`, we can extract `submissions`
+Now with the `asset`, we can extract the `submissions`
 
 ``` r
-df <- kobo_submissions(asset, value_label = TRUE)
+df <- kobo_submissions(asset)
 glimpse(df)
 ## Rows: 941
 ## Columns: 1,549
@@ -1692,5 +1691,5 @@ glimpse(df)
     bugs](https://gitlab.com/dickoa/robotoolbox/issues).
 -   License: MIT
 -   Please note that this project is released with a [Contributor Code
-    of Conduct](CONDUCT.md). By participating in this project you agree
-    to abide by its terms.
+    of Conduct](CODE_OF_CONDUCT.md). By participating in this project
+    you agree to abide by its terms.
