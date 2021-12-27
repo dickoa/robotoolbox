@@ -1,10 +1,13 @@
 Package: robotoolbox
 Title: An R Client for the KoBoToolbox API
 Version: 0.0.1.9000
-Authors@R: person("Ahmadou", "Dicko",
-	   email = "mail@ahmadoudicko.com",
-	   role = c("aut", "cre"))
-Description: Utilities to access data from KoBoToolbox API
+Authors@R: c(person(given = "Ahmadou",
+                    family = "Dicko",
+		    email = "mail@ahmadoudicko.com",
+		    role = c("aut", "cre")),
+	     person("UNHCR",
+		    role = "cph"))
+Description: Utilities to access data from the KoBoToolbox API v2.
     <https://support.kobotoolbox.org/api.html>.
 Depends: R (>= 3.5)
 License: MIT + file LICENSE
@@ -13,18 +16,15 @@ URL: https://gitlab.com/dickoa/robotoolbox
 BugReports: https://gitlab.com/dickoa/robotoolbox/issues
 Imports:
     crul,
-    jsonlite,
+    RcppSimdJson,
     readr,
     dplyr,
     tidyr,
     tidyselect,
     data.table,
     tibble,
-    labelled,
-    janitor,
-    fastDummies,
-    stringr,
-    stringi
+    stringi,
+    glue
 Suggests:
     roxygen2,
     devtools,

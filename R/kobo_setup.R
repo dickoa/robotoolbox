@@ -10,10 +10,11 @@ kobo_settings <- function() {
 #' @param url the base url of the KoboToolbox server
 #' @param token the API token
 #' @export
-kobo_setup <- function(url = NULL, token = NULL) {
-  if (!is.null(token))
+kobo_setup <- function(url = Sys.getenv("KOBOTOOLBOX_URL", ""),
+                       token = Sys.getenv("KOBOTOOLBOX_TOKEN", "")) {
+  if (token != "")
     Sys.setenv("KOBOTOOLBOX_TOKEN" = token)
-  if (!is.null(url))
+  if (url != "")
     Sys.setenv("KOBOTOOLBOX_URL" = url)
   invisible(kobo_settings())
 }

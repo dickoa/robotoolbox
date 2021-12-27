@@ -1,6 +1,5 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^CONDUCT\.md$
 ^NEWS\.md$
 ^cran-comments\.md$
 ^README\.Rmd$
@@ -12,3 +11,5 @@
 ^docs$
 ^public$
 ^README\.html$
+^CODE\_OF\_CONDUCT\.md$
+^\_pkgdown\.yml$

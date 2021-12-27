@@ -4,7 +4,7 @@
 #'
 #'
 #' @importFrom crul auth HttpClient
-#' @importFrom jsonlite fromJSON
+#' @importFrom RcppSimdJson fparse
 #' @param username character, KoBoToolbox username
 #' @param password character, KoBoToolbox password
 #' @param url character, KoBoToolbox server url
@@ -24,7 +24,9 @@ kobo_token <- function(username = NULL, password = NULL, url = NULL, overwrite =
                                             pwd = password))
     res <- cli$get("/token", list(format = "json"))
     res$raise_for_status()
-    token <- fromJSON(res$parse("UTF-8"))$token
+    res$raise_for_ct_json()
+    res <- fparse(res$parse("UTF-8"))
+    token <- res$token
     Sys.setenv("KOBOTOOLBOX_TOKEN" = token)
   }
   token
