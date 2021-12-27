@@ -4,7 +4,10 @@
 \alias{kobo_setup}
 \title{Set \code{robotoolbox} settings}
 \usage{
-kobo_setup(url = NULL, token = NULL)
+kobo_setup(
+  url = Sys.getenv("KOBOTOOLBOX_URL", ""),
+  token = Sys.getenv("KOBOTOOLBOX_TOKEN", "")
+)
 }
 \arguments{
 \item{url}{the base url of the KoboToolbox server}

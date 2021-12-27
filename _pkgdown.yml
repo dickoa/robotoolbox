@@ -1,0 +1,5 @@
+url: https://dickoa.gitlab.io/robotoolbox/
+
+template:
+  package: unhcrtemplate
+  bootstrap: 5

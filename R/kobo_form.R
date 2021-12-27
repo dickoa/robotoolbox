@@ -1,16 +1,8 @@
 #' @noRd
-kobo_form_to_list <- function(x, key) {
-  x <- x$survey[!x$survey$type %in% c("begin_group", "end_group", "note"), ]
-  nm <- x$name
-  setNames(as.list(x[[key]]),
-           nm)
-}
-
-#' @noRd
 kobo_form_lang <- function(asset) {
   lng <- asset$content$translations
   if (sum(lengths(lng)) <= 0)
-    lng <- NA
+    lng <- NA_character_
   lng
 }
 
@@ -32,11 +24,20 @@ kobo_form <- function(asset)
 #' @importFrom tibble as_tibble new_tibble
 #' @importFrom tidyr unnest drop_na
 #' @importFrom stringi stri_trans_general
-
+#' @importFrom stats setNames
+#' @importFrom tidyselect contains
+#'
 #' @return tbl_form, the project form
 #'
 #' @export
 kobo_form.kobo_asset <- function(asset) {
+
+  form_lang <- function(x, lang) {
+    ss <- sum(lengths(x$label))
+    x$lang <- lang[seq.int(ss)]
+    x
+  }
+
   asset_content_nm <- names(asset$content)
   if ("translations" %in% asset_content_nm)
     lang <- asset$content$translations
@@ -82,25 +83,5 @@ kobo_form.kobo_asset <- function(asset) {
     form <- survey
   }
   form$name <- stri_trans_general(form$name, "Latin-ASCII")
-  new_tibble(form, class = "tbl_form")
-}
-
-
-#' @noRd
-#' @importFrom tibble tbl_sum
-#' @importFrom stats na.omit
-#' @export
-tbl_sum.tbl_form <- function(x, ...) {
-  list_of_type <- c("decimal", "range", "text", "integer",
-                    "select_one", "select_multiple",
-                    "select_one_from_file",
-                    "select_multiple_from_file",
-                    "rank", "note", "geopoint", "geotrace",
-                    "geoshape", "date", "time", "dateTime",
-                    "image", "audio", "background-audio", "video", "file",
-                    "barcode", "calculate", "acknowledge","hidden", "xml-external")
-  lang <- unique(na.omit(x$lang))[1]
-  n_q <- nrow(x[x$type %in% list_of_type & x$lang %in% lang, , drop = FALSE])
-  default <- NextMethod()
-  c("A robotoolbox form" = paste(n_q, "questions"), default)
+  form
 }

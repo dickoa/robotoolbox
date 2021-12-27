@@ -4,7 +4,7 @@
 #'
 #' @param uid the unique identifier of a specific asset
 #'
-#' @importFrom jsonlite fromJSON
+#' @importFrom RcppSimdJson fparse
 #'
 #' @return a kobo_asset object
 #'
@@ -12,8 +12,8 @@
 kobo_asset <- function(uid) {
   path <- paste0("api/v2/assets/", uid)
   res <- xget(path = path)
-  structure(fromJSON(res,
-                     simplifyVector = FALSE),
+  structure(fparse(res,
+                   max_simplify_lvl = "list"),
             class = "kobo_asset")
 }
 
@@ -21,7 +21,7 @@ kobo_asset <- function(uid) {
 #'
 #' List all available KoBoToolbox API assets
 #'
-#' @importFrom jsonlite fromJSON
+#' @importFrom RcppSimdJson fparse
 #' @importFrom tibble tibble
 #'
 #' @return a list of kobo_asset
@@ -30,16 +30,15 @@ kobo_asset <- function(uid) {
 kobo_asset_list <- function() {
   res <- xget(path = "/api/v2/assets",
               args = list(metadata = "on"))
-  res <- fromJSON(res,
-                  simplifyVector = FALSE)$results
+  res <- fparse(res, max_simplify_lvl = "list")
+  res <- res$results
   tibble(uid = map_character(res, "uid"),
          name = map_character(res, "name"),
          asset_type = map_character(res, "asset_type"),
          owner_username = map_character(res, "owner__username"),
          date_created = parse_kobo_date(map_character(res, "date_created")),
          date_modified = parse_kobo_date(map_character(res, "date_modified")),
-         submissions = map_integer(res, "deployment__submission_count"),
-         asset = lapply(res, structure, class = "kobo_asset"))
+         submissions = map_integer(res, "deployment__submission_count"))
 }
 
 #' @noRd

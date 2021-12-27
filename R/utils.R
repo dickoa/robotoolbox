@@ -23,7 +23,61 @@ xget <- function(path, args = list(), ...) {
                               headers = headers, opts = list(...))
   res <- cli$get(path = path, query = args)
   res$raise_for_status()
+  res$raise_for_ct_json()
   res$parse("UTF-8")
+}
+
+#' @importFrom RcppSimdJson fparse
+#' @importFrom readr type_convert
+#' @noRd
+get_subs <- function(uid, args = list(), ...) {
+  path <- paste0("api/v2/assets/", uid, "/data.json")
+  res <- xget(path = path, args = args, ...)
+  res <- fparse(res, max_simplify_lvl = "data_frame")
+  suppressMessages(type_convert(res$results))
+}
+
+#' @importFrom glue glue glue_data
+#' @importFrom tibble tibble
+#' @noRd
+build_urls <- function(uid, size, chunk_size = NULL) {
+  if (chunk_size >= size || is.null(chunk_size)) {
+    urls <- glue("api/v2/assets/{uid}/data.json", uid = uid)
+  } else {
+    start <- seq(0, size, by = chunk_size)
+    limit <- rep(chunk_size, length(start) - 1)
+    last_limit <- size %% chunk_size
+    last_limit <- ifelse(last_limit, last_limit, chunk_size)
+    limit <- c(limit, last_limit)
+    df <- tibble(start = start, limit = limit, uid = uid)
+    template <-  "api/v2/assets/{uid}/data.json?start={start}&limit={limit}"
+    urls <- glue_data(df,
+                      template)
+  }
+  file.path(Sys.getenv("KOBOTOOLBOX_URL"), urls)
+}
+
+#' @importFrom crul Async
+#' @importFrom RcppSimdJson fparse
+#' @importFrom data.table rbindlist
+#' @importFrom readr type_convert
+#' @noRd
+get_subs_async <- function(uid, size, chunk_size = NULL, ...) {
+  headers <- list(Authorization = paste("Token",
+                                        Sys.getenv("KOBOTOOLBOX_TOKEN")))
+  urls <- build_urls(uid, size, chunk_size)
+  cli <- Async$new(urls,
+                   headers = headers, opts = list(...))
+  res <- cli$get()
+  res <- vapply(res, function(r) {
+    r$raise_for_status()
+    r$raise_for_ct_json()
+    r$parse(encoding = "UTF-8")
+  }, FUN.VALUE = character(1))
+  res <- fparse(res, max_simplify_lvl = "data_frame")
+  res <- rbindlist(lapply(res, function(r) r$results),
+                   fill = TRUE)
+  suppressMessages(type_convert(res))
 }
 
 #' @noRd
@@ -63,115 +117,3 @@ as_log <- function(x) {
   stopifnot(is.logical(x))
   tolower(x)
 }
-
-#' @importFrom stringi stri_trans_general
-#' @noRd
-clean_subs_colnames <- function(x, group_names = FALSE) {
-  nm <- stri_trans_general(x, id = "Latin-ASCII")
-  if (isTRUE(group_names)) {
-    nm <- gsub("\\/", "\\_", nm)
-  } else {
-    nm <- basename(nm)
-  }
-  nm
-}
-
-#' @noRd
-form_lang <- function(x, lang) {
-  ss <- sum(lengths(x$label))
-  x$lang <- lang[seq.int(ss)]
-  x
-}
-
-#' @noRd
-#' @importFrom readr type_convert col_character
-#' @importFrom tibble as_tibble
-#' @importFrom stats setNames
-#' @importFrom dplyr select
-#' @importFrom tidyselect contains matches
-format_kobo_submissions <- function(x, group_names = FALSE) {
-  if (!is.null(x)) {
-    x <- select(x, -contains(c("instanceid", "xform", "formhub",
-                               "deprecatedid", "subscriberid",
-                               "imei", "_attachments"),
-                             ignore.case = TRUE),
-                -matches("^_version_$", perl = TRUE, ignore.case = TRUE))
-    new_names <- clean_subs_colnames(names(x),
-                                     group_names = group_names)
-    res <- suppressMessages(type_convert(x))
-    res <- setNames(res,
-                    new_names)
-    res <- suppressMessages(as_tibble(res,
-                                      .name_repair = "universal"))
-    x <- res
-  }
-  x
-}
-
-#' @importFrom fastDummies dummy_cols
-#' @noRd
-dummify_kobo_submissions <- function(x, cols, split = " ", ...) {
-  dummy_cols(x,
-             select_columns = cols,
-             split = split,
-             remove_selected_columns = TRUE,
-             ...)
-}
-
-
-#' @importFrom tidyr separate
-#' @noRd
-geopoint_kobo_submissions <- function(x, cols) {
-  separate(x, cols,
-           into = c("lat_gps", "lon_gps", "alt_gps", "accuracy_gps"),
-           sep = "\\s+",
-           remove = TRUE,
-           convert = TRUE)
-}
-
-## mtabulate <- function(vects) {
-##     lev <- sort(unique(unlist(vects)))
-##     dat <- do.call(rbind, lapply(vects, function(x, lev){
-##         tabulate(factor(x, levels = lev, ordered = TRUE),
-##         nbins = length(lev))}, lev = lev))
-##     colnames(dat) <- sort(lev)
-##     data.frame(dat, check.names = FALSE)
-## }
-
-## #' @importFrom data.table as.data.table alloc.col set
-## #' @importFrom stringr str_sort
-## #' @importFrom tibble as_tibble
-## #' @noRd
-## dummify_kobo_submissions <- function(x, cols) {
-##   .data <- as.data.table(x)
-##   for (col_name in cols) {
-##     unique_vals <- unique(.data[[col_name]])
-##     unique_vals <- stringr::str_sort(unique_vals,
-##                                      na_last = TRUE,
-##                                      locale = "en_US", numeric = TRUE)
-##     unique_vals <- unique(trimws(unlist(strsplit(unique_vals,
-##                                                  split = "\\s+"))))
-##     unique_vals <- unique_vals[!is.na(unique_vals)]
-##     data.table::alloc.col(.data, ncol(.data) + length(unique_vals))
-##     .data[, paste0(col_name, "_", unique_vals)] <- 0L
-##     for (unique_value in unique_vals) {
-##       data.table::set(.data,
-##                       i = which(data.table::chmatch(as.character(.data[[col_name]]),
-##                                                     unique_value, nomatch = 0) == 1L),
-##                       j = paste0(col_name, "_", unique_value), value = 1L)
-##       data.table::set(.data, i = which(is.na(.data[[col_name]])),
-##                       j = paste0(col_name, "_", unique_value),
-##                       value = NA)
-##       max_split_length <- max(sapply(strsplit(as.character(.data[[col_name]]),
-##                                               split = "\\s+"), length))
-##       for (split_length in 1:max_split_length) {
-##         data.table::set(.data,
-##                         i = which(data.table::chmatch(as.character(trimws(sapply(strsplit(as.character(.data[[col_name]]),
-##                                                                                           split = "\\s+"),
-##                                                                                  `[`, split_length))), unique_value, nomatch = 0) == 1L),
-##                         j = paste0(col_name, "_", unique_value), value = 1L)
-##       }
-##     }
-##   }
-##   as_tibble(.data[-which(names(.data) %in% cols)])
-## }

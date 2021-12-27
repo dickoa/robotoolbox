@@ -5,22 +5,21 @@
 \alias{kobo_submissions.kobo_asset}
 \title{Get all submissions from a project}
 \usage{
-kobo_submissions(asset, group_names, value_label)
+kobo_submissions(asset, paginate, page_size)
 
-\method{kobo_submissions}{kobo_asset}(asset, group_names = FALSE, value_label = TRUE, ...)
+\method{kobo_submissions}{kobo_asset}(asset, paginate = FALSE, page_size = NULL)
 }
 \arguments{
 \item{asset}{kobo_asset, the asset}
 
-\item{group_names}{logical, keep the group names as prefix}
+\item{paginate}{logical, split submissions by page. Default to FALSE}
 
-\item{value_label}{logical, use label instead of XML values}
-
-\item{...}{extra parameters for the KPI data endpoints e.g limit, start}
+\item{page_size}{integer, number of submissions per page. if missing, default to
+number of submissions divided by 5}
 }
 \value{
-data.frame, all submissions with `select_one` being labelled columns
+data.frame
 }
 \description{
-Get all submissions from a project
+Get all submissions from a project (KoBoToolbox asset)
 }
