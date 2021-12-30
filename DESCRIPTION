@@ -5,6 +5,10 @@ Authors@R: c(person(given = "Ahmadou",
                     family = "Dicko",
 		    email = "mail@ahmadoudicko.com",
 		    role = c("aut", "cre")),
+	     person(given = "Hisham",
+                    family = "Galal",
+	   	    email = "galal@unhcr.org",
+		    role = "ctb"),
 	     person("UNHCR",
 		    role = "cph"))
 Description: Utilities to access data from the KoBoToolbox API v2.
