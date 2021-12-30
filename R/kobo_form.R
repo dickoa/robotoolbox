@@ -2,7 +2,7 @@
 kobo_form_lang <- function(asset) {
   lng <- asset$content$translations
   if (sum(lengths(lng)) <= 0)
-    lng <- NA_character_
+    lng <- "Labels"
   lng
 }
 
@@ -25,7 +25,8 @@ kobo_form <- function(asset)
 #' @importFrom tidyr unnest drop_na
 #' @importFrom stringi stri_trans_general
 #' @importFrom stats setNames
-#' @importFrom tidyselect contains
+#' @importFrom tidyselect contains everything
+#' @importFrom rlang .data
 #'
 #' @return tbl_form, the project form
 #'
@@ -52,12 +53,13 @@ kobo_form.kobo_asset <- function(asset) {
                    type = "type",
                    label = "label",
                    lang = "lang",
-                   contains("appearance"),
-                   contains("calculation"))
+                   everything(),
+                   -.data$name)
   survey <- setNames(unnest(survey,
                             cols = is_list_cols(survey),
                             keep_empty = TRUE),
                      gsub("^\\$", "", names(survey)))
+  survey$lang[is.na(survey$lang)] <- "Labels"
   is.na(survey$lang) <- is.na(survey$label)
   survey <- drop_na(survey, "name")
   if ("choices" %in% asset_content_nm) {
@@ -78,7 +80,9 @@ kobo_form.kobo_asset <- function(asset) {
                                cols = is_list_cols(choices),
                                keep_empty = TRUE),
                         gsub("^\\$", "", names(choices)))
-    form <- nest_join(survey, choices, by = "list_name")
+    choices$value_lang[is.na(choices$value_lang)] <- "Labels"
+    form <- nest_join(survey, choices,
+                      by = "list_name")
   } else {
     form <- survey
   }

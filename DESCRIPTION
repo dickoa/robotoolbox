@@ -20,11 +20,14 @@ Imports:
     readr,
     dplyr,
     tidyr,
+    purrr,
+    rlang,
     tidyselect,
     data.table,
     tibble,
     stringi,
-    glue
+    glue,
+    fastDummies
 Suggests:
     roxygen2,
     devtools,

@@ -117,3 +117,40 @@ as_log <- function(x) {
   stopifnot(is.logical(x))
   tolower(x)
 }
+
+#' @importFrom fastDummies dummy_cols
+#' @noRd
+dummy_from_form_ <- function(x, form) {
+  nm <- unique(form$name[form$type %in% "select_multiple"])
+  nm <- intersect(names(x), nm)
+  if (length(nm) > 0) {
+    x <- dummy_cols(x,
+                    nm,
+                    split = "\\s+",
+                    ignore_na = TRUE)
+  } else {
+    x
+  }
+  x
+}
+
+#' @importFrom rlang set_names
+#' @noRd
+postprocess_submissions_ <- function(x, form) {
+  if (is.data.frame(x)) {
+    x <- set_names(x, basename)
+    x <- dummy_from_form_(x, form)
+  }
+  x
+}
+
+#' @importFrom purrr some map modify_if
+#' @noRd
+kobo_postprocess <- function(x, form) {
+  if (is.null(x))
+    return(NULL)
+  modify_if(postprocess_submissions_(x,
+                                     form),
+            ~ some(., is.data.frame),
+            ~ map(., kobo_postprocess, form = form))
+}

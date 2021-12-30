@@ -26,5 +26,6 @@ kobo_submissions.kobo_asset <- function(asset, paginate = FALSE, page_size = NUL
   } else {
     subs <- get_subs(asset$uid)
   }
-  subs
+  form <- kobo_form(asset)
+  kobo_postprocess(subs, form)
 }
