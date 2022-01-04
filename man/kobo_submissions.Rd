@@ -3,14 +3,20 @@
 \name{kobo_submissions}
 \alias{kobo_submissions}
 \alias{kobo_submissions.kobo_asset}
+\alias{kobo_submissions.character}
+\alias{kobo_submissions.default}
 \title{Get all submissions from a project}
 \usage{
-kobo_submissions(asset, paginate, page_size)
+kobo_submissions(x, paginate, page_size)
 
-\method{kobo_submissions}{kobo_asset}(asset, paginate = FALSE, page_size = NULL)
+\method{kobo_submissions}{kobo_asset}(x, paginate = FALSE, page_size = NULL)
+
+\method{kobo_submissions}{character}(x, paginate = FALSE, page_size = NULL)
+
+\method{kobo_submissions}{default}(x, paginate = FALSE, page_size = NULL)
 }
 \arguments{
-\item{asset}{kobo_asset, the asset}
+\item{x}{a kobo_asset or  asset uid, the asset}
 
 \item{paginate}{logical, split submissions by page. Default to FALSE}
 

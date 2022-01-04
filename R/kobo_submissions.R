@@ -1,6 +1,6 @@
 #' @rdname kobo_submissions
 #' @export
-kobo_submissions <- function(asset, paginate, page_size)
+kobo_submissions <- function(x, paginate, page_size)
   UseMethod("kobo_submissions")
 
 
@@ -10,22 +10,43 @@ kobo_submissions <- function(asset, paginate, page_size)
 #'
 #' @rdname kobo_submissions
 #'
-#' @param asset kobo_asset, the asset
+#'
+#' @importFrom tibble rowid_to_column
+#'
+#' @param x a kobo_asset or  asset uid, the asset
 #' @param paginate logical, split submissions by page. Default to FALSE
 #' @param page_size integer, number of submissions per page. if missing, default to
 #' number of submissions divided by 5
 #'
 #' @return data.frame
 #' @export
-kobo_submissions.kobo_asset <- function(asset, paginate = FALSE, page_size = NULL) {
+kobo_submissions.kobo_asset <- function(x, paginate = FALSE, page_size = NULL) {
   if (isTRUE(paginate)) {
-    size <- asset$deployment__submission_count
+    size <- x$deployment__submission_count
     if (is.null(page_size))
       page_size <- size %/% 5
-    subs <- get_subs_async(asset$uid, size, page_size)
+    subs <- get_subs_async(x$uid, size, page_size)
   } else {
-    subs <- get_subs(asset$uid)
+    subs <- get_subs(x$uid)
   }
-  form <- kobo_form(asset)
-  kobo_postprocess(subs, form)
+  form <- kobo_form(x)
+  subs <- kobo_postprocess(subs, form)
+  subs <- rowid_to_column(subs, "index")
+  subs <- select(subs, -contains("_attachments"))
+  if ("begin_repeat" %in% form$type)
+    subs <- rowid_to_column(subs, "_index")
+  subs
+}
+
+#' @rdname kobo_submissions
+#' @export
+kobo_submissions.character <- function(x, paginate = FALSE, page_size = NULL) {
+  kobo_submissions(kobo_asset(x))
+}
+
+#' @rdname kobo_submissions
+#' @export
+kobo_submissions.default <- function(x, paginate = FALSE, page_size = NULL) {
+  stop("You need to use a 'kobo_asset' or an asset uid 'kobo_submissions'",
+       call. = FALSE)
 }

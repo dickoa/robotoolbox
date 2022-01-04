@@ -2,12 +2,21 @@
 % Please edit documentation in R/kobo_asset.R
 \name{kobo_asset}
 \alias{kobo_asset}
+\alias{kobo_asset.character}
+\alias{kobo_asset.kobo_asset}
+\alias{kobo_asset.default}
 \title{Get a specific KoBoToolbox Asset from a uid}
 \usage{
-kobo_asset(uid)
+kobo_asset(x)
+
+\method{kobo_asset}{character}(x)
+
+\method{kobo_asset}{kobo_asset}(x)
+
+\method{kobo_asset}{default}(x)
 }
 \arguments{
-\item{uid}{the unique identifier of a specific asset}
+\item{x}{the unique identifier of a specific asset or an asset object}
 }
 \value{
 a kobo_asset object

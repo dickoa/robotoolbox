@@ -3,14 +3,22 @@
 \name{kobo_form}
 \alias{kobo_form}
 \alias{kobo_form.kobo_asset}
+\alias{kobo_form.character}
+\alias{kobo_form.default}
 \title{Get the form used for this asset}
 \usage{
-kobo_form(asset)
+kobo_form(x, version)
 
-\method{kobo_form}{kobo_asset}(asset)
+\method{kobo_form}{kobo_asset}(x, version = NULL)
+
+\method{kobo_form}{character}(x, version = NULL)
+
+\method{kobo_form}{default}(x, version)
 }
 \arguments{
-\item{asset}{kobo_asset, the asset}
+\item{x}{the asset uid or the kobo_asset object}
+
+\item{version}{character, uid of the version of the asset}
 }
 \value{
 tbl_form, the project form

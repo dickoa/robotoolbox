@@ -31,7 +31,8 @@ Imports:
     tibble,
     stringi,
     glue,
-    fastDummies
+    fastDummies,
+    dm
 Suggests:
     roxygen2,
     devtools,

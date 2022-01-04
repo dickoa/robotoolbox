@@ -8,14 +8,15 @@ kobo_form_lang <- function(asset) {
 
 #' @export
 #' @rdname kobo_form
-kobo_form <- function(asset)
+kobo_form <- function(x, version)
   UseMethod("kobo_form")
 
 #' Get the form used for this asset
 #'
 #' Get the form used for this asset
 #'
-#' @param asset kobo_asset, the asset
+#' @param x the asset uid or the kobo_asset object
+#' @param version character, uid of the version of the asset
 #'
 #' @rdname kobo_form
 #'
@@ -31,7 +32,7 @@ kobo_form <- function(asset)
 #' @return tbl_form, the project form
 #'
 #' @export
-kobo_form.kobo_asset <- function(asset) {
+kobo_form.kobo_asset <- function(x, version = NULL) {
 
   form_lang <- function(x, lang) {
     ss <- sum(lengths(x$label))
@@ -39,9 +40,17 @@ kobo_form.kobo_asset <- function(asset) {
     x
   }
 
+  asset <- x
+  if (!is.null(version))
+    asset <- kobo_asset_version(x, version)
   asset_content_nm <- names(asset$content)
-  if ("translations" %in% asset_content_nm)
+  cond <- "translations" %in% asset_content_nm &
+    !is.null(unlist(asset$content$translations))
+  if (cond) {
     lang <- asset$content$translations
+  } else {
+    lang <- "Labels"
+  }
   survey <- lapply(asset$content$survey, function(l) {
     x <- form_lang(l, lang)
     x
@@ -59,14 +68,15 @@ kobo_form.kobo_asset <- function(asset) {
                             cols = is_list_cols(survey),
                             keep_empty = TRUE),
                      gsub("^\\$", "", names(survey)))
-  survey$lang[is.na(survey$lang)] <- "Labels"
   is.na(survey$lang) <- is.na(survey$label)
   survey <- drop_na(survey, "name")
+  survey$version <- version
   if ("choices" %in% asset_content_nm) {
     choices <- lapply(asset$content$choices, function(l) {
       x <- form_lang(l, lang)
       x
     })
+    choices <- drop_nulls(choices)
     choices <- rbindlist(choices, fill = TRUE)
     choices <- select(.data = choices,
                       list_name = "list_name",
@@ -80,7 +90,6 @@ kobo_form.kobo_asset <- function(asset) {
                                cols = is_list_cols(choices),
                                keep_empty = TRUE),
                         gsub("^\\$", "", names(choices)))
-    choices$value_lang[is.na(choices$value_lang)] <- "Labels"
     form <- nest_join(survey, choices,
                       by = "list_name")
   } else {
@@ -88,4 +97,17 @@ kobo_form.kobo_asset <- function(asset) {
   }
   form$name <- stri_trans_general(form$name, "Latin-ASCII")
   form
+}
+
+#' @rdname kobo_form
+#' @export
+kobo_form.character <- function(x, version = NULL) {
+  kobo_form(kobo_asset(x), version)
+}
+
+#' @rdname kobo_form
+#' @export
+kobo_form.default <- function(x, version) {
+  stop("You need to use a 'kobo_asset' or an asset uid",
+       call. = FALSE)
 }

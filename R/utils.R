@@ -82,7 +82,7 @@ get_subs_async <- function(uid, size, chunk_size = NULL, ...) {
 
 #' @noRd
 map_character <- function(x, key)
-  vapply(x, function(l) l[[key]], character(1))
+  vapply(x, function(l) as.character(l[[key]]), character(1))
 
 #' @noRd
 map_integer <- function(x, key)
@@ -134,6 +134,7 @@ dummy_from_form_ <- function(x, form) {
   x
 }
 
+
 #' @importFrom rlang set_names
 #' @noRd
 postprocess_submissions_ <- function(x, form) {
@@ -153,4 +154,45 @@ kobo_postprocess <- function(x, form) {
                                      form),
             ~ some(., is.data.frame),
             ~ map(., kobo_postprocess, form = form))
+}
+
+
+#' @importFrom purrr modify_if
+#' @importFrom tibble tibble rowid_to_column
+#' @importFrom data.table rbindlist
+#' @noRd
+repeat_to_df <- function(x, form) {
+  res <- list()
+  nm <- unique(form$name[form$type %in% "begin_repeat"])
+  nm <- intersect(names(x), nm)
+  if (length(nm) > 0) {
+    res <- setNames(lapply(nm, function(n) {
+      res <- x[[n]]
+      res <- modify_if(res, ~ !is.data.frame(.), ~ tibble())
+      res <- rbindlist(res,
+                       idcol = "_parent_index",
+                       fill = TRUE)
+      res <- tibble(res)
+      rowid_to_column(res, "_index")
+    }), nm)
+  }
+  res
+}
+
+#' @importFrom rlang squash
+#' @noRd
+kobo_repeat_df <- function(x, form) {
+  if (is.null(x))
+    return(NULL)
+  x <- repeat_to_df(x, form)
+  x <- lapply(x, function(df) {
+    df$`_parent_table_name` <- "main"
+    df
+  })
+  res <- lapply(x, function(x)
+    if (is.data.frame(x))
+      c(list(x),
+        repeat_to_df(x, form))
+    else list())
+  suppressWarnings(squash(res))
 }
