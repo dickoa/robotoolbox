@@ -161,7 +161,7 @@ kobo_postprocess <- function(x, form) {
 #' @importFrom tibble tibble rowid_to_column
 #' @importFrom data.table rbindlist
 #' @noRd
-repeat_to_df <- function(x, form) {
+extract_repeat_tbl <- function(x, form) {
   res <- list()
   nm <- unique(form$name[form$type %in% "begin_repeat"])
   nm <- intersect(names(x), nm)
@@ -181,18 +181,22 @@ repeat_to_df <- function(x, form) {
 
 #' @importFrom rlang squash
 #' @noRd
-kobo_repeat_df <- function(x, form) {
+kobo_extract_repeat_tbl <- function(x, form) {
   if (is.null(x))
     return(NULL)
-  x <- repeat_to_df(x, form)
+  x <- extract_repeat_tbl(x, form)
   x <- lapply(x, function(df) {
     df$`_parent_table_name` <- "main"
     df
   })
-  res <- lapply(x, function(x)
-    if (is.data.frame(x))
-      c(list(x),
-        repeat_to_df(x, form))
-    else list())
+  res <- lapply(x, function(y)
+    if (is.data.frame(y)) {
+      c(setNames(list(y), names(x)),
+        lapply(extract_repeat_tbl(y, form), function(df) {
+               df$`_parent_table_name` <- names(x)
+               df}))
+      } else {
+        list()
+      })
   suppressWarnings(squash(res))
 }
