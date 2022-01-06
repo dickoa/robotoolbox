@@ -1,0 +1,126 @@
+---
+title: "Dealing with repeating groups"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Dealing with repeating groups}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  echo = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(robotoolbox)
+library(dplyr)
+library(dm)
+```
+
+## Loading data
+
+```{r asset_list_fake, eval = FALSE}
+l <- kobo_asset_list()
+l
+## # A tibble: 19 × 7
+##    uid     name     asset_type owner_username date_created
+##    <chr>   <chr>    <chr>      <chr>          <dttm>
+##  1 aANhxw… nested_… survey     xxxxx         2022-01-05 21:22:50
+##  2 aUmFLX… Sample … survey     xxxxx         2022-01-06 12:41:31
+##  3 ascwAw… nested_… survey     xxxxx         2022-01-05 21:22:22
+##  4 an8Awk… Clone o… survey     xxxxx         2022-01-04 11:52:22
+##  5 a4QDRG… nested_… survey     xxxxx         2022-01-03 15:41:52
+##  6 aNYcey… Clone o… survey     xxxxx         2021-12-31 14:33:16
+##  7 aZSRWs… test_re… survey     xxxxx         2021-12-30 11:44:04
+##  8 akGLub… complic… survey     xxxxx         2021-12-03 14:34:32
+##  9 aALrrW… Pakista… survey     xxxxx         2021-11-29 07:55:28
+## 10 a5NMnC… duplica… survey     xxxxx         2021-11-18 10:44:17
+## 11 aNyj7z… Enhanci… survey     xxxx          2021-09-22 11:50:06
+## 12 ajwxzH… GBV sur… survey     xxxxx         2021-07-27 11:36:16
+## 13 aa9iC3… Sample … survey     xxxxx         2021-10-12 14:10:18
+## 14 aMVqE7… abupbcy… survey     xxxxx         2021-07-27 11:36:06
+## 15 az75no… Evaluat… survey     xxxxx         2021-06-21 14:09:27
+## 16 aEnSVD… test_re… survey     xxxxx         2021-06-22 14:00:20
+## 17 a7rSJQ… P21 key… survey     xxxxx         2021-04-30 11:51:41
+## 18 aSxBDW… p21 hou… survey     xxxxx         2021-05-07 10:24:42
+## 19 ano26o… Test pe… survey     xxxxx         2021-02-04 08:52:51
+## # … with 2 more variables: date_modified <dttm>,
+## #   submissions <int>
+```
+
+
+```{r asset_list, echo = FALSE}
+l <- kobo_asset_list()
+```
+
+
+```{r asset}
+uid <- filter(l, name == "nested_roster") |>
+  pull(uid)
+asset <- kobo_asset(uid)
+asset
+```
+
+
+```{r read_data}
+df <- kobo_data(asset)
+df
+```
+
+## Manipulating repeat groups as dm object
+
+
+```{r draw_data}
+dm_draw(df)
+```
+
+### The number of rows of each table
+
+```{r nrow_data}
+dm_nrow(df)
+```
+
+### A `dm` object is a list of `tibble`
+
+```{r access_specific1}
+glimpse(df$main)
+```
+
+```{r access_specific2}
+glimpse(df$education)
+```
+
+## Filtering data
+
+
+```{r filter_data}
+df |>
+  dm_filter("main", `_index` == 2) |>
+  dm_apply_filters() |>
+  dm_nrow()
+```
+
+## Joining tables
+
+
+```{r join_two}
+df |>
+  dm_join_to_tbl("main",
+                 "education",
+                 join = left_join) |>
+  glimpse()
+```
+
+
+```{r join_all}
+df |>
+  dm_flatten_to_tbl(start = "hobbies_list",
+                    join = left_join) |>
+  glimpse()
+```

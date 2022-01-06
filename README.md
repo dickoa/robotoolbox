@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# robotoolbox <img src="man/figures/hex_robotoolbox.png" align="right" width="140" />
+# robotoolbox <img src="man/figures/robotoolbox_hex.png" align="right" width="140" />
 
 [![Project Status: Active - Initial development is in progress, but
 there has not yet been a stable, usable release suitable for the

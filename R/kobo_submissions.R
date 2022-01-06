@@ -1,15 +1,18 @@
-#' @rdname kobo_submissions
+#' @rdname kobo_data
+#' @export
+kobo_data <- function(x, paginate, page_size)
+  UseMethod("kobo_data")
+
+#' @rdname kobo_data
 #' @export
 kobo_submissions <- function(x, paginate, page_size)
   UseMethod("kobo_submissions")
-
 
 #' Get all submissions from a project
 #'
 #' Get all submissions from a project (KoBoToolbox asset)
 #'
-#' @rdname kobo_submissions
-#'
+#' @rdname kobo_data
 #'
 #' @importFrom tidyselect contains
 #' @importFrom dplyr select
@@ -23,7 +26,7 @@ kobo_submissions <- function(x, paginate, page_size)
 #'
 #' @return data.frame
 #' @export
-kobo_submissions.kobo_asset <- function(x, paginate = FALSE, page_size = NULL) {
+kobo_data.kobo_asset <- function(x, paginate = FALSE, page_size = NULL) {
   if (isTRUE(paginate)) {
     size <- x$deployment__submission_count
     if (is.null(page_size))
@@ -53,15 +56,27 @@ kobo_submissions.kobo_asset <- function(x, paginate = FALSE, page_size = NULL) {
   subs
 }
 
-#' @rdname kobo_submissions
+#' @rdname kobo_data
 #' @export
-kobo_submissions.character <- function(x, paginate = FALSE, page_size = NULL) {
-  kobo_submissions(kobo_asset(x))
+kobo_submissions.kobo_asset <- kobo_data.kobo_asset
+
+#' @rdname kobo_data
+#' @export
+kobo_data.character <- function(x, paginate = FALSE, page_size = NULL) {
+  kobo_data(kobo_asset(x))
 }
 
-#' @rdname kobo_submissions
+#' @rdname kobo_data
 #' @export
-kobo_submissions.default <- function(x, paginate = FALSE, page_size = NULL) {
+kobo_submissions.character <- kobo_data.character
+
+#' @rdname kobo_data
+#' @export
+kobo_data.default <- function(x, paginate = FALSE, page_size = NULL) {
   stop("You need to use a 'kobo_asset' or an asset uid 'kobo_submissions'",
        call. = FALSE)
 }
+
+#' @rdname kobo_data
+#' @export
+kobo_submissions.default <- kobo_data.default

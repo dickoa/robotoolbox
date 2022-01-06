@@ -32,13 +32,15 @@ Imports:
     stringi,
     glue,
     fastDummies,
-    dm
+    dm,
+    labelled
 Suggests:
     roxygen2,
     devtools,
     vcr,
     knitr,
     testthat,
-    covr
+    covr,
+    rmarkdown
 VignetteBuilder: knitr
 RoxygenNote: 7.1.2
