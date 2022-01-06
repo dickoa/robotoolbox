@@ -189,11 +189,11 @@ kobo_extract_repeat_tbl <- function(x, form) {
     df$`_parent_table_name` <- "main"
     df
   })
-  res <- lapply(x, function(y)
-    if (is.data.frame(y)) {
-      c(setNames(list(y), names(x)),
-        lapply(extract_repeat_tbl(y, form), function(df) {
-               df$`_parent_table_name` <- names(x)
+  res <- lapply(seq_along(x), function(i)
+    if (is.data.frame(x[[i]])) {
+      c(setNames(list(x[[i]]), names(x[i])),
+        lapply(extract_repeat_tbl(x[[i]], form), function(df) {
+               df$`_parent_table_name` <- names(x[i])
                df}))
       } else {
         list()
