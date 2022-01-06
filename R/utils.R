@@ -34,7 +34,7 @@ get_subs <- function(uid, args = list(), ...) {
   path <- paste0("api/v2/assets/", uid, "/data.json")
   res <- xget(path = path, args = args, ...)
   res <- fparse(res, max_simplify_lvl = "data_frame")
-  suppressMessages(type_convert(res$results))
+  res$result
 }
 
 #' @importFrom glue glue glue_data
@@ -77,7 +77,7 @@ get_subs_async <- function(uid, size, chunk_size = NULL, ...) {
   res <- fparse(res, max_simplify_lvl = "data_frame")
   res <- rbindlist(lapply(res, function(r) r$results),
                    fill = TRUE)
-  suppressMessages(type_convert(res))
+  res
 }
 
 #' @noRd
@@ -134,7 +134,6 @@ dummy_from_form_ <- function(x, form) {
   x
 }
 
-
 #' @importFrom rlang set_names
 #' @noRd
 postprocess_submissions_ <- function(x, form) {
@@ -156,6 +155,19 @@ kobo_postprocess <- function(x, form) {
             ~ map(., kobo_postprocess, form = form))
 }
 
+#' @noRd
+make_unique_names_ <- function(x, ...)
+  make.unique(basename(x), sep = "_")
+
+#' @importFrom purrr some map modify_if
+#' @noRd
+name_repair_ <- function(x) {
+  if (is.null(x))
+    return(NULL)
+  modify_if(set_names(x, make_unique_names_),
+            ~ some(., is.data.frame),
+            ~ map(., name_repair_))
+}
 
 #' @importFrom purrr modify_if
 #' @importFrom tibble tibble rowid_to_column
@@ -199,4 +211,61 @@ kobo_extract_repeat_tbl <- function(x, form) {
         list()
       })
   suppressWarnings(squash(res))
+}
+
+#' @importFrom dplyr mutate across
+#' @importFrom stats setNames
+#' @importFrom labelled set_value_labels
+#' @noRd
+val_labels_from_form_ <- function(x, form, lang) {
+  cond <- form$lang %in% lang & form$type %in% "select_one"
+  form <- form[cond, ]
+  nm <- unique(form$name)
+  nm <- intersect(names(x), nm)
+  if (length(nm) > 0) {
+    choices <- form$choices
+    choices <- lapply(choices, function(ch) {
+      ch <- ch[ch$value_lang %in% lang, ]
+      ch$value_label <- make.unique(ch$value_label, sep = "_")
+      ch <- setNames(ch$value_name, ch$value_label)
+      ch[!duplicated(ch)]
+    })
+    names(choices) <- nm
+    labels <- choices[nm]
+    x <- set_value_labels(mutate(x, across(nm, as.character)),
+                          .labels = labels,
+                          .strict = FALSE)
+  } else {
+    x
+  }
+  x
+}
+
+#' @importFrom labelled set_variable_labels
+#' @importFrom stats setNames
+#' @noRd
+var_labels_from_form_ <- function(x, form, lang) {
+  cond <- form$lang %in% lang & form$name %in% names(x)
+  form <- form[cond, ]
+  nm <- unique(form$name)
+  nm <- intersect(names(x), nm)
+  if (length(nm) > 0) {
+    labels <- setNames(as.list(form$label), form$name)
+    x <- set_variable_labels(x,
+                             .labels = labels,
+                             .strict = FALSE)
+  } else {
+    x
+  }
+  x
+}
+
+#' @importFrom readr type_convert
+#' @noRd
+postprocess_data_ <- function(x, form, lang) {
+  x <- suppressMessages(type_convert(x))
+  x <- val_labels_from_form_(x = x, form = form, lang = lang)
+  x <- var_labels_from_form_(x = x, form = form, lang = lang)
+  x <- dummy_from_form_(x, form)
+  x
 }

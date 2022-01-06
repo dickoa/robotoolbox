@@ -1,11 +1,3 @@
-#' @noRd
-kobo_form_lang <- function(asset) {
-  lng <- asset$content$translations
-  if (sum(lengths(lng)) <= 0)
-    lng <- "Labels"
-  lng
-}
-
 #' @export
 #' @rdname kobo_form
 kobo_form <- function(x, version)
