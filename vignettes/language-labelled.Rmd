@@ -1,0 +1,65 @@
+---
+title: "Labelled vectors for form languages"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Labelled vectors for form languages}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  echo = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(robotoolbox)
+library(dplyr)
+library(labelled)
+```
+
+### Load the project asset
+
+```{r set_asset}
+uid <- "aYuTZn9vegi3Z49MXwKjep"
+asset <- kobo_asset(uid)
+asset
+```
+
+### List availables languages
+
+```{r list_lang}
+kobo_lang(asset)
+```
+
+### Read data in each languages
+
+```{r load_data}
+df_en <- kobo_data(asset, lang = "English (en)")
+df_fr <- kobo_data(asset, lang = "Francais (fr)")
+df_ar <- kobo_data(asset, lang = "Arabic (ar)")
+glimpse(df_en)
+```
+
+
+### Access variable labels
+
+
+```{r var_label}
+var_label(df_en$pet_yesno)
+var_label(df_fr$pet_yesno)
+var_label(df_ar$pet_yesno)
+```
+
+### Access `select_one` type question labels
+
+```{r val_label}
+table(to_factor(df_en$pet_yesno))
+table(to_factor(df_fr$pet_yesno))
+table(to_factor(df_ar$pet_yesno))
+```
