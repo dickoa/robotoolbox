@@ -19,10 +19,11 @@ kobo_token <- function(username = NULL, password = NULL, url = NULL, overwrite =
   if (nzchar(Sys.getenv("KOBOTOOLBOX_TOKEN")) & !overwrite) {
     token <- Sys.getenv("KOBOTOOLBOX_TOKEN")
   } else {
-    cli <- crul::HttpClient$new(url = Sys.getenv("KOBOTOOLBOX_URL"),
+    url_path <- file.path(url, "token?format=json")
+    cli <- crul::HttpClient$new(url = url_path,
                                 auth = auth(user = username,
                                             pwd = password))
-    res <- cli$get("/token", list(format = "json"))
+    res <- cli$get()
     res$raise_for_status()
     res$raise_for_ct_json()
     res <- fparse(res$parse("UTF-8"))
