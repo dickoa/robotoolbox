@@ -18,10 +18,6 @@ MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.or
 `robotoolbox` is an R client for the [KoBoToolbox
 API](https://www.kobotoolbox.org/).
 
-## Introduction
-
-### KoBoToolBox API concepts
-
 ## Installation
 
 This package is not on yet on CRAN and to install it, you will need the
@@ -76,7 +72,7 @@ kobo_settings()
 ```
 
 With the settings done, it is possible to list all `assets` (e.g form,
-project, etc).
+project, etc) for the account associated to the token and url supplied.
 
 ``` r
 library("dplyr")
@@ -107,7 +103,9 @@ $ date_modified  <dttm> 2021-06-17 01:52:57, 2021-06-17 01:52:5…
 $ submissions    <int> 2951, 2679, 2, 1, 0, 0, 287, 73, 0, 274,…
 ```
 
-We can select one `asset uid` to read its submissions it contains
+The list of `assets` is a `tibble`, you can filter it to select the form
+`uuid` that uniquely identify the project you want to open. The function
+`kobo_asset` can then be used to get the `asset` from the `uuid`.
 
 ``` r
 uid <- l |>
@@ -127,7 +125,9 @@ asset
 ##   Submissions: 941
 ```
 
-Now with the `asset`, we can extract the `submissions`
+Now with the select `asset`, we can extract the `submissions` using the
+`kobo_submissions` function. The `kobo_data` can also be used instead,
+it’s an alias of `kobo_submissions`.
 
 ``` r
 df <- kobo_submissions(asset)
@@ -152,6 +152,24 @@ glimpse(df)
 ## $ admin_level_2                                              <chr+lbl> …
 ## $ admin_level_3                                              <chr+lbl> …
 ```
+
+### Languages
+
+`robotoolbox` uses the R package
+[`labelled`](https://larmarange.github.io/labelled/) to provide tools to
+manipulate variable labels and value labels. You can learn more about
+this here:
+
+<https://dickoa.gitlab.io/robotoolbox/articles/language-labelled.html>
+
+### Repeating groups
+
+Repeating groups associate multiple records to a single record in the
+`main` table. The package [`dm`](https://cynkra.github.io/dm/) is used
+to model such relationship and allow you to safely query and join the
+data for your analysis.
+
+<https://dickoa.gitlab.io/robotoolbox/articles/repeat-group-data.html>
 
 ## Meta
 
