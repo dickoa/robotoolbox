@@ -26,7 +26,7 @@ knitr::opts_chunk$set(
 [![CRAN status](https://www.r-pkg.org/badges/version/robotoolbox)](https://cran.r-project.org/package=robotoolbox)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-`robotoolbox` is an R client for the [KoBoToolbox API](https://www.kobotoolbox.org/).
+`robotoolbox` is an R client to access data from [KoBoToolbox](https://www.kobotoolbox.org/).
 
 ## Installation
 
@@ -40,18 +40,21 @@ remotes::install_gitlab("dickoa/robotoolbox")
 
 ## robotoolbox: A quick tutorial
 
-The `robotoolbox` package requires you to set your API token and specify the server URL. The easiest way to do that is to store them in your `.Renviron` file which is automatically read by `R` on startup.
+The `robotoolbox` package is a client to [`KoBoToolbox API v2`](https://support.kobotoolbox.org/api.html). You will need to set your API token and specify the `KoBoToolbox` server URL. The easiest way to do that is to store them in your `.Renviron` file which is automatically read by `R` on startup.
 
-You can retrieve your `API token` following the instruction in the official documentation: https://support.kobotoolbox.org/api.html.
+### Getting the API token
+
+You can retrieve your `API token` following the instruction in the official API documentation: https://support.kobotoolbox.org/api.html.
 
 You can also get your token directly from `R` using the `kobo_token` function.
-
 
 ```{r}
 kobo_token(username = "xxxxxxxxx",
            password = "xxxxxxxxx",
            url = "https://kobo.unhcr.org")
 ```
+
+### Setup your session
 
 You can either edit directly the `.Renviron` file or access it by calling `usethis::edit_r_environ()` (assuming you have the `usethis` package installed) and entering:
 
@@ -77,6 +80,8 @@ kobo_settings()
 ```
 
 With the settings done, it is possible to list all `assets` (e.g form, project, etc) for the account associated to the token and url supplied.
+
+### Access data
 
 ```{r}
 library("dplyr")
@@ -127,10 +132,10 @@ asset
 ##   Submissions: 941
 ```
 
-Now with the select `asset`, we can extract the `submissions` using the `kobo_submissions` function. The `kobo_data` can also be used instead, it's an alias of `kobo_submissions`.
+Now with the selected `asset`, we can extract the `submissions` using the `kobo_submissions` function. The `kobo_data` can also be used instead, it's an alias of `kobo_submissions`.
 
 ```{r}
-df <- kobo_submissions(asset)
+df <- kobo_submissions(asset) ## or kobo_data(asset)
 glimpse(df)
 ## Rows: 941
 ## Columns: 17

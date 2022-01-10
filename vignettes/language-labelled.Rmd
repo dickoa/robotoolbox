@@ -1,8 +1,8 @@
 ---
-title: "Labelled vectors for form languages"
+title: "Labelled Data for Form Languages"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Labelled vectors for form languages}
+  %\VignetteIndexEntry{Labelled Data for Form Languages}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -15,13 +15,39 @@ knitr::opts_chunk$set(
   echo = TRUE,
   comment = "#>"
 )
+
 ```
+
+`robotoolbox` allow you to access labels from languages in your form. It uses the [`labelled`](https://cran.r-project.org/web/packages/labelled/vignettes/intro_labelled.html) package to encode variable labels and value labels (choices).
+
 
 ```{r setup}
 library(robotoolbox)
 library(dplyr)
 library(labelled)
 ```
+
+Let's load data from the following project with three languages: English, French and Arabic.
+
+### Survey questions
+
+| type             | name      | label::English (en)  | label::Francais (fr)               | label::Arabic (ar) |
+|:-----------------|:----------|:---------------------|:-----------------------------------|:-------------------|
+| start            | start     |                      |                                    |                    |
+| end              | end       |                      |                                    |                    |
+| today            | today     |                      |                                    |                    |
+| text             | full_name | What is your name?   | Quel est votre nom ?               | ما اسمك ؟          |
+| select_one yesno | pet_yesno | Do you have any pet? | Avez-vous un animal de compagnie ? | هل تمتلك حيوانا أليفا ؟ |
+
+
+### Choices
+
+| list_name | name | label::English (en) | label::Francais (fr) | label::Arabic (ar) |
+|:----------|-----:|:--------------------|:---------------------|:-------------------|
+| yesno     |    1 | Yes                 | Oui                  | نعم                |
+| yesno     |    0 | No                  | Non                  | لا                 |
+|           |      |                     |                      |                    |
+
 
 ### Load the project asset
 
@@ -50,7 +76,15 @@ glimpse(df_en)
 ### Access variable labels
 
 
-```{r var_label}
+
+```{r var_label1}
+var_label(df_en$full_name)
+var_label(df_fr$full_name)
+var_label(df_ar$full_name)
+```
+
+
+```{r var_label2}
 var_label(df_en$pet_yesno)
 var_label(df_fr$pet_yesno)
 var_label(df_ar$pet_yesno)

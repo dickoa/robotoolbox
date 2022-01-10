@@ -1,8 +1,8 @@
 ---
-title: "Dealing with repeating groups"
+title: "Loading Data with Repeating Groups"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Dealing with repeating groups}
+  %\VignetteIndexEntry{Loading Data with Repeating Groups}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -59,6 +59,55 @@ l
 l <- kobo_asset_list()
 ```
 
+### Survey questions
+
+| type                 | name              | label::English (en)                              | label::Francais (fr)                                  | repeat_count    | calculation                                    |
+|:---------------------|:------------------|:-------------------------------------------------|:------------------------------------------------------|:----------------|:-----------------------------------------------|
+| start                | start             |                                                  |                                                       |                 |                                                |
+| end                  | end               |                                                  |                                                       |                 |                                                |
+| today                | today             |                                                  |                                                       |                 |                                                |
+| begin_repeat         | demo              | Demographic Characteristics                      | Caracteristique Demographique                         |                 |                                                |
+| text                 | name              | Name                                             | Nom                                                   |                 |                                                |
+| integer              | age               | Age                                              | Age                                                   |                 |                                                |
+| select_one sex       | sex               | Sex                                              | Sexe                                                  |                 |                                                |
+| integer              | hobby             | How many hobbies does \${name} have?              | Combien de hobbies \${name} a ?                        |                 |                                                |
+| select_one yesno     | morelang          | Does \${name} speak more than one language?       | Est-ce que \${name} parle plus d'une langue ?          |                 |                                                |
+| calculate            | name_individual   |                                                  |                                                       |                 | indexed-repeat(\${name}, \${demo}, position(..)) |
+| begin_repeat         | hobbies_list      | List of Hobbies                                  | Liste de hobbies                                      | \${hobby}        |                                                |
+| text                 | hobbies           | Hobbies of \${name_individual}                    | Hobbies de \${name_individual}                         |                 |                                                |
+| end_repeat           |                   |                                                  |                                                       |                 |                                                |
+| begin_repeat         | lang_list         | List of Languages                                | Liste de langues                                      | \${morelang}     |                                                |
+| select_multiple lang | langs             | Languages spoken by \${name_individual}           | Langue parle par \${name_individual}                   |                 |                                                |
+| end_repeat           |                   |                                                  |                                                       |                 |                                                |
+| end_repeat           |                   |                                                  |                                                       |                 |                                                |
+| calculate            | family_count      |                                                  |                                                       |                 | count(\${demo})                                 |
+| note                 | family_count_note | Number of family members: \${family_count}        | Nombre de membre dans la famille:  \${family_count}    |                 |                                                |
+| begin_repeat         | education         | Education information                            | Information sur l'education                           | \${family_count} |                                                |
+| calculate            | name_individual2  |                                                  |                                                       |                 | indexed-repeat(\${name}, \${demo}, position(..)) |
+| select_one edu_level | edu_level         | What is \${name_individual2}'s level of education | Quel est le niveau d'education de \${name_individual2} |                 |                                                |
+| end_repeat           |                   |                                                  |                                                       |                 |                                                |
+
+
+
+### Choices
+
+|list_name | name|label::English (en)      |label::Francais (fr) |
+|:---------|----:|:------------------------|:--------------------|
+|sex       |    1|Male                     |Homme                |
+|sex       |    2|Female                   |Femme                |
+|sex       |    3|Prefer not to say        |Prefere ne pas dire  |
+|edu_level |    1|Primary                  |Primaire             |
+|edu_level |    2|Secondary                |Secondaire           |
+|edu_level |    3|Higher Secondary & Above |Lycee et superieur   |
+|yesno     |    1|Yes                      |Oui                  |
+|yesno     |    0|No                       |Non                  |
+|lang      |    1|French                   |Francais             |
+|lang      |    2|Spanish                  |Espagnol             |
+|lang      |    3|Arabic                   |Arabe                |
+|lang      |   99|Other                    |Autre                |
+
+
+### Loading the project asset
 
 ```{r asset}
 uid <- filter(l, name == "nested_roster") |>
@@ -67,6 +116,7 @@ asset <- kobo_asset(uid)
 asset
 ```
 
+### Extracting the data
 
 ```{r read_data}
 df <- kobo_data(asset)
@@ -75,12 +125,13 @@ df
 
 ## Manipulating repeat groups as dm object
 
+###  Visualizing the relationship between tables
 
 ```{r draw_data}
 dm_draw(df)
 ```
 
-### The number of rows of each table
+### Number of rows of each table
 
 ```{r nrow_data}
 dm_nrow(df)
