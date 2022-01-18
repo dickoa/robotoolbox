@@ -5,6 +5,7 @@
 #'
 #' @importFrom crul auth HttpClient
 #' @importFrom RcppSimdJson fparse
+#'
 #' @param username character, KoBoToolbox username
 #' @param password character, KoBoToolbox password
 #' @param url character, KoBoToolbox server url
@@ -12,7 +13,8 @@
 #'
 #' @return character, the KoBoToolbox API token
 #' @export
-kobo_token <- function(username = NULL, password = NULL, url = NULL, overwrite = FALSE) {
+kobo_token <- function(username = NULL, password = NULL,
+                       url = NULL, overwrite = FALSE) {
   if (!is.null(url) & !nzchar(Sys.getenv("KOBOTOOLBOX_URL")))
      Sys.setenv("KOBOTOOLBOX_URL" = url)
 

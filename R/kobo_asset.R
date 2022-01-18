@@ -52,13 +52,13 @@ kobo_asset_list <- function() {
               args = list(metadata = "on"))
   res <- fparse(res, max_simplify_lvl = "list")
   res <- res$results
-  tibble(uid = map_character(res, "uid"),
-         name = map_character(res, "name"),
-         asset_type = map_character(res, "asset_type"),
-         owner_username = map_character(res, "owner__username"),
-         date_created = parse_kobo_date(map_character(res, "date_created")),
-         date_modified = parse_kobo_date(map_character(res, "date_modified")),
-         submissions = map_integer(res, "deployment__submission_count"))
+  tibble(uid = map_chr2(res, "uid"),
+         name = map_chr2(res, "name"),
+         asset_type = map_chr2(res, "asset_type"),
+         owner_username = map_chr2(res, "owner__username"),
+         date_created = parse_kobo_date(map_chr2(res, "date_created")),
+         date_modified = parse_kobo_date(map_chr2(res, "date_modified")),
+         submissions = map_int2(res, "deployment__submission_count"))
 }
 
 #' @rdname kobo_asset_version
@@ -103,7 +103,6 @@ kobo_asset_version.default <- function(x, version) {
        call. = FALSE)
 }
 
-
 #' @rdname kobo_asset_version_list
 #' @export
 kobo_asset_version_list <- function(x)
@@ -111,7 +110,8 @@ kobo_asset_version_list <- function(x)
 
 #' List all available versions of a KoBoToolbox asset
 #'
-#' List all available versions of a KoBoToolbox asset
+#' List all available versions of a KoBoToolbox asset. Works only if you own
+#' the project.
 #'
 #' @rdname kobo_asset_version_list
 #'
@@ -127,10 +127,11 @@ kobo_asset_version_list.character <- function(x) {
                             x, "/versions/"))
   res <- fparse(res, max_simplify_lvl = "list")
   res <- res$results
-  tibble(uid = map_character(res, "uid"),
-         url = map_character(res, "url"),
-         asset_deployed = is.na(as.logical(map_character(res, "date_deployed"))),
-         date_modified = as.POSIXct(map_character(res, "date_modified")))
+  tibble(uid = map_chr2(res, "uid"),
+         url = map_chr2(res, "url"),
+         asset_deployed = is.na(as.logical(map_chr2(res,
+                                                         "date_deployed"))),
+         date_modified = as.POSIXct(map_chr2(res, "date_modified")))
 }
 
 #' @rdname kobo_asset_version_list

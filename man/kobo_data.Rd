@@ -32,8 +32,8 @@ kobo_submissions(x, paginate, page_size, lang)
 
 \item{paginate}{logical, split submissions by page. Default to FALSE}
 
-\item{page_size}{integer, number of submissions per page. if missing, default to
-number of submissions divided by 5}
+\item{page_size}{integer, number of submissions per page.
+if missing, default to number of submissions divided by 5}
 
 \item{lang}{character, language for the variable and value labels}
 }

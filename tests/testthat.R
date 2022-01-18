@@ -1,4 +1,4 @@
-library("testthat")
-library("robotoolbox")
+library(testthat)
+library(robotoolbox)
 
 test_check("robotoolbox")

@@ -22,5 +22,6 @@ kobo_asset_version_list(x)
 a list of kobo_asset
 }
 \description{
-List all available versions of a KoBoToolbox asset
+List all available versions of a KoBoToolbox asset. Works only if you own
+the project.
 }

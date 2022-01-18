@@ -21,17 +21,15 @@ BugReports: https://gitlab.com/dickoa/robotoolbox/issues
 Imports:
     crul,
     RcppSimdJson,
-    readr,
+    data.table,
     dplyr,
     tidyr,
     purrr,
     rlang,
     tidyselect,
-    data.table,
     tibble,
     stringi,
     glue,
-    fastDummies,
     dm,
     labelled
 Suggests:

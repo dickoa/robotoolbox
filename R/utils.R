@@ -28,7 +28,6 @@ xget <- function(path, args = list(), ...) {
 }
 
 #' @importFrom RcppSimdJson fparse
-#' @importFrom readr type_convert
 #' @noRd
 get_subs <- function(uid, args = list(), ...) {
   path <- paste0("api/v2/assets/", uid, "/data.json")
@@ -60,7 +59,6 @@ build_urls <- function(uid, size, chunk_size = NULL) {
 #' @importFrom crul Async
 #' @importFrom RcppSimdJson fparse
 #' @importFrom data.table rbindlist
-#' @importFrom readr type_convert
 #' @noRd
 get_subs_async <- function(uid, size, chunk_size = NULL, ...) {
   headers <- list(Authorization = paste("Token",
@@ -81,11 +79,11 @@ get_subs_async <- function(uid, size, chunk_size = NULL, ...) {
 }
 
 #' @noRd
-map_character <- function(x, key)
+map_chr2 <- function(x, key)
   vapply(x, function(l) as.character(l[[key]]), character(1))
 
 #' @noRd
-map_integer <- function(x, key)
+map_int2 <- function(x, key)
   vapply(x, function(l) l[[key]], integer(1))
 
 #' @noRd
@@ -118,41 +116,44 @@ as_log <- function(x) {
   tolower(x)
 }
 
-#' @importFrom fastDummies dummy_cols
+#' @importFrom data.table as.data.table alloc.col `:=` chmatch set
+#' @importFrom stringi stri_sort stri_detect_regex
+#' @importFrom tibble as_tibble
+#' @importFrom stats na.omit
+#' @noRd
+fast_dummy_cols <- function(x, cols) {
+  x <- as.data.table(x)
+  for (col in cols) {
+    y <- x[[col]]
+    uv <- unique(unlist(strsplit(y, "\\s+")))
+    uv <- trimws(na.omit(uv))
+    uv <- stri_sort(uv,
+                    na_last = TRUE,
+                    locale = "en_US",
+                    numeric = TRUE)
+    new_names <- paste0(col, "_", uv)
+    alloc.col(x, ncol(x) + length(uv))
+    x[, (new_names) := 0L]
+    x[which(is.na(y)), (new_names) := NA_integer_]
+    for (iter in seq_along(uv)) {
+      j <- paste0(col, "_", uv[iter])
+      i <- which(stri_detect_regex(y, paste0("\\b", uv[iter], "\\b")))
+      set(x, i = i, j = j, value = 1L)
+    }
+  }
+  as_tibble(x)
+}
+
 #' @noRd
 dummy_from_form_ <- function(x, form) {
   nm <- unique(form$name[form$type %in% "select_multiple"])
   nm <- intersect(names(x), nm)
   if (length(nm) > 0) {
-    x <- dummy_cols(x,
-                    nm,
-                    split = "\\s+",
-                    ignore_na = TRUE)
+    x <- fast_dummy_cols(x, nm)
   } else {
     x
   }
   x
-}
-
-#' @importFrom rlang set_names
-#' @noRd
-postprocess_submissions_ <- function(x, form) {
-  if (is.data.frame(x)) {
-    x <- set_names(x, basename)
-    x <- dummy_from_form_(x, form)
-  }
-  x
-}
-
-#' @importFrom purrr some map modify_if
-#' @noRd
-kobo_postprocess <- function(x, form) {
-  if (is.null(x))
-    return(NULL)
-  modify_if(postprocess_submissions_(x,
-                                     form),
-            ~ some(., is.data.frame),
-            ~ map(., kobo_postprocess, form = form))
 }
 
 #' @noRd
@@ -160,6 +161,7 @@ make_unique_names_ <- function(x, ...)
   make.unique(basename(x), sep = "_")
 
 #' @importFrom purrr some map modify_if
+#' @importFrom rlang set_names
 #' @noRd
 name_repair_ <- function(x) {
   if (is.null(x))
@@ -260,12 +262,12 @@ var_labels_from_form_ <- function(x, form, lang) {
   x
 }
 
-#' @importFrom readr type_convert
+#' @importFrom utils type.convert
 #' @noRd
 postprocess_data_ <- function(x, form, lang) {
-  x <- suppressMessages(type_convert(x))
+  x <- type.convert(x, as.is = TRUE)
+  x <- dummy_from_form_(x, form)
   x <- val_labels_from_form_(x = x, form = form, lang = lang)
   x <- var_labels_from_form_(x = x, form = form, lang = lang)
-  x <- dummy_from_form_(x, form)
   x
 }
