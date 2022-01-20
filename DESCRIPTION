@@ -1,6 +1,6 @@
 Package: robotoolbox
 Title: An R Client for the KoBoToolbox API
-Version: 0.2.9000
+Version: 0.3.9000
 Authors@R: c(person(given = "Ahmadou",
                     family = "Dicko",
 		    email = "mail@ahmadoudicko.com",
@@ -13,32 +13,34 @@ Authors@R: c(person(given = "Ahmadou",
 		    role = "cph"))
 Description: Utilities to access data from the KoBoToolbox API v2.
     <https://support.kobotoolbox.org/api.html>.
-Depends: R (>= 3.5)
+Depends: R (>= 4.1)
 License: MIT + file LICENSE
 Encoding: UTF-8
+Language: en_US
 URL: https://gitlab.com/dickoa/robotoolbox
 BugReports: https://gitlab.com/dickoa/robotoolbox/issues
 Imports:
-    crul,
-    RcppSimdJson,
-    data.table,
-    dplyr,
-    tidyr,
-    purrr,
-    rlang,
-    tidyselect,
-    tibble,
-    stringi,
-    glue,
-    dm,
-    labelled
+    crul (>= 1.2.0),
+    RcppSimdJson (>= 0.1.6),
+    data.table (>= 1.14.2),
+    dplyr (>= 1.0.7),
+    tidyr (>= 1.1.4),
+    purrr (>= 0.3.4),
+    rlang (>= 0.4.12),
+    tidyselect (>= 1.1.1),
+    tibble (>= 3.1.6),
+    stringi (>= 1.7.6),
+    glue (>= 1.6.0),
+    dm (>= 0.2.6),
+    labelled (>= 2.9.0)
 Suggests:
-    roxygen2,
-    devtools,
-    vcr,
-    knitr,
-    testthat,
-    covr,
-    rmarkdown
+    roxygen2 (>= 7.1.2),
+    devtools (>= 2.4.3),
+    vcr (>= 1.0.2),
+    knitr (>= 1.37),
+    testthat (>= 3.11),
+    covr (>= 3.5.1),
+    rmarkdown (>= 2.11)
 VignetteBuilder: knitr
 RoxygenNote: 7.1.2
+Roxygen: list(markdown = TRUE)
