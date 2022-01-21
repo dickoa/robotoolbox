@@ -29,8 +29,11 @@ kobo_submissions <- function(x, paginate, page_size, lang)
 #' @export
 kobo_data.kobo_asset <- function(x, paginate = FALSE,
                                  page_size = NULL, lang = NULL) {
+  size <- x$deployment__submission_count
+  if (size >= 30000)
+    paginate <- TRUE
+
   if (isTRUE(paginate)) {
-    size <- x$deployment__submission_count
     if (is.null(page_size))
       page_size <- size %/% 5
     subs <- get_subs_async(x$uid, size, page_size)
