@@ -56,25 +56,44 @@ build_urls <- function(uid, size, chunk_size = NULL) {
   file.path(Sys.getenv("KOBOTOOLBOX_URL"), urls)
 }
 
-#' @importFrom crul Async
+#' @importFrom crul AsyncQueue HttpRequest
 #' @importFrom RcppSimdJson fparse
-#' @importFrom data.table rbindlist
+#' @importFrom data.table rbindlist setattr
+#' @importFrom tibble as_tibble
+#' @importFrom dplyr case_when
+#'
 #' @noRd
 get_subs_async <- function(uid, size, chunk_size = NULL, ...) {
   headers <- list(Authorization = paste("Token",
                                         Sys.getenv("KOBOTOOLBOX_TOKEN")))
   urls <- build_urls(uid, size, chunk_size)
-  cli <- Async$new(urls,
-                   headers = headers, opts = list(...))
-  res <- cli$get()
-  res <- vapply(res, function(r) {
-    r$raise_for_status()
-    r$raise_for_ct_json()
-    r$parse(encoding = "UTF-8")
-  }, FUN.VALUE = character(1))
-  res <- fparse(res, max_simplify_lvl = "data_frame")
+  reqs <- lapply(urls, function(url) {
+    HttpRequest$new(url,
+                    headers = headers,
+                    opts = list(...))$get()
+  })
+  sleep <- case_when(
+    size > 30000 ~ 5,
+    size > 15000 ~ 3,
+    size > 5000 ~ 2,
+    size > 1000 ~ 1,
+    TRUE ~ 0.5
+  )
+  res <- AsyncQueue$new(.list = reqs,
+                        bucket_size = Inf,
+                        sleep = sleep)
+  res$request()
+  cond <- any(res$status_code() > 200L)
+  if (cond)
+    stop("Request failed! check the settings and try again",
+         call. = FALSE)
+  res <- res$parse(encoding = "UTF-8")
+  res <- fparse(res,
+                max_simplify_lvl = "data_frame")
   res <- rbindlist(lapply(res, function(r) r$results),
                    fill = TRUE)
+  res <- as_tibble(res)
+  attr(res, ".internal.selfref") <- NULL
   res
 }
 
@@ -108,12 +127,6 @@ drop_nulls <- function(x) {
   x <- Filter(Negate(is_null_recursive), x)
   lapply(x, function(x)
     if (is.list(x)) drop_nulls(x) else x)
-}
-
-#' @noRd
-as_log <- function(x) {
-  stopifnot(is.logical(x))
-  tolower(x)
 }
 
 #' @importFrom data.table as.data.table alloc.col `:=` chmatch set

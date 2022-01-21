@@ -24,7 +24,7 @@ kobo_lang.kobo_asset <- function(x) {
 #' @rdname kobo_lang
 #' @export
 kobo_lang.character <- function(x) {
-  kobo_lang(kobo_asset(x))
+  kobo_lang.kobo_asset(kobo_asset(x))
 }
 
 #' @rdname kobo_lang
