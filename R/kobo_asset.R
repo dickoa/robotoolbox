@@ -119,7 +119,7 @@ kobo_asset_version_list <- function(x)
 #' @importFrom RcppSimdJson fparse
 #' @importFrom tibble tibble
 #'
-#' @return a list of kobo_asset
+#' @return a list of kobo_asset_version
 #'
 #' @export
 kobo_asset_version_list.character <- function(x) {

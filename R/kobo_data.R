@@ -40,13 +40,14 @@ kobo_data.kobo_asset <- function(x, paginate = FALSE,
   } else {
     subs <- get_subs(x$uid)
   }
+
   form <- kobo_form(x)
   klang <- kobo_lang(x)
   if (is.null(lang) || !lang %in% klang)
     lang <- klang[1]
-  subs <- name_repair_(subs)
-  subs <- select(tibble(subs),
-                 -contains("_attachments"))
+
+  subs <- name_repair_(tibble(subs))
+
   if ("begin_repeat" %in% form$type) {
     subs <- c(list(main = rowid_to_column(subs, "_index")),
               kobo_extract_repeat_tbl(subs, form))

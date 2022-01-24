@@ -47,7 +47,7 @@ kobo_form.kobo_asset <- function(x, version = NULL) {
     x <- form_lang(l, lang)
     x
   })
-  survey <- rbindlist(survey, fill = TRUE)
+  survey <- rbindlist(drop_nulls(survey), fill = TRUE)
   survey <- select(.data = survey,
                    name = "$autoname",
                    list_name = contains("select_from_list_name"),

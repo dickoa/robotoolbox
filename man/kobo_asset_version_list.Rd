@@ -19,7 +19,7 @@ kobo_asset_version_list(x)
 \item{x}{the uid or kobo_asset object}
 }
 \value{
-a list of kobo_asset
+a list of kobo_asset_version
 }
 \description{
 List all available versions of a KoBoToolbox asset. Works only if you own

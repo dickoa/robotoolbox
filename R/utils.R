@@ -49,7 +49,7 @@ build_urls <- function(uid, size, chunk_size = NULL) {
     last_limit <- ifelse(last_limit, last_limit, chunk_size)
     limit <- c(limit, last_limit)
     df <- tibble(start = start, limit = limit, uid = uid)
-    template <-  "api/v2/assets/{uid}/data.json?start={start}&limit={limit}"
+    template <- "api/v2/assets/{uid}/data.json?start={start}&limit={limit}"
     urls <- glue_data(df,
                       template)
   }
@@ -61,7 +61,6 @@ build_urls <- function(uid, size, chunk_size = NULL) {
 #' @importFrom data.table rbindlist setattr
 #' @importFrom tibble as_tibble
 #' @importFrom dplyr case_when
-#'
 #' @noRd
 get_subs_async <- function(uid, size, chunk_size = NULL, ...) {
   headers <- list(Authorization = paste("Token",
@@ -95,6 +94,58 @@ get_subs_async <- function(uid, size, chunk_size = NULL, ...) {
   res <- as_tibble(res)
   attr(res, ".internal.selfref") <- NULL
   res
+}
+
+#' @importFrom RcppSimdJson fparse
+#' @noRd
+get_form_media <- function(uid) {
+  headers <- list(Authorization = paste("Token",
+                                        Sys.getenv("KOBOTOOLBOX_TOKEN")))
+  path <- paste0("api/v2/assets/", uid, "/files/?file_type=form_media")
+  cli <- crul::HttpClient$new(Sys.getenv("KOBOTOOLBOX_URL"),
+                              headers = headers)
+  res <- cli$get(path = path)
+  res$raise_for_status()
+  res$raise_for_ct_json()
+  res <- fparse(res$parse("UTF-8"),
+                max_simplify_lvl = "data_frame")
+  fname <- map_chr2(res$results$metadata, "filename")
+  mtype <- map_chr2(res$results$metadata, "mimetype")
+  uid <- res$results$uid
+  url <- res$results$content
+  tibble(uid = uid, url = url, filename = fname, mimetype = mtype)
+}
+
+#' @noRd
+download_form_media <- function(url, filename) {
+  headers <- list(Authorization = paste("Token",
+                                        Sys.getenv("KOBOTOOLBOX_TOKEN")))
+  cli <- crul::HttpClient$new(url, headers = headers)
+  out <- cli$get(disk = filename)
+  out$raise_for_status()
+  invisible(filename)
+}
+
+#' @importFrom data.table fread
+#' @noRd
+form_media_one_csv_tbl <- function(url) {
+  headers <- list(Authorization = paste("Token",
+                                        Sys.getenv("KOBOTOOLBOX_TOKEN")))
+  cli <- crul::HttpClient$new(url, headers = headers)
+  out <- cli$get()
+  out$raise_for_status()
+  out <- fread(out$parse(encoding = "UTF-8"))
+  out <- as_tibble(out)
+  attr(out, ".internal.selfref") <- NULL
+  out
+}
+
+## Find a clever to label it, update example
+#' @noRd
+form_media_csv_tbl <- function(uid) {
+  meta <- get_form_media(uid)
+  df <- lapply(meta$url, \(x) form_media_one_csv_tbl(x))
+  df
 }
 
 #' @noRd
@@ -234,6 +285,34 @@ kobo_extract_repeat_tbl <- function(x, form) {
 #' @noRd
 val_labels_from_form_ <- function(x, form, lang) {
   cond <- form$lang %in% lang & form$type %in% "select_one"
+  form <- form[cond, ]
+  nm <- unique(form$name)
+  nm <- intersect(names(x), nm)
+  if (length(nm) > 0) {
+    choices <- form$choices
+    choices <- lapply(choices, function(ch) {
+      ch <- ch[ch$value_lang %in% lang, ]
+      ch$value_label <- make.unique(ch$value_label, sep = "_")
+      ch <- setNames(ch$value_name, ch$value_label)
+      ch[!duplicated(ch)]
+    })
+    names(choices) <- nm
+    labels <- choices[nm]
+    x <- set_value_labels(mutate(x, across(nm, as.character)),
+                          .labels = labels,
+                          .strict = FALSE)
+  } else {
+    x
+  }
+  x
+}
+
+#' @importFrom dplyr mutate across
+#' @importFrom stats setNames
+#' @importFrom labelled set_value_labels
+#' @noRd
+val_labels_from_form_external_ <- function(x, form, lang) {
+  cond <- form$lang %in% lang & grepl(".+from\\_file$", form$type)
   form <- form[cond, ]
   nm <- unique(form$name)
   nm <- intersect(names(x), nm)
