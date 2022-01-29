@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 
 [![Project Status: Active - Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
 [![GitLab CI Build Status](https://gitlab.com/dickoa/robotoolbox/badges/master/pipeline.svg)](https://gitlab.com/dickoa/robotoolbox/pipelines)
-[![Codecov Code Coverage](https://codecov.io/gl/dickoa/robotoolbox/branch/master/graph/badge.svg)](https://codecov.io/gh/dickoa/robotoolbox)
+[![Codecov Code Coverage](https://codecov.io/gl/dickoa/robotoolbox/branch/master/graph/badge.svg)](https://codecov.io/gl/dickoa/robotoolbox)
 [![CRAN status](https://www.r-pkg.org/badges/version/robotoolbox)](https://cran.r-project.org/package=robotoolbox)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
