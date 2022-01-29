@@ -9,7 +9,7 @@ public.](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus
 [![GitLab CI Build
 Status](https://gitlab.com/dickoa/robotoolbox/badges/master/pipeline.svg)](https://gitlab.com/dickoa/robotoolbox/pipelines)
 [![Codecov Code
-Coverage](https://codecov.io/gl/dickoa/robotoolbox/branch/master/graph/badge.svg)](https://codecov.io/gh/dickoa/robotoolbox)
+Coverage](https://codecov.io/gl/dickoa/robotoolbox/branch/master/graph/badge.svg)](https://codecov.io/gl/dickoa/robotoolbox)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/robotoolbox)](https://cran.r-project.org/package=robotoolbox)
 [![License:
