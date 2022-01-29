@@ -1,5 +1,8 @@
 image: rocker/tidyverse:latest
 
+variables:
+  CODECOV_TOKEN: $CODECOV_TOKEN
+
 pages:
   stage: deploy
 
@@ -14,6 +17,10 @@ pages:
     - Rscript -e 'install.packages("crul", repos = "http://packages.ropensci.org")'
     - Rscript -e 'remotes::install_gitlab("dickoa/robotoolbox")'
     - Rscript -e 'pkgdown::build_site(override = list(destination = "public"))'
+
+  after_script:
+    - Rscript -e 'covr::package_coverage()'
+    - Rscript -e 'covr::codecov()'
 
   artifacts:
     paths:

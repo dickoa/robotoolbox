@@ -144,7 +144,7 @@ form_media_one_csv_tbl <- function(url) {
 #' @noRd
 form_media_csv_tbl <- function(uid) {
   meta <- get_form_media(uid)
-  df <- lapply(meta$url, \(x) form_media_one_csv_tbl(x))
+  df <- lapply(meta$url, function(x) form_media_one_csv_tbl(x))
   df
 }
 
