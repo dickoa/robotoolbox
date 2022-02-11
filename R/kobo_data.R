@@ -14,7 +14,7 @@ kobo_submissions <- function(x, paginate, page_size, lang)
 #'
 #' @rdname kobo_data
 #'
-#' @importFrom tidyselect contains
+#' @importFrom tidyselect starts_with everything
 #' @importFrom dplyr select
 #' @importFrom tibble rowid_to_column tibble
 #' @importFrom dm as_dm dm_add_pk dm_add_fk
@@ -42,6 +42,8 @@ kobo_data.kobo_asset <- function(x, paginate = FALSE,
   }
 
   form <- kobo_form(x)
+  cn <- form$name[form$type %in% kobo_question_types()]
+  cn <- unique(cn)
   klang <- kobo_lang(x)
   if (is.null(lang) || !lang %in% klang)
     lang <- klang[1]
@@ -55,7 +57,8 @@ kobo_data.kobo_asset <- function(x, paginate = FALSE,
       d <- postprocess_data_(x = d,
                              form = form,
                              lang = lang)
-      d
+      cn <- intersect(cn, names(d))
+      select(d, starts_with(cn), everything())
     })
     subs <- as_dm(subs)
     subs <- dm_add_pk(subs, "main", "_index")
@@ -72,6 +75,8 @@ kobo_data.kobo_asset <- function(x, paginate = FALSE,
     subs <- postprocess_data_(x = subs,
                               form = form,
                               lang = lang)
+    cn <- intersect(cn, names(subs))
+    subs <- select(subs, starts_with(cn), everything())
   }
   subs
 }

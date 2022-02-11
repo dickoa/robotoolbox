@@ -363,3 +363,16 @@ postprocess_data_ <- function(x, form, lang) {
   x <- var_labels_from_form_(x = x, form = form, lang = lang)
   x
 }
+
+#' @noRd
+kobo_question_types <- function() {
+  c("start", "end", "today", "deviceid",
+    "phonenumber", "username", "email", "audit",
+    "integer", "decimal", "range", "text",
+    "select_one", "select_multiple",
+    "select_one_from_file", "select_multiple_from_file",
+    "rank", "geopoint", "geotrace", "geoshape",
+    "date", "time", "dateTime", "image", "audio",
+    "background-audio", "video", "file", "barcode",
+    "calculate", "acknowledge", "hidden")
+}
