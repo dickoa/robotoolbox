@@ -11,8 +11,9 @@ pages:
     - apt install --yes libssl-dev libssh2-1-dev libxml2-dev libcurl4-gnutls-dev libgit2-dev libmagick++-dev pandoc pandoc-citeproc libudunits2-dev libgdal-dev libglpk-dev
 
   script:
-    - Rscript -e 'install.packages(c("pkgdown", "DiagrammeR", "DiagrammeRsvg"))'
+    - Rscript -e 'install.packages(c("pkgdown", "DiagrammeRsvg"))'
     - Rscript -e 'devtools::install_deps(dependencies = TRUE)'
+    - Rscript -e 'remotes::install_version("DiagrammeR", version = "1.0.6.1")'
     - Rscript -e 'remotes::install_github("vidonne/unhcrtemplate")'
     - Rscript -e 'install.packages("crul", repos = "http://packages.ropensci.org")'
     - Rscript -e 'remotes::install_gitlab("dickoa/robotoolbox")'
