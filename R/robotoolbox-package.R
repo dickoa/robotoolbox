@@ -1,6 +1,6 @@
 ##' robotoolbox
 ##'
-##' Client for KoBoToolbox API v2
+##' R Client for KoBoToolbox API v2
 ##'
 ##' @name robotoolbox
 ##' @aliases robotoolbox-package
