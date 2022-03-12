@@ -279,19 +279,23 @@ kobo_extract_repeat_tbl <- function(x, form) {
   suppressWarnings(squash(res))
 }
 
-#' @importFrom dplyr mutate across
+#' @importFrom dplyr mutate across filter
 #' @importFrom stats setNames
 #' @importFrom labelled set_value_labels
+#' @importFrom rlang .data
 #' @noRd
 val_labels_from_form_ <- function(x, form, lang) {
-  cond <- form$lang %in% lang & form$type %in% "select_one"
-  form <- form[cond, ]
+  form <- filter(form,
+                 .data$lang %in% !!lang,
+                 .data$type %in% "select_one")
   nm <- unique(form$name)
   nm <- intersect(names(x), nm)
   if (length(nm) > 0) {
+    form <- form[match(nm, form$name), ]
     choices <- form$choices
     choices <- lapply(choices, function(ch) {
-      ch <- ch[ch$value_lang %in% lang, ]
+      ch <- filter(ch,
+                   .data$value_lang %in% !!lang)
       ch$value_label <- make.unique(ch$value_label, sep = "_")
       ch <- setNames(ch$value_name, ch$value_label)
       ch[!duplicated(ch)]
@@ -307,19 +311,23 @@ val_labels_from_form_ <- function(x, form, lang) {
   x
 }
 
-#' @importFrom dplyr mutate across
+#' @importFrom dplyr mutate across filter
 #' @importFrom stats setNames
 #' @importFrom labelled set_value_labels
+#' @importFrom rlang .data
 #' @noRd
 val_labels_from_form_external_ <- function(x, form, lang) {
-  cond <- form$lang %in% lang & grepl(".+from\\_file$", form$type)
-  form <- form[cond, ]
+  form <- filter(form,
+                 .data$lang %in% !!lang,
+                 grepl(".+from\\_file$", .data$type))
   nm <- unique(form$name)
   nm <- intersect(names(x), nm)
   if (length(nm) > 0) {
+    form <- form[match(nm, form$name), ]
     choices <- form$choices
     choices <- lapply(choices, function(ch) {
-      ch <- ch[ch$value_lang %in% lang, ]
+      ch <- filter(ch,
+                   .data$value_lang %in% !!lang)
       ch$value_label <- make.unique(ch$value_label, sep = "_")
       ch <- setNames(ch$value_name, ch$value_label)
       ch[!duplicated(ch)]

@@ -6,7 +6,7 @@
 \alias{robotoolbox-package}
 \title{robotoolbox}
 \description{
-Client for KoBoToolbox API v2
+R Client for KoBoToolbox API v2
 }
 \author{
 \email{mail@ahmadoudicko.com}
