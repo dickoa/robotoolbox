@@ -72,10 +72,10 @@ get_subs_async <- function(uid, size, chunk_size = NULL, ...) {
                     opts = list(...))$get()
   })
   sleep <- case_when(
-    size > 30000 ~ 5,
-    size > 15000 ~ 3,
-    size > 5000 ~ 2,
-    size > 1000 ~ 1,
+    size > 30000 ~ 3,
+    size > 15000 ~ 2,
+    size > 5000 ~ 1,
+    size > 1000 ~ 0.5,
     TRUE ~ 0.5
   )
   res <- AsyncQueue$new(.list = reqs,
@@ -144,7 +144,8 @@ form_media_one_csv_tbl <- function(url) {
 #' @noRd
 form_media_csv_tbl <- function(uid) {
   meta <- get_form_media(uid)
-  df <- lapply(meta$url, function(x) form_media_one_csv_tbl(x))
+  df <- lapply(meta$url,
+               function(x) form_media_one_csv_tbl(x))
   df
 }
 
@@ -201,7 +202,8 @@ fast_dummy_cols <- function(x, cols) {
     x[which(is.na(y)), (new_names) := NA_integer_]
     for (iter in seq_along(uv)) {
       j <- paste0(col, "_", uv[iter])
-      i <- which(stri_detect_regex(y, paste0("\\b", uv[iter], "\\b")))
+      i <- which(stri_detect_regex(y,
+                                   paste0("\\b", uv[iter], "\\b")))
       set(x, i = i, j = j, value = 1L)
     }
   }
@@ -232,7 +234,7 @@ name_repair_ <- function(x) {
     return(NULL)
   modify_if(set_names(x, make_unique_names_),
             ~ some(., is.data.frame),
-            ~ map(., name_repair_))
+            ~ lapply(., name_repair_))
 }
 
 #' @importFrom purrr modify_if
@@ -365,8 +367,8 @@ var_labels_from_form_ <- function(x, form, lang) {
 #' @importFrom utils type.convert
 #' @noRd
 postprocess_data_ <- function(x, form, lang) {
-  x <- type.convert(x, as.is = TRUE)
   x <- dummy_from_form_(x, form)
+  x <- type.convert(x, as.is = TRUE)
   x <- val_labels_from_form_(x = x, form = form, lang = lang)
   x <- var_labels_from_form_(x = x, form = form, lang = lang)
   x

@@ -11,7 +11,6 @@ test_that("kobo_asset_version_list works", {
   asset_version1 <- kobo_asset_version(uid, version_uid)
   asset_version2 <- kobo_asset_version(kobo_asset(uid),
                                        version_uid)
-
   expect_equal(asset_version1, asset_version2)
   expect_is(asset_version1, "kobo_asset_version")
   expect_error(kobo_asset_version(1L, version_uid))

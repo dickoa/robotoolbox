@@ -12,7 +12,6 @@ test_that("with kobo_data you can read your submissions", {
   raw_asset <- kobo_data(asset)
   raw_paginate <- kobo_data(asset, paginate = TRUE, page_size = 2)
   raw_paginate2 <- kobo_data(asset, paginate = TRUE) ## default
-
   expect_equal(raw_uid, raw_asset)
   expect_equal(raw_uid, raw_paginate)
   expect_equal(raw_paginate, raw_paginate2)

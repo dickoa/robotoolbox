@@ -19,7 +19,7 @@ kobo_submissions <- function(x, paginate, page_size, lang)
 #' @importFrom tibble rowid_to_column tibble
 #' @importFrom dm as_dm dm_add_pk dm_add_fk
 #'
-#' @param x a kobo_asset or  asset uid, the asset
+#' @param x a kobo_asset or asset uid, the asset
 #' @param paginate logical, split submissions by page. Default to FALSE
 #' @param page_size integer, number of submissions per page.
 #' if missing, default to number of submissions divided by 5
@@ -66,7 +66,8 @@ kobo_data.kobo_asset <- function(x, paginate = FALSE,
     for (j in 2:p) {
       tbl_nm <- names(subs)[j]
       ref_tbl_nm <- unique(subs[[j]][["_parent_table_name"]])
-      subs <- dm_add_pk(subs, {{tbl_nm}}, "_index")
+      subs <- dm_add_pk(subs, {{tbl_nm}},
+                        "_index")
       subs <- dm_add_fk(subs, {{tbl_nm}},
                         "_parent_index",
                         {{ref_tbl_nm}})

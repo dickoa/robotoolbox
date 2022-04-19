@@ -28,7 +28,7 @@ kobo_submissions(x, paginate, page_size, lang)
 \method{kobo_submissions}{default}(x, paginate = FALSE, page_size = NULL, lang = NULL)
 }
 \arguments{
-\item{x}{a kobo_asset or  asset uid, the asset}
+\item{x}{a kobo_asset or asset uid, the asset}
 
 \item{paginate}{logical, split submissions by page. Default to FALSE}
 

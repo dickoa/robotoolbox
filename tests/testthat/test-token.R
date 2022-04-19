@@ -1,7 +1,7 @@
 test_that("kobo_token works", {
-  url <- Sys.getenv("KOBOTOOLBOX_TEST_URL")
-  user <- Sys.getenv("KOBOTOOLBOX_TEST_USER")
-  pwd <- Sys.getenv("KOBOTOOLBOX_TEST_PWD")
+  url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
+  user <- Sys.getenv("KOBOTOOLBOX_PROD_USER")
+  pwd <- Sys.getenv("KOBOTOOLBOX_PROD_PWD")
   skip <-  url == "" | user == "" | pwd == ""
   skip_if(skip,
           message = "Test server not configured")
@@ -21,9 +21,9 @@ test_that("kobo_token works", {
 })
 
 test_that("kobo_token set the kobotoolbox_url env", {
-  url <- Sys.getenv("KOBOTOOLBOX_TEST_URL")
-  user <- Sys.getenv("KOBOTOOLBOX_TEST_USER")
-  pwd <- Sys.getenv("KOBOTOOLBOX_TEST_PWD")
+  url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
+  user <- Sys.getenv("KOBOTOOLBOX_PROD_USER")
+  pwd <- Sys.getenv("KOBOTOOLBOX_PROD_PWD")
   skip <-  url == "" | user == "" | pwd == ""
   skip_if(skip,
           message = "Test server not configured")
@@ -35,5 +35,5 @@ test_that("kobo_token set the kobotoolbox_url env", {
 
   expect_is(token, class = "character")
   expect_equal(Sys.getenv("KOBOTOOLBOX_URL"),
-               Sys.getenv("KOBOTOOLBOX_TEST_URL"))
+               Sys.getenv("KOBOTOOLBOX_PROD_URL"))
 })

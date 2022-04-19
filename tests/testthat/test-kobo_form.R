@@ -9,7 +9,6 @@ test_that("kobo_form works", {
   uid <- "aANhxwX9S6BCsiYMgQj9kV"
   form1 <- kobo_form(uid)
   form2 <- kobo_form(kobo_asset(uid))
-
   expect_equal(form1, form2)
   expect_equal(class(form1),
                c("tbl_df", "tbl", "data.frame"))
@@ -29,7 +28,6 @@ test_that("kobo_form has a version argument", {
   asset_versions <- kobo_asset_version_list(asset)
   form1 <- kobo_form(uid, version = asset_versions$uid[1])
   form2 <- kobo_form(asset, version = asset_versions$uid[1])
-
   expect_equal(form1, form2)
   expect_equal(class(form1),
                c("tbl_df", "tbl", "data.frame"))
@@ -47,6 +45,5 @@ test_that("kobo_form can load form with choices tab", {
   uid <- "aEnSVDdSc82qv84mgWEcvs"
   asset <- kobo_asset(uid)
   form <- kobo_form(uid)
-
   expect_true(!"choices" %in% names(form))
  })

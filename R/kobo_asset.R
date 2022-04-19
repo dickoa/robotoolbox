@@ -27,7 +27,7 @@ kobo_asset.character <- function(x) {
 #' @rdname kobo_asset
 #' @export
 kobo_asset.kobo_asset <- function(x) {
-  kobo_asset.character(x$uid)
+  x
 }
 
 #' @rdname kobo_asset
