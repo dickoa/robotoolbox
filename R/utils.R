@@ -393,3 +393,10 @@ kobo_question_types <- function() {
     "background-audio", "video", "file", "barcode",
     "calculate", "acknowledge", "hidden")
 }
+
+#' @noRd
+kobo_display_fields <- function() {
+  c("label", "hint", "guidance_hint",
+    "constraint_message", "required_message",
+    "image", "audio", "video")
+}

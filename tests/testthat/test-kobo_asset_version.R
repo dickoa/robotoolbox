@@ -15,6 +15,6 @@ test_that("kobo_asset_version_list works", {
   expect_is(asset_version1, "kobo_asset_version")
   expect_error(kobo_asset_version(1L, version_uid))
 
-  local_edition(3)
+  local_edition(3L)
   expect_snapshot_output(print.kobo_asset_version(asset_version1))
 })

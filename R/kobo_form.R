@@ -26,9 +26,11 @@ kobo_form <- function(x, version)
 #' @export
 kobo_form.kobo_asset <- function(x, version = NULL) {
 
-  form_lang <- function(x, lang) {
-    x$hint <- lapply(x$hint, null2char)
-    x$label <- lapply(x$label, null2char)
+  form_display_fields <- function(x, lang) {
+    nm <- intersect(names(x),
+                    kobo_display_fields())
+    for (n in nm)
+      x[[n]] <- lapply(x[[n]], null2char)
     ss <- sum(lengths(x$label))
     x$lang <- lang[seq.int(ss)]
     x
@@ -46,7 +48,7 @@ kobo_form.kobo_asset <- function(x, version = NULL) {
     lang <- "Labels"
   }
   survey <- lapply(asset$content$survey, function(l) {
-    x <- form_lang(l, lang)
+    x <- form_display_fields(l, lang)
     x
   })
   survey <- rbindlist(drop_nulls(survey), fill = TRUE)
@@ -67,7 +69,7 @@ kobo_form.kobo_asset <- function(x, version = NULL) {
   survey$version <- version
   if ("choices" %in% asset_content_nm) {
     choices <- lapply(asset$content$choices, function(l) {
-      x <- form_lang(l, lang)
+      x <- form_display_fields(l, lang)
       x
     })
     choices <- drop_nulls(choices)
