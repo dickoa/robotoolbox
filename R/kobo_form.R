@@ -27,6 +27,8 @@ kobo_form <- function(x, version)
 kobo_form.kobo_asset <- function(x, version = NULL) {
 
   form_lang <- function(x, lang) {
+    x$hint <- lapply(x$hint, null2char)
+    x$label <- lapply(x$label, null2char)
     ss <- sum(lengths(x$label))
     x$lang <- lang[seq.int(ss)]
     x
