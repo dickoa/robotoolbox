@@ -1,0 +1,186 @@
+---
+title: "robotoolbox: an R client for KoBotoolbox"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{robotoolbox: an R client for KoBotoolbox}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  echo = TRUE,
+  comment = "#>"
+)
+
+```
+
+
+# Install robotoolbox
+
+`robotoolbox` is still in development and not yet on CRAN. In order to install it, you will need the [`remotes`](https://github.com/r-lib/remotes) package.
+
+
+```{r, eval = FALSE}
+## install.packages("remotes")
+remotes::install_gitlab("dickoa/robotoolbox")
+```
+
+`robotoolbox` is built around [`KoBoToolbox API v2`](https://support.kobotoolbox.org/api.html) and its main goal is to ease the process by which you access your collected data.
+
+You will need to set your API token and specify our `KoBoToolbox` server URL. The easiest way to set up `robotoolbox` is to store the token and url your `.Renviron`.
+
+We are using the following environment variables `KOBOTOOLBOX_URL` and `KOBOTOOLBOX_TOKEN`. You can use the `usethis` R package and the `usethis::edit_r_environ()` to add the following to your `.Renviron` file.
+
+
+```{bash, eval = FALSE, engine = "sh"}
+KOBOTOOLBOX_URL="https://kobo.unhcr.org/"
+KOBOTOOLBOX_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+In an interactive session, you can use directly the `kobo_setup` function.
+
+```{r, eval = FALSE}
+library("robotoolbox")
+kobo_setup(url = "https://kobo.unhcr.org",
+           token = "xxxxxxxxxxxxxxxxxxxxxxxxxx")
+```
+
+You can get your `token` manually through the `KoBotoolbox` web interface in your account settings. There is also the `kobo_token` function to do the same thing automagically from `R`.
+
+```{r, eval = FALSE}
+token <- kobo_token(username = "cool_user_name",
+                    password = "gRe@TP@$$WoRd",
+                    overwrite = TRUE)
+```
+
+This token can then be used in the setup.
+
+```{r, eval = FALSE}
+kobo_setup(url = "https://kobo.unhcr.org",
+           token = token)
+```
+
+and we can check our settings with `kobo_settings` function.
+
+```{r, eval = FALSE}
+kobo_settings()
+## <robotoolbox settings>
+##    KoBoToolbox URL: https://kobo.unhcr.org/
+##    KoBoToolbox API Token: xxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+# KoBotoolbox projects
+
+## List your projects
+
+All your `KoBotoolbox` projects also named `asset` can be checked and listed through the web interface.
+
+
+```{r, echo = FALSE}
+knitr::include_graphics("./img/list_assets.png")
+```
+
+Using `robotoolbox`, you can do something similar from `R` with the `kobo_asset_list` function.
+
+
+```{r}
+library("robotoolbox")
+library("dplyr")
+al <- kobo_asset_list()
+
+al |>
+  slice_head(n = 6) |>
+  knitr::kable()
+```
+
+## KoBoToolbox asset
+
+You can also manipulate directly each `asset` (project) using `kobo_asset`. An asset is uniquely identified by a unique identifier: the `uid`.
+
+```{r}
+uid <- "aEwTYNcU76UvLgiY89rPWm"
+asset <- kobo_asset(uid)
+asset
+```
+
+Since `al`, the list of assets, is a `data.frame`, we can subset it and select the `uid` of interest based on the other available metadata.
+
+As an example, you can get the `uid` associated to the project with the largest number of submissions.
+
+```{r}
+al |>
+  slice_max(submissions) |>
+  pull(uid)
+```
+
+And it's then possible to get the associated `asset` object.
+
+
+```{r}
+al |>
+  slice_max(submissions) |>
+  pull(uid) |>
+  kobo_asset()
+```
+
+# KoBotoolbox data
+
+The main function on the `robotoolbox` package is `kobo_data` (or `kobo_submissions` its alias), and as the name suggests, it loads your data from the server.
+
+We can illustrate its usage trying to read data from the project named `Multiple languages`.
+
+The first step, is to get uid of the project
+
+```{r}
+uid_ml <- al |>
+  filter(name == "Multiple languages") |>
+  pull(uid)
+uid_ml
+```
+
+We can then use `uid_ml`, that uniquely identify the `Multiple languages` asset to read its data
+
+
+```{r}
+data_ml <- kobo_data(uid_ml)
+
+data_ml |>
+  select(start:uuid) |>
+  knitr::kable()
+```
+
+# KoBotoolbox form
+
+`robotoolbox` allows you to represent and manipulate `KoBotoolbox` forms. You can pull the form from a particular project using the `kobo_form` function
+
+```{r}
+uid_ml |>
+  kobo_form() |>
+  knitr::kable()
+```
+
+Which is a representation in `robotoolbox` of the following form
+
+
+### Survey questions
+
+| type             | name      | label::English (en)  | label::Francais (fr)               | label::Arabic (ar) |
+|:-----------------|:----------|:---------------------|:-----------------------------------|:-------------------|
+| start            | start     |                      |                                    |                    |
+| end              | end       |                      |                                    |                    |
+| today            | today     |                      |                                    |                    |
+| text             | full_name | What is your name?   | Quel est votre nom ?               | ما اسمك ؟          |
+| select_one yesno | pet_yesno | Do you have any pet? | Avez-vous un animal de compagnie ? | هل تمتلك حيوانا أليفا ؟ |
+
+
+### Choices
+
+| list_name | name | label::English (en) | label::Francais (fr) | label::Arabic (ar) |
+|:----------|-----:|:--------------------|:---------------------|:-------------------|
+| yesno     |    1 | Yes                 | Oui                  | نعم                |
+| yesno     |    0 | No                  | Non                  | لا                 |
+|           |      |                     |                      |                    |
