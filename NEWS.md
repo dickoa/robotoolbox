@@ -1,5 +1,6 @@
-robotoolbox 0.0.1.9000
+robotoolbox 0.0.7.9000
 ======================
 
 ### NEW FEATURES
+-  All values are turn into dummies including values not used
 ### BUG FIXES

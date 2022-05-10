@@ -188,21 +188,34 @@ null2char <- function(x) {
   x
 }
 
+#' @importFrom stringi stri_sort
+#' @importFrom stats na.omit
+#' @noRd
+col2choices <- function(x, form, col) {
+  idx <- which(form$name %in% col)
+  if (length(idx) > 0) {
+    idx <- idx[1]
+    uv <- unique(form$choices[[idx]]$value_name)
+  } else {
+    uv <- unique(unlist(strsplit(x[[col]], "\\s+")))
+    uv <- trimws(na.omit(uv))
+  }
+  stri_sort(uv,
+            na_last = TRUE,
+            locale = "en_US",
+            numeric = TRUE)
+}
+
 #' @importFrom data.table as.data.table alloc.col `:=` chmatch set
 #' @importFrom stringi stri_sort stri_detect_regex
 #' @importFrom tibble as_tibble
 #' @importFrom stats na.omit
 #' @noRd
-fast_dummy_cols <- function(x, cols) {
+fast_dummy_cols <- function(x, form, cols) {
   x <- as.data.table(x)
   for (col in cols) {
     y <- x[[col]]
-    uv <- unique(unlist(strsplit(y, "\\s+")))
-    uv <- trimws(na.omit(uv))
-    uv <- stri_sort(uv,
-                    na_last = TRUE,
-                    locale = "en_US",
-                    numeric = TRUE)
+    uv <- col2choices(x, form, col)
     new_names <- paste0(col, "_", uv)
     alloc.col(x, ncol(x) + length(uv))
     x[, (new_names) := 0L]
@@ -222,7 +235,7 @@ dummy_from_form_ <- function(x, form) {
   nm <- unique(form$name[form$type %in% "select_multiple"])
   nm <- intersect(names(x), nm)
   if (length(nm) > 0) {
-    x <- fast_dummy_cols(x, nm)
+    x <- fast_dummy_cols(x, form, nm)
   } else {
     x
   }
