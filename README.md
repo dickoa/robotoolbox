@@ -16,7 +16,7 @@ status](https://www.r-pkg.org/badges/version/robotoolbox)](https://cran.r-projec
 MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 `robotoolbox` is an R client to access data from
-[KoBoToolbox](https://www.kobotoolbox.org/).
+[KoboToolbox](https://www.kobotoolbox.org/).
 
 ## Installation
 
@@ -32,8 +32,8 @@ remotes::install_gitlab("dickoa/robotoolbox")
 ## robotoolbox: A quick tutorial
 
 The `robotoolbox` package is a client to
-[`KoBoToolbox API v2`](https://support.kobotoolbox.org/api.html). You
-will need to set your API token and specify the `KoBoToolbox` server
+[`KoboToolbox API v2`](https://support.kobotoolbox.org/api.html). You
+will need to set your API token and specify the `KoboToolbox` server
 URL. The easiest way to do that is to store them in your `.Renviron`
 file which is automatically read by `R` on startup.
 
@@ -73,8 +73,8 @@ kobo_setup(url = "https://kobo.unhcr.org",
 library("robotoolbox")
 kobo_settings()
 ## <robotoolbox settings>
-##    KoBoToolbox URL: https://kobo.unhcr.org/
-##    KoBoToolbox API Token: xxxxxxxxxxxxxxxxxxxxxxxxxx
+##    KoboToolbox URL: https://kobo.unhcr.org/
+##    KoboToolbox API Token: xxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 With the settings done, it is possible to list all `assets` (e.g form,
