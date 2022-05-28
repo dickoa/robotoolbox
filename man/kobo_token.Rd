@@ -2,22 +2,22 @@
 % Please edit documentation in R/kobo_token.R
 \name{kobo_token}
 \alias{kobo_token}
-\title{Get your KoBoToolbox API token from your username and password}
+\title{Get your KoboToolbox API token from your username and password}
 \usage{
 kobo_token(username = NULL, password = NULL, url = NULL, overwrite = FALSE)
 }
 \arguments{
-\item{username}{character, KoBoToolbox username}
+\item{username}{character, KoboToolbox username}
 
-\item{password}{character, KoBoToolbox password}
+\item{password}{character, KoboToolbox password}
 
-\item{url}{character, KoBoToolbox server url}
+\item{url}{character, KoboToolbox server url}
 
 \item{overwrite}{logical, if TRUE overwrite existing token}
 }
 \value{
-character, the KoBoToolbox API token
+character, the KoboToolbox API token
 }
 \description{
-Get your KoBoToolbox API token from your username and password
+Get your KoboToolbox API token from your username and password
 }

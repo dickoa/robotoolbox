@@ -22,6 +22,6 @@ kobo_setup <- function(url = Sys.getenv("KOBOTOOLBOX_URL", ""),
 #' @export
 print.kobo_settings <- function(x, ...) {
   cat("<robotoolbox settings> \n")
-  cat("   KoBoToolbox URL: ", x$url, "\n", sep = "")
-  cat("   KoBoToolbox API Token: ", x$token, "\n", sep = "")
+  cat("   KoboToolbox URL: ", x$url, "\n", sep = "")
+  cat("   KoboToolbox API Token: ", x$token, "\n", sep = "")
 }

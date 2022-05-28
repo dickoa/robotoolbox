@@ -41,5 +41,5 @@ if missing, default to number of submissions divided by 5}
 data.frame
 }
 \description{
-Get all submissions from a project (KoBoToolbox asset)
+Get all submissions from a project (KoboToolbox asset)
 }

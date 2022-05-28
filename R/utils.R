@@ -207,7 +207,7 @@ col2choices <- function(x, form, col) {
 }
 
 #' @importFrom data.table as.data.table alloc.col `:=` chmatch set
-#' @importFrom stringi stri_sort stri_detect_regex
+#' @importFrom stringi stri_detect_regex
 #' @importFrom tibble as_tibble
 #' @importFrom stats na.omit
 #' @noRd

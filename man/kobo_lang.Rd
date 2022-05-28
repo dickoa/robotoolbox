@@ -5,7 +5,7 @@
 \alias{kobo_lang.kobo_asset}
 \alias{kobo_lang.character}
 \alias{kobo_lang.default}
-\title{Languages used in the KoBoToolbox project}
+\title{Languages used in the KoboToolbox project}
 \usage{
 kobo_lang(x)
 
@@ -22,5 +22,5 @@ kobo_lang(x)
 a vector of languages. It returnes "Labels" when no language is set
 }
 \description{
-Languages used in the KoBoToolbox project
+Languages used in the KoboToolbox project
 }

@@ -1,17 +1,17 @@
-#' Get your KoBoToolbox API token from your username and password
+#' Get your KoboToolbox API token from your username and password
 #'
-#' Get your KoBoToolbox API token from your username and password
+#' Get your KoboToolbox API token from your username and password
 #'
 #'
 #' @importFrom crul auth HttpClient
 #' @importFrom RcppSimdJson fparse
 #'
-#' @param username character, KoBoToolbox username
-#' @param password character, KoBoToolbox password
-#' @param url character, KoBoToolbox server url
+#' @param username character, KoboToolbox username
+#' @param password character, KoboToolbox password
+#' @param url character, KoboToolbox server url
 #' @param overwrite logical, if TRUE overwrite existing token
 #'
-#' @return character, the KoBoToolbox API token
+#' @return character, the KoboToolbox API token
 #' @export
 kobo_token <- function(username = NULL, password = NULL,
                        url = NULL, overwrite = FALSE) {

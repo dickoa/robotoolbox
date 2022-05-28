@@ -5,7 +5,7 @@
 \alias{kobo_asset_version_list.character}
 \alias{kobo_asset_version_list.kobo_asset}
 \alias{kobo_asset_version_list.default}
-\title{List all available versions of a KoBoToolbox asset}
+\title{List all available versions of a KoboToolbox asset}
 \usage{
 kobo_asset_version_list(x)
 
@@ -22,6 +22,6 @@ kobo_asset_version_list(x)
 a list of kobo_asset_version
 }
 \description{
-List all available versions of a KoBoToolbox asset. Works only if you own
+List all available versions of a KoboToolbox asset. Works only if you own
 the project.
 }

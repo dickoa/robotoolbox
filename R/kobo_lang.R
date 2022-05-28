@@ -3,9 +3,9 @@
 kobo_lang <- function(x)
   UseMethod("kobo_lang")
 
-#' Languages used in the KoBoToolbox project
+#' Languages used in the KoboToolbox project
 #'
-#' Languages used in the KoBoToolbox project
+#' Languages used in the KoboToolbox project
 #'
 #' @rdname kobo_lang
 #'

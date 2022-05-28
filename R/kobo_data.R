@@ -10,7 +10,7 @@ kobo_submissions <- function(x, paginate, page_size, lang)
 
 #' Get all submissions from a project
 #'
-#' Get all submissions from a project (KoBoToolbox asset)
+#' Get all submissions from a project (KoboToolbox asset)
 #'
 #' @rdname kobo_data
 #'

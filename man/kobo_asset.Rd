@@ -5,7 +5,7 @@
 \alias{kobo_asset.character}
 \alias{kobo_asset.kobo_asset}
 \alias{kobo_asset.default}
-\title{Get a specific KoBoToolbox Asset from a uid}
+\title{Get a specific KoboToolbox Asset from a uid}
 \usage{
 kobo_asset(x)
 
@@ -22,5 +22,5 @@ kobo_asset(x)
 a kobo_asset object
 }
 \description{
-Get a specific KoBoToolbox Asset from a uid
+Get a specific KoboToolbox Asset from a uid
 }

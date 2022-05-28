@@ -1,6 +1,6 @@
 Package: robotoolbox
-Title: An R Client for the KoBoToolbox API
-Version: 0.7.9001
+Title: An R Client for the KoboToolbox API
+Version: 0.8.9001
 Authors@R: c(person(given = "Ahmadou",
                     family = "Dicko",
 		    email = "mail@ahmadoudicko.com",
@@ -11,7 +11,7 @@ Authors@R: c(person(given = "Ahmadou",
 		    role = "ctb"),
 	     person("UNHCR",
 		    role = "cph"))
-Description: Utilities to access data from the KoBoToolbox API v2.
+Description: Utilities to access data from the KoboToolbox API v2.
     <https://support.kobotoolbox.org/api.html>.
 Depends: R (>= 4.1)
 License: MIT + file LICENSE
@@ -42,5 +42,5 @@ Suggests:
     covr (>= 3.5.1),
     rmarkdown (>= 2.11)
 VignetteBuilder: knitr
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Roxygen: list(markdown = TRUE)

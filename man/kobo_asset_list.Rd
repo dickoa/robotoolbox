@@ -2,7 +2,7 @@
 % Please edit documentation in R/kobo_asset.R
 \name{kobo_asset_list}
 \alias{kobo_asset_list}
-\title{List all available KoBoToolbox API assets}
+\title{List all available KoboToolbox API assets}
 \usage{
 kobo_asset_list()
 }
@@ -10,5 +10,5 @@ kobo_asset_list()
 a list of kobo_asset
 }
 \description{
-List all available KoBoToolbox API assets
+List all available KoboToolbox API assets
 }

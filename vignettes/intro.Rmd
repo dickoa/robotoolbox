@@ -1,8 +1,8 @@
 ---
-title: "robotoolbox: an R client for KoBotoolbox"
+title: "robotoolbox: an R client for Kobotoolbox"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{robotoolbox: an R client for KoBotoolbox}
+  %\VignetteIndexEntry{robotoolbox: an R client for Kobotoolbox}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -29,9 +29,9 @@ knitr::opts_chunk$set(
 remotes::install_gitlab("dickoa/robotoolbox")
 ```
 
-`robotoolbox` is built around [`KoBoToolbox API v2`](https://support.kobotoolbox.org/api.html) and its main goal is to ease the process by which you access your collected data.
+`robotoolbox` is built around [`KoboToolbox API v2`](https://support.kobotoolbox.org/api.html) and its main goal is to ease the process by which you access your collected data.
 
-You will need to set your API token and specify our `KoBoToolbox` server URL. The easiest way to set up `robotoolbox` is to store the token and url your `.Renviron`.
+You will need to set your API token and specify our `KoboToolbox` server URL. The easiest way to set up `robotoolbox` is to store the token and url your `.Renviron`.
 
 We are using the following environment variables `KOBOTOOLBOX_URL` and `KOBOTOOLBOX_TOKEN`. You can use the `usethis` R package and the `usethis::edit_r_environ()` to add the following to your `.Renviron` file.
 
@@ -49,7 +49,7 @@ kobo_setup(url = "https://kobo.unhcr.org",
            token = "xxxxxxxxxxxxxxxxxxxxxxxxxx")
 ```
 
-You can get your `token` manually through the `KoBotoolbox` web interface in your account settings. There is also the `kobo_token` function to do the same thing automagically from `R`.
+You can get your `token` manually through the `Kobotoolbox` web interface in your account settings. There is also the `kobo_token` function to do the same thing automagically from `R`.
 
 ```{r, eval = FALSE}
 token <- kobo_token(username = "cool_user_name",
@@ -69,15 +69,15 @@ and we can check our settings with `kobo_settings` function.
 ```{r, eval = FALSE}
 kobo_settings()
 ## <robotoolbox settings>
-##    KoBoToolbox URL: https://kobo.unhcr.org/
-##    KoBoToolbox API Token: xxxxxxxxxxxxxxxxxxxxxxxxxx
+##    KoboToolbox URL: https://kobo.unhcr.org/
+##    KoboToolbox API Token: xxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-# KoBotoolbox projects
+# Kobotoolbox projects
 
 ## List your projects
 
-All your `KoBotoolbox` projects also named `asset` can be checked and listed through the web interface.
+All your `Kobotoolbox` projects also named `asset` can be checked and listed through the web interface.
 
 
 ```{r, echo = FALSE}
@@ -97,7 +97,7 @@ al |>
   knitr::kable()
 ```
 
-## KoBoToolbox asset
+## KoboToolbox asset
 
 You can also manipulate directly each `asset` (project) using `kobo_asset`. An asset is uniquely identified by a unique identifier: the `uid`.
 
@@ -127,7 +127,7 @@ al |>
   kobo_asset()
 ```
 
-# KoBotoolbox data
+# Kobotoolbox data
 
 The main function on the `robotoolbox` package is `kobo_data` (or `kobo_submissions` its alias), and as the name suggests, it loads your data from the server.
 
@@ -153,9 +153,9 @@ data_ml |>
   knitr::kable()
 ```
 
-# KoBotoolbox form
+# Kobotoolbox form
 
-`robotoolbox` allows you to represent and manipulate `KoBotoolbox` forms. You can pull the form from a particular project using the `kobo_form` function
+`robotoolbox` allows you to represent and manipulate `Kobotoolbox` forms. You can pull the form from a particular project using the `kobo_form` function
 
 ```{r}
 uid_ml |>

@@ -3,9 +3,9 @@
 kobo_asset <- function(x)
   UseMethod("kobo_asset")
 
-#' Get a specific KoBoToolbox Asset from a uid
+#' Get a specific KoboToolbox Asset from a uid
 #'
-#' Get a specific KoBoToolbox Asset from a uid
+#' Get a specific KoboToolbox Asset from a uid
 #'
 #' @rdname kobo_asset
 #'
@@ -37,9 +37,9 @@ kobo_asset.default <- function(x) {
        call. = FALSE)
 }
 
-#' List all available KoBoToolbox API assets
+#' List all available KoboToolbox API assets
 #'
-#' List all available KoBoToolbox API assets
+#' List all available KoboToolbox API assets
 #'
 #' @importFrom RcppSimdJson fparse
 #' @importFrom tibble tibble
@@ -66,9 +66,9 @@ kobo_asset_list <- function() {
 kobo_asset_version <- function(x, version)
   UseMethod("kobo_asset_version")
 
-#' Get a specific KoBoToolbox Asset from a uid
+#' Get a specific KoboToolbox Asset from a uid
 #'
-#' Get a specific KoBoToolbox Asset from a uid
+#' Get a specific KoboToolbox Asset from a uid
 #'
 #' @rdname kobo_asset_version
 #'
@@ -108,9 +108,9 @@ kobo_asset_version.default <- function(x, version) {
 kobo_asset_version_list <- function(x)
   UseMethod("kobo_asset_version_list")
 
-#' List all available versions of a KoBoToolbox asset
+#' List all available versions of a KoboToolbox asset
 #'
-#' List all available versions of a KoBoToolbox asset. Works only if you own
+#' List all available versions of a KoboToolbox asset. Works only if you own
 #' the project.
 #'
 #' @rdname kobo_asset_version_list
