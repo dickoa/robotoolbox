@@ -3,27 +3,18 @@
 \name{kobo_data}
 \alias{kobo_data}
 \alias{kobo_submissions}
-\alias{kobo_data.kobo_asset}
 \alias{kobo_submissions.kobo_asset}
-\alias{kobo_data.character}
 \alias{kobo_submissions.character}
-\alias{kobo_data.default}
 \alias{kobo_submissions.default}
-\title{Get all submissions from a project}
+\title{Get all submissions from a project (Kobotoolbox asset)}
 \usage{
 kobo_data(x, paginate, page_size, lang)
 
 kobo_submissions(x, paginate, page_size, lang)
 
-\method{kobo_data}{kobo_asset}(x, paginate = FALSE, page_size = NULL, lang = NULL)
-
 \method{kobo_submissions}{kobo_asset}(x, paginate = FALSE, page_size = NULL, lang = NULL)
 
-\method{kobo_data}{character}(x, paginate = FALSE, page_size = NULL, lang = NULL)
-
 \method{kobo_submissions}{character}(x, paginate = FALSE, page_size = NULL, lang = NULL)
-
-\method{kobo_data}{default}(x, paginate = FALSE, page_size = NULL, lang = NULL)
 
 \method{kobo_submissions}{default}(x, paginate = FALSE, page_size = NULL, lang = NULL)
 }
@@ -42,4 +33,16 @@ data.frame
 }
 \description{
 Get all submissions from a project (KoboToolbox asset)
+}
+\examples{
+\dontrun{
+kobo_setup()
+asset_list <- kobo_asset_list()
+uid <- asset_list$uid[1]
+asset <- kobo_asset(uid)
+subs <- kobo_data(asset)
+library(dplyr)
+glimpse(subs)
+}
+
 }

@@ -7,5 +7,10 @@
 kobo_settings()
 }
 \description{
-Get \code{robotoolbox} settings
+Print the current token and server url used
+}
+\examples{
+\dontrun{
+ kobo_settings()
+}
 }

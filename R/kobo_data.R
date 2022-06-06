@@ -1,14 +1,4 @@
-#' @rdname kobo_data
-#' @export
-kobo_data <- function(x, paginate, page_size, lang)
-  UseMethod("kobo_data")
-
-#' @rdname kobo_data
-#' @export
-kobo_submissions <- function(x, paginate, page_size, lang)
-  UseMethod("kobo_submissions")
-
-#' Get all submissions from a project
+#' Get all submissions from a project (Kobotoolbox asset)
 #'
 #' Get all submissions from a project (KoboToolbox asset)
 #'
@@ -26,6 +16,27 @@ kobo_submissions <- function(x, paginate, page_size, lang)
 #' @param lang character, language for the variable and value labels
 #'
 #' @return data.frame
+#'
+#' @examples
+#' \dontrun{
+#' kobo_setup()
+#' asset_list <- kobo_asset_list()
+#' uid <- asset_list$uid[1]
+#' asset <- kobo_asset(uid)
+#' subs <- kobo_data(asset)
+#' library(dplyr)
+#' glimpse(subs)
+#' }
+#'
+#' @export
+kobo_data <- function(x, paginate, page_size, lang)
+  UseMethod("kobo_data")
+
+#' @rdname kobo_data
+#' @export
+kobo_submissions <- function(x, paginate, page_size, lang)
+  UseMethod("kobo_submissions")
+
 #' @export
 kobo_data.kobo_asset <- function(x, paginate = FALSE,
                                  page_size = NULL, lang = NULL) {
@@ -86,7 +97,6 @@ kobo_data.kobo_asset <- function(x, paginate = FALSE,
 #' @export
 kobo_submissions.kobo_asset <- kobo_data.kobo_asset
 
-#' @rdname kobo_data
 #' @export
 kobo_data.character <- function(x, paginate = FALSE,
                                 page_size = NULL, lang = NULL) {
@@ -100,7 +110,6 @@ kobo_data.character <- function(x, paginate = FALSE,
 #' @export
 kobo_submissions.character <- kobo_data.character
 
-#' @rdname kobo_data
 #' @export
 kobo_data.default <- function(x, paginate = FALSE,
                               page_size = NULL, lang = NULL) {

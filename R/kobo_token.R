@@ -11,6 +11,14 @@
 #' @param url character, KoboToolbox server url
 #' @param overwrite logical, if TRUE overwrite existing token
 #'
+#' @examples
+#' \dontrun{
+#' token <- kobo_setup(username = "cool_user_name",
+#'                     password = "xsww3@dddb",
+#'                     url = "https://kf.kobotoolbox.org/")
+#' token
+#' }
+#'
 #' @return character, the KoboToolbox API token
 #' @export
 kobo_token <- function(username = NULL, password = NULL,

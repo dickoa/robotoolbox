@@ -1,8 +1,3 @@
-#' @rdname kobo_asset
-#' @export
-kobo_asset <- function(x)
-  UseMethod("kobo_asset")
-
 #' Get a specific KoboToolbox Asset from a uid
 #'
 #' Get a specific KoboToolbox Asset from a uid
@@ -15,6 +10,19 @@ kobo_asset <- function(x)
 #'
 #' @return a kobo_asset object
 #'
+#' @examples
+#' \dontrun{
+#' kobo_setup()
+#' asset_list <- kobo_asset_list()
+#' uid <- asset_list$uid[1]
+#' asset <- kobo_asset(uid)
+#' asset
+#' }
+#' @export
+kobo_asset <- function(x)
+  UseMethod("kobo_asset")
+
+
 #' @export
 kobo_asset.character <- function(x) {
   path <- paste0("api/v2/assets/", x)
@@ -24,13 +32,11 @@ kobo_asset.character <- function(x) {
             class = "kobo_asset")
 }
 
-#' @rdname kobo_asset
 #' @export
 kobo_asset.kobo_asset <- function(x) {
   x
 }
 
-#' @rdname kobo_asset
 #' @export
 kobo_asset.default <- function(x) {
   stop("You need to use a 'kobo_asset' or an asset uid",
@@ -45,6 +51,13 @@ kobo_asset.default <- function(x) {
 #' @importFrom tibble tibble
 #'
 #' @return a list of kobo_asset
+#'
+#' @examples
+#' \dontrun{
+#' kobo_setup()
+#' asset_list <- kobo_asset_list()
+#' asset_list
+#' }
 #'
 #' @export
 kobo_asset_list <- function() {
@@ -61,14 +74,9 @@ kobo_asset_list <- function() {
          submissions = map_int2(res, "deployment__submission_count"))
 }
 
-#' @rdname kobo_asset_version
-#' @export
-kobo_asset_version <- function(x, version)
-  UseMethod("kobo_asset_version")
-
-#' Get a specific KoboToolbox Asset from a uid
+#' Get a specific KoboToolbox Asset version from an asset uid or \code{kobo_asset}
 #'
-#' Get a specific KoboToolbox Asset from a uid
+#' Get a specific KoboToolbox Asset version from an asset uid or \code{kobo_asset}
 #'
 #' @rdname kobo_asset_version
 #'
@@ -79,6 +87,20 @@ kobo_asset_version <- function(x, version)
 #'
 #' @return a kobo_asset object
 #'
+#' @examples
+#' \dontrun{
+#' kobo_setup()
+#' asset_list <- kobo_asset_list()
+#' uid <- asset_list$uid[1]
+#' asset <- kobo_asset(uid)
+#' asset_version_list <- kobo_asset_version_list(asset)
+#' kobo_asset_version(asset, asset_version_list$uid[1])
+#' }
+#'
+#' @export
+kobo_asset_version <- function(x, version)
+  UseMethod("kobo_asset_version")
+
 #' @export
 kobo_asset_version.character <- function(x, version) {
   path <- paste0("/api/v2/assets/", x,
@@ -90,23 +112,16 @@ kobo_asset_version.character <- function(x, version) {
   structure(res, class = "kobo_asset_version")
 }
 
-#' @rdname kobo_asset_version
 #' @export
 kobo_asset_version.kobo_asset <- function(x, version) {
   kobo_asset_version.character(x$uid, version = version)
 }
 
-#' @rdname kobo_asset_version
 #' @export
 kobo_asset_version.default <- function(x, version) {
   stop("You need to use a 'kobo_asset' or an asset uid",
        call. = FALSE)
 }
-
-#' @rdname kobo_asset_version_list
-#' @export
-kobo_asset_version_list <- function(x)
-  UseMethod("kobo_asset_version_list")
 
 #' List all available versions of a KoboToolbox asset
 #'
@@ -121,6 +136,19 @@ kobo_asset_version_list <- function(x)
 #'
 #' @return a list of kobo_asset_version
 #'
+#' @examples
+#' \dontrun{
+#' kobo_setup()
+#' asset_list <- kobo_asset_list()
+#' uid <- asset_list$uid[1]
+#' asset <- kobo_asset(uid)
+#' kobo_asset_version_list(asset)
+#' }
+#'
+#' @export
+kobo_asset_version_list <- function(x)
+  UseMethod("kobo_asset_version_list")
+
 #' @export
 kobo_asset_version_list.character <- function(x) {
   res <- xget(path = paste0("/api/v2/assets/",
@@ -134,13 +162,11 @@ kobo_asset_version_list.character <- function(x) {
          date_modified = as.POSIXct(map_chr2(res, "date_modified")))
 }
 
-#' @rdname kobo_asset_version_list
 #' @export
 kobo_asset_version_list.kobo_asset <- function(x) {
   kobo_asset_version_list(x$uid)
 }
 
-#' @rdname kobo_asset_version_list
 #' @export
 kobo_asset_version_list.default <- function(x) {
   stop("You need to use a 'kobo_asset' or an asset uid",

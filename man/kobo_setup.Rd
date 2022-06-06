@@ -17,3 +17,10 @@ kobo_setup(
 \description{
 Set \code{robotoolbox} settings
 }
+\examples{
+\dontrun{
+ kobo_setup(url = "https://kf.kobotoolbox.org/",
+            token = "")
+}
+
+}

@@ -12,3 +12,11 @@ a list of kobo_asset
 \description{
 List all available KoboToolbox API assets
 }
+\examples{
+\dontrun{
+kobo_setup()
+asset_list <- kobo_asset_list()
+asset_list
+}
+
+}

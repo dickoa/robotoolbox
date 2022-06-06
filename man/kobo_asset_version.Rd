@@ -2,18 +2,9 @@
 % Please edit documentation in R/kobo_asset.R
 \name{kobo_asset_version}
 \alias{kobo_asset_version}
-\alias{kobo_asset_version.character}
-\alias{kobo_asset_version.kobo_asset}
-\alias{kobo_asset_version.default}
-\title{Get a specific KoboToolbox Asset from a uid}
+\title{Get a specific KoboToolbox Asset version from an asset uid or \code{kobo_asset}}
 \usage{
 kobo_asset_version(x, version)
-
-\method{kobo_asset_version}{character}(x, version)
-
-\method{kobo_asset_version}{kobo_asset}(x, version)
-
-\method{kobo_asset_version}{default}(x, version)
 }
 \arguments{
 \item{x}{the unique identifier of a specific asset or an asset object}
@@ -24,5 +15,16 @@ kobo_asset_version(x, version)
 a kobo_asset object
 }
 \description{
-Get a specific KoboToolbox Asset from a uid
+Get a specific KoboToolbox Asset version from an asset uid or \code{kobo_asset}
+}
+\examples{
+\dontrun{
+kobo_setup()
+asset_list <- kobo_asset_list()
+uid <- asset_list$uid[1]
+asset <- kobo_asset(uid)
+asset_version_list <- kobo_asset_version_list(asset)
+kobo_asset_version(asset, asset_version_list$uid[1])
+}
+
 }

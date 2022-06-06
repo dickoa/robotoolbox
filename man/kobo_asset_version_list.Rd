@@ -2,18 +2,9 @@
 % Please edit documentation in R/kobo_asset.R
 \name{kobo_asset_version_list}
 \alias{kobo_asset_version_list}
-\alias{kobo_asset_version_list.character}
-\alias{kobo_asset_version_list.kobo_asset}
-\alias{kobo_asset_version_list.default}
 \title{List all available versions of a KoboToolbox asset}
 \usage{
 kobo_asset_version_list(x)
-
-\method{kobo_asset_version_list}{character}(x)
-
-\method{kobo_asset_version_list}{kobo_asset}(x)
-
-\method{kobo_asset_version_list}{default}(x)
 }
 \arguments{
 \item{x}{the uid or kobo_asset object}
@@ -24,4 +15,14 @@ a list of kobo_asset_version
 \description{
 List all available versions of a KoboToolbox asset. Works only if you own
 the project.
+}
+\examples{
+\dontrun{
+kobo_setup()
+asset_list <- kobo_asset_list()
+uid <- asset_list$uid[1]
+asset <- kobo_asset(uid)
+kobo_asset_version_list(asset)
+}
+
 }

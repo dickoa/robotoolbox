@@ -2,18 +2,9 @@
 % Please edit documentation in R/kobo_form.R
 \name{kobo_form}
 \alias{kobo_form}
-\alias{kobo_form.kobo_asset}
-\alias{kobo_form.character}
-\alias{kobo_form.default}
 \title{Get the form used for this asset}
 \usage{
 kobo_form(x, version)
-
-\method{kobo_form}{kobo_asset}(x, version = NULL)
-
-\method{kobo_form}{character}(x, version = NULL)
-
-\method{kobo_form}{default}(x, version)
 }
 \arguments{
 \item{x}{the asset uid or the kobo_asset object}
@@ -25,4 +16,15 @@ tbl_form, the project form
 }
 \description{
 Get the form used for this asset
+}
+\examples{
+\dontrun{
+#' kobo_setup()
+asset_list <- kobo_asset_list()
+uid <- asset_list$uid[1]
+asset <- kobo_asset(uid)
+form <- kobo_form(uid)
+# form <- kobo_form(asset)
+}
+
 }

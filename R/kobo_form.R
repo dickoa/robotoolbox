@@ -1,8 +1,3 @@
-#' @export
-#' @rdname kobo_form
-kobo_form <- function(x, version)
-  UseMethod("kobo_form")
-
 #' Get the form used for this asset
 #'
 #' Get the form used for this asset
@@ -23,6 +18,20 @@ kobo_form <- function(x, version)
 #'
 #' @return tbl_form, the project form
 #'
+#' @examples
+#' \dontrun{
+#' #' kobo_setup()
+#' asset_list <- kobo_asset_list()
+#' uid <- asset_list$uid[1]
+#' asset <- kobo_asset(uid)
+#' form <- kobo_form(uid)
+#' # form <- kobo_form(asset)
+#' }
+#'
+#' @export
+kobo_form <- function(x, version)
+  UseMethod("kobo_form")
+
 #' @export
 kobo_form.kobo_asset <- function(x, version = NULL) {
 
@@ -95,13 +104,11 @@ kobo_form.kobo_asset <- function(x, version = NULL) {
   form
 }
 
-#' @rdname kobo_form
 #' @export
 kobo_form.character <- function(x, version = NULL) {
   kobo_form(kobo_asset(x), version)
 }
 
-#' @rdname kobo_form
 #' @export
 kobo_form.default <- function(x, version) {
   stop("You need to use a 'kobo_asset' or an asset uid",

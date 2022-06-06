@@ -3,24 +3,42 @@
 \name{kobo_lang}
 \alias{kobo_lang}
 \alias{kobo_lang.kobo_asset}
-\alias{kobo_lang.character}
-\alias{kobo_lang.default}
 \title{Languages used in the KoboToolbox project}
 \usage{
 kobo_lang(x)
 
 \method{kobo_lang}{kobo_asset}(x)
-
-\method{kobo_lang}{character}(x)
-
-\method{kobo_lang}{default}(x)
 }
 \arguments{
 \item{x}{kobo_asset or asset uid}
 }
 \value{
 a vector of languages. It returnes "Labels" when no language is set
+
+a vector of languages. It returnes "Labels" when no language is set
 }
 \description{
 Languages used in the KoboToolbox project
+
+Languages used in the KoboToolbox project
+}
+\examples{
+\dontrun{
+#' kobo_setup()
+asset_list <- kobo_asset_list()
+uid <- asset_list$uid[1]
+asset <- kobo_asset(uid)
+form <- kobo_form(uid)
+# form <- kobo_form(asset)
+}
+
+\dontrun{
+#' kobo_setup()
+asset_list <- kobo_asset_list()
+uid <- asset_list$uid[1]
+asset <- kobo_asset(uid)
+form <- kobo_form(uid)
+# form <- kobo_form(asset)
+}
+
 }
