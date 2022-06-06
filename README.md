@@ -5,13 +5,13 @@
 
 [![Project Status: Active - Initial development is in progress, but
 there has not yet been a stable, usable release suitable for the
-public.](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
+public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 [![GitLab CI Build
-Status](https://gitlab.com/dickoa/robotoolbox/badges/master/pipeline.svg)](https://gitlab.com/dickoa/robotoolbox/pipelines)
+Status](https://gitlab.com/dickoa/robotoolbox/badges/master/pipeline.svg)](https://gitlab.com/dickoa/robotoolbox/-/pipelines)
 [![Codecov Code
-Coverage](https://codecov.io/gl/dickoa/robotoolbox/branch/master/graph/badge.svg)](https://codecov.io/gl/dickoa/robotoolbox)
+Coverage](https://codecov.io/gl/dickoa/robotoolbox/branch/master/graph/badge.svg)](https://app.codecov.io/gl/dickoa/robotoolbox)
 [![CRAN
-status](https://www.r-pkg.org/badges/version/robotoolbox)](https://cran.r-project.org/package=robotoolbox)
+status](https://www.r-pkg.org/badges/version/robotoolbox)](https://CRAN.R-project.org/package=robotoolbox)
 [![License:
 MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -182,7 +182,7 @@ data for your analysis.
 ## Meta
 
 -   Please [report any issues or
-    bugs](https://gitlab.com/dickoa/robotoolbox/issues).
+    bugs](https://gitlab.com/dickoa/robotoolbox/-/issues).
 -   License: MIT
 -   Please note that this project is released with a [Contributor Code
     of Conduct](CODE_OF_CONDUCT.md). By participating in this project

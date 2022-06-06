@@ -18,7 +18,9 @@ knitr::opts_chunk$set(
 
 ```
 
-`robotoolbox` allow you to access labels from languages in your form. It uses the [`labelled`](https://cran.r-project.org/web/packages/labelled/vignettes/intro_labelled.html) package to encode variable labels and value labels (choices).
+`Kobotoolbox` projects support multi-languages forms. It can be used to label questions, and choices values in single or multiple choices questions.
+
+`robotoolbox` allow you to access labels from languages in your form. It uses the [`labelled`](https://cran.r-project.org/package=labelled/vignettes/intro_labelled.html) package to encode variable labels for questions labels and value labels for choices values labels.
 
 
 ```{r setup}
@@ -27,7 +29,7 @@ library(dplyr)
 library(labelled)
 ```
 
-Let's load data from the following project with three languages: English, French and Arabic.
+To illustrate its use, let's load data from the following project with three languages: English, French and Arabic.
 
 ### Survey questions
 
@@ -65,6 +67,8 @@ kobo_lang(asset)
 
 ### Read data in each languages
 
+We can use the `lang` parameter in the `kobo_data` function to specify which language to load.
+
 ```{r load_data}
 df_en <- kobo_data(asset, lang = "English (en)")
 df_fr <- kobo_data(asset, lang = "Francais (fr)")
@@ -72,10 +76,18 @@ df_ar <- kobo_data(asset, lang = "Arabic (ar)")
 glimpse(df_en)
 ```
 
+When the parameter is not , it uses the default language. In this project, it's `English (en)`
+
+
+```{r load_data_compar}
+df_default <- kobo_data(asset)
+all.equal(df_default, df_en)
+```
+
 
 ### Access variable labels
 
-
+Questions labels can be accessed using `var_label`
 
 ```{r var_label1}
 var_label(df_en$full_name)
@@ -92,8 +104,17 @@ var_label(df_ar$pet_yesno)
 
 ### Access `select_one` type question labels
 
+For
+
 ```{r val_label}
 table(to_factor(df_en$pet_yesno))
 table(to_factor(df_fr$pet_yesno))
 table(to_factor(df_ar$pet_yesno))
+```
+
+`to_character` can also be used if you prefer to type of the column to be `character`.
+
+
+```{r val_label_character}
+table(to_character(df_ar$pet_yesno))
 ```

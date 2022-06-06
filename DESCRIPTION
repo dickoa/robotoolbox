@@ -18,7 +18,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Language: en_US
 URL: https://gitlab.com/dickoa/robotoolbox
-BugReports: https://gitlab.com/dickoa/robotoolbox/issues
+BugReports: https://gitlab.com/dickoa/robotoolbox/-/issues
 Imports:
     crul (>= 1.2.0),
     RcppSimdJson (>= 0.1.6),
@@ -38,7 +38,7 @@ Suggests:
     devtools (>= 2.4.3),
     vcr (>= 1.0.2),
     knitr (>= 1.37),
-    testthat (>= 3.11),
+    testthat (>= 3.1.1),
     covr (>= 3.5.1),
     rmarkdown (>= 2.11)
 VignetteBuilder: knitr

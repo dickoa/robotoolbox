@@ -12,5 +12,6 @@
 ^public$
 ^README\.html$
 ^CODE\_OF\_CONDUCT\.md$
+^CONTRIBUTING.md$
 ^\_pkgdown\.yml$
 ^codecov\.yml$
