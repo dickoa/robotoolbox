@@ -53,11 +53,17 @@ To illustrate its use, let's load data from the following project with three lan
 
 ### Load the project asset
 
-```{r set_asset}
+```{r, eval = FALSE}
 uid <- "aYuTZn9vegi3Z49MXwKjep"
 asset <- kobo_asset(uid)
 asset
 ```
+
+```{r, echo = FALSE}
+asset <- asset2
+asset
+```
+
 
 ### List availables languages
 
@@ -69,21 +75,32 @@ kobo_lang(asset)
 
 We can use the `lang` parameter in the `kobo_data` function to specify which language to load.
 
-```{r load_data}
+```{r, eval = FALSE}
 df_en <- kobo_data(asset, lang = "English (en)")
 df_fr <- kobo_data(asset, lang = "Francais (fr)")
 df_ar <- kobo_data(asset, lang = "Arabic (ar)")
 glimpse(df_en)
 ```
 
+```{r, echo = FALSE}
+df_en <- data2_en
+df_fr <- data2_fr
+df_ar <- data2_ar
+glimpse(df_en)
+```
+
 When the parameter is not , it uses the default language. In this project, it's `English (en)`
 
 
-```{r load_data_compar}
+```{r, eval = FALSE}
 df_default <- kobo_data(asset)
 all.equal(df_default, df_en)
 ```
 
+```{r, echo = FALSE}
+df_default <- data2_default
+all.equal(df_default, df_en)
+```
 
 ### Access variable labels
 
@@ -104,7 +121,7 @@ var_label(df_ar$pet_yesno)
 
 ### Access `select_one` type question labels
 
-For
+`to_factor` can be used to turn single choice questions values into labels.
 
 ```{r val_label}
 table(to_factor(df_en$pet_yesno))
@@ -112,9 +129,11 @@ table(to_factor(df_fr$pet_yesno))
 table(to_factor(df_ar$pet_yesno))
 ```
 
-`to_character` can also be used if you prefer to type of the column to be `character`.
+`to_character` is an alternative to `to_factor`. It can also be used if you prefer to type of the column to be `character`.
 
 
 ```{r val_label_character}
 table(to_character(df_ar$pet_yesno))
 ```
+
+All these functions are from the `labelled` package, you can learn more about the package through its documentation.

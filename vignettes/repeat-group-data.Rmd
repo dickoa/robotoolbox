@@ -17,6 +17,8 @@ knitr::opts_chunk$set(
 )
 ```
 
+`Kobotoolbox` support questions within roster that can be answered several times. A typical use case is when implementing a household survey, with questions for every member of this household.
+
 ```{r setup}
 library(robotoolbox)
 library(dplyr)
@@ -54,9 +56,10 @@ l
 ## #   submissions <int>
 ```
 
+In `Kobotoolbox` it's implemented using a special type of group. Using repeat group, it's possible to loop through questions using the following form type `begin_repeat` (need to be closed using `end_repeat`). It can illustrated with following project, and associated form.
 
 ```{r asset_list, echo = FALSE}
-l <- kobo_asset_list()
+l <- asset_list1
 ```
 
 ### Survey questions
@@ -109,17 +112,27 @@ l <- kobo_asset_list()
 
 ### Loading the project asset
 
-```{r asset}
+```{r, eval = FALSE}
 uid <- filter(l, name == "nested_roster") |>
   pull(uid)
 asset <- kobo_asset(uid)
 asset
 ```
 
+```{r, echo = FALSE}
+asset <- asset3
+asset
+```
+
 ### Extracting the data
 
-```{r read_data}
+```{r, eval = FALSE}
 df <- kobo_data(asset)
+df
+```
+
+```{r, echo = FALSE}
+df <- data3
 df
 ```
 

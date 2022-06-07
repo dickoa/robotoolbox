@@ -44,7 +44,7 @@ KOBOTOOLBOX_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxx
 In an interactive session, you can use directly the `kobo_setup` function.
 
 ```{r, eval = FALSE}
-library("robotoolbox")
+library(robotoolbox)
 kobo_setup(url = "https://kobo.unhcr.org",
            token = "xxxxxxxxxxxxxxxxxxxxxxxxxx")
 ```
@@ -86,10 +86,16 @@ knitr::include_graphics("./img/list_assets.png")
 
 Using `robotoolbox`, you can do something similar from `R` with the `kobo_asset_list` function.
 
+```{r, echo = FALSE}
+library(robotoolbox)
+library(dplyr)
+data(asset_list1)
+al <- robotoolbox::asset_list1
+```
 
-```{r}
-library("robotoolbox")
-library("dplyr")
+```{r, eval = FALSE}
+library(robotoolbox)
+library(dplyr)
 al <- kobo_asset_list()
 
 al |>
@@ -97,21 +103,40 @@ al |>
   knitr::kable()
 ```
 
+```{r, echo = FALSE}
+al |>
+  slice_head(n = 6) |>
+  knitr::kable()
+```
+
+
 ## KoboToolbox asset
 
 You can also manipulate directly each `asset` (project) using `kobo_asset`. An asset is uniquely identified by a unique identifier: the `uid`.
 
-```{r}
+```{r, eval = FALSE}
 uid <- "aEwTYNcU76UvLgiY89rPWm"
 asset <- kobo_asset(uid)
 asset
 ```
 
+```{r, echo = FALSE}
+data(asset1)
+asset <- robotoolbox::asset1
+```
+
+
 Since `al`, the list of assets, is a `data.frame`, we can subset it and select the `uid` of interest based on the other available metadata.
 
 As an example, you can get the `uid` associated to the project with the largest number of submissions.
 
-```{r}
+```{r, eval = FALSE}
+al |>
+  slice_max(submissions) |>
+  pull(uid)
+```
+
+```{r, echo = FALSE}
 al |>
   slice_max(submissions) |>
   pull(uid)
@@ -120,12 +145,20 @@ al |>
 And it's then possible to get the associated `asset` object.
 
 
-```{r}
+```{r, eval = FALSE}
 al |>
   slice_max(submissions) |>
   pull(uid) |>
   kobo_asset()
 ```
+
+```{r, echo = FALSE}
+al |>
+  slice_max(submissions) |>
+  pull(uid) |>
+  kobo_asset()
+```
+
 
 # Kobotoolbox data
 
@@ -144,10 +177,19 @@ uid_ml
 
 We can then use `uid_ml`, that uniquely identify the `Multiple languages` asset to read its data
 
+```{r, echo = FALSE}
+data_ml <- robotoolbox::data1
+```
 
-```{r}
+```{r, eval = FALSE}
 data_ml <- kobo_data(uid_ml)
 
+data_ml |>
+  select(start:uuid) |>
+  knitr::kable()
+```
+
+```{r, echo = FALSE}
 data_ml |>
   select(start:uuid) |>
   knitr::kable()
