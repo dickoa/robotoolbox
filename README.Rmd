@@ -172,6 +172,12 @@ The package [`dm`](https://cynkra.github.io/dm/) is used to model such relations
 
 https://dickoa.gitlab.io/robotoolbox/articles/repeat-group-data.html
 
+## Caveats and limitations
+
+`robotoolbox` uses the `labelled` package to manipulate `labels` for `select_one` question. For `select_multiple` questions, dummy columns are used. They are based on values not labels. Please feel free to submit an issue, if you want to have `labels` for `select_multiple`.
+
+`robotoolbox` uses the `Kobotoolbox` API v2. Using the API, if you don't own the project, [it is not possible to access all versions of the form used to collect the data](https://github.com/kobotoolbox/kpi/issues/1164). You can just access the latest version of the form. It has an impact on how `robotoolbox` can map the raw data and the information from the associated form (labels, languages, etc.).
+
 ## Meta
 
 * Please [report any issues or bugs](https://gitlab.com/dickoa/robotoolbox/-/issues).

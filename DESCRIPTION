@@ -1,6 +1,6 @@
 Package: robotoolbox
 Title: An R Client for the KoboToolbox API
-Version: 0.8.9001
+Version: 0.9.9001
 Authors@R: c(person(given = "Ahmadou",
                     family = "Dicko",
 		    email = "mail@ahmadoudicko.com",
