@@ -34,8 +34,9 @@ remotes::install_gitlab("dickoa/robotoolbox")
 The `robotoolbox` package is a client to
 [`KoboToolbox API v2`](https://support.kobotoolbox.org/api.html). You
 will need to set your API token and specify the `KoboToolbox` server
-URL. The easiest way to do that is to store them in your `.Renviron`
-file which is automatically read by `R` on startup.
+URL. The easiest way to set up `robotoolbox` is to store the token and
+the url in your `.Renviron` which is automatically read by `R` on
+startup.
 
 ### Getting the API token
 
@@ -55,7 +56,7 @@ kobo_token(username = "xxxxxxxxx",
 
 You can either edit directly the `.Renviron` file or access it by
 calling `usethis::edit_r_environ()` (assuming you have the `usethis`
-package installed) and entering:
+package installed) and entering the following two lines:
 
 ``` bash
 KOBOTOOLBOX_URL="https://kobo.unhcr.org/"
@@ -68,6 +69,8 @@ Or use directly the `kobo_setup` function
 kobo_setup(url = "https://kobo.unhcr.org",
            token = "xxxxxxxxxxxxxxxxxxxxxxxxxx")
 ```
+
+Settings can be checked using `kobo_settings` function.
 
 ``` r
 library("robotoolbox")
@@ -138,7 +141,7 @@ the `kobo_submissions` function. The `kobo_data` can also be used
 instead, it’s an alias of `kobo_submissions`.
 
 ``` r
-df <- kobo_submissions(asset) ## or kobo_data(asset)
+df <- kobo_submissions(asset) ## or df <-  kobo_data(asset)
 glimpse(df)
 ## Rows: 941
 ## Columns: 17
@@ -173,9 +176,10 @@ this here:
 ### Repeating groups
 
 Repeating groups associate multiple records to a single record in the
-`main` table. The package [`dm`](https://cynkra.github.io/dm/) is used
-to model such relationship and allow you to safely query and join the
-data for your analysis.
+`main` table. It’s used to group questions that need to be answered
+repeatedly. The package [`dm`](https://cynkra.github.io/dm/) is used to
+model such relationship and allow you to safely query and join such
+linked data for your analysis.
 
 <https://dickoa.gitlab.io/robotoolbox/articles/repeat-group-data.html>
 
@@ -187,8 +191,8 @@ are used. They are based on values not labels. Please feel free to
 submit an issue, if you want to have `labels` for `select_multiple`.
 
 `robotoolbox` uses the `Kobotoolbox` API v2. Using the API, if you don’t
-own the project, [it is not possible to access all versions of the form
-used to collect the
+own the project, [it is not currently possible to access all versions of
+the form used to collect the
 data](https://github.com/kobotoolbox/kpi/issues/1164). You can just
 access the latest version of the form. It has an impact on how
 `robotoolbox` can map the raw data and the information from the
