@@ -17,11 +17,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-`Kobotoolbox` support questions within roster that can be grouped and that can be answered repeatedly. A typical use case is when implementing a household survey, with some series of questions for each household members.
+`Kobotoolbox` supports questions that can be grouped to be answered repeatedly. A typical use case is when implementing a household survey, with some series of questions for each household member.
 
 ## Loading data
 
-In `Kobotoolbox`, this feature is implemented using a repeat group. It works by inserting the questions you want to repeat inside a `begin_repeat`/`end_repeat` loop. Repeat groups can be nested, making possible to have repeat questions within another repeat instance. It can be illustrated with the following project, and associated form.
+In `Kobotoolbox`, this feature is implemented using a repeat group. It works by inserting the questions you want to repeat inside a `begin_repeat`/`end_repeat` loop. Repeat groups can be nested, making it possible to have repeat questions within another repeat instance. It can be illustrated with the following project and associated form.
 
 
 ```{r setup, echo = FALSE}

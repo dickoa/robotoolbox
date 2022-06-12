@@ -20,16 +20,9 @@ knitr::opts_chunk$set(
 
 `Kobotoolbox` projects support multi-languages forms. It can be used to label questions, and choices values in single or multiple choices questions.
 
-`robotoolbox` allow you to access labels from languages in your form. It uses the [`labelled`](https://cran.r-project.org/package=labelled/vignettes/intro_labelled.html) package to encode variable labels for questions labels and value labels for choices values labels.
+`robotoolbox` allows you to access labels from languages in your form. It uses the [`labelled`](https://cran.r-project.org/package=labelled/vignettes/intro_labelled.html) package to encode variable labels for questions labels and value labels for choices labels.
 
-
-```{r setup}
-library(robotoolbox)
-library(dplyr)
-library(labelled)
-```
-
-To illustrate its use, let's load data from the following project with three languages: English, French and Arabic.
+To illustrate its use, let's load data from the following project which uses three languages: English, French, and Arabic.
 
 ### Survey questions
 
@@ -54,12 +47,16 @@ To illustrate its use, let's load data from the following project with three lan
 ### Load the project asset
 
 ```{r, eval = FALSE}
+library(robotoolbox)
+library(dplyr)
 uid <- "aYuTZn9vegi3Z49MXwKjep"
 asset <- kobo_asset(uid)
 asset
 ```
 
 ```{r, echo = FALSE}
+library(robotoolbox)
+library(dplyr)
 asset <- asset2
 asset
 ```
@@ -89,7 +86,7 @@ df_ar <- data2_ar
 glimpse(df_en)
 ```
 
-When the parameter is not , it uses the default language. In this project, it's `English (en)`
+When the parameter is not set, it uses the default language. In this project, it's `English (en)`
 
 
 ```{r, eval = FALSE}
@@ -104,9 +101,10 @@ all.equal(df_default, df_en)
 
 ### Access variable labels
 
-Questions labels can be accessed using `var_label`
+Questions labels can be accessed using `var_label` function from the `labelled` package.
 
 ```{r var_label1}
+library(labelled)
 var_label(df_en$full_name)
 var_label(df_fr$full_name)
 var_label(df_ar$full_name)
@@ -129,11 +127,11 @@ table(to_factor(df_fr$pet_yesno))
 table(to_factor(df_ar$pet_yesno))
 ```
 
-`to_character` is an alternative to `to_factor`. It can also be used if you prefer to type of the column to be `character`.
+`to_character` is an alternative to `to_factor`. It can also be used if you prefer the type of the column to be `character`.
 
 
 ```{r val_label_character}
-table(to_character(df_ar$pet_yesno))
+count(df_ar, pet_yesno_ar = to_character(pet_yesno))
 ```
 
 All these functions are from the `labelled` package, you can learn more about the package through its documentation.

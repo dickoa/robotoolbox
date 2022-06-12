@@ -9,7 +9,7 @@ Authors@R: c(person(given = "Ahmadou",
                     family = "Galal",
 	   	    email = "galal@unhcr.org",
 		    role = "ctb"),
-	     person("UNHCR",
+	     person("Kobotoolbox",
 		    role = "cph"))
 Description: Utilities to access data from the KoboToolbox API v2.
     <https://support.kobotoolbox.org/api.html>.

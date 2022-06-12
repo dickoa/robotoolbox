@@ -19,22 +19,15 @@ knitr::opts_chunk$set(
 ```
 
 
-# Install robotoolbox
+# robotoolbox
 
-`robotoolbox` is still in development and not yet on CRAN. In order to install it, you will need the [`remotes`](https://github.com/r-lib/remotes) package.
-
-
-```{r, eval = FALSE}
-## install.packages("remotes")
-remotes::install_gitlab("dickoa/robotoolbox")
-```
+`robotoolbox` is an R client to access data from the [`KoboToolbox`](https://www.kobotoolbox.org).
 
 `robotoolbox` is built around [`KoboToolbox API v2`](https://support.kobotoolbox.org/api.html) and its main goal is to ease the process by which you access your collected data.
 
-You will need to set your API token and specify our `KoboToolbox` server URL. The easiest way to set up `robotoolbox` is to store the token and url your `.Renviron`.
+You will need to set your API token and specify your `KoboToolbox` server URL. The easiest way to set up `robotoolbox` is to store the token and the url in your `.Renviron`.
 
-We are using the following environment variables `KOBOTOOLBOX_URL` and `KOBOTOOLBOX_TOKEN`. You can use the `usethis` R package and the `usethis::edit_r_environ()` to add the following to your `.Renviron` file.
-
+We are using the following environment variables `KOBOTOOLBOX_URL` and `KOBOTOOLBOX_TOKEN` for the url and the token. You can use the `usethis` package and the `usethis::edit_r_environ()` to add the following variables to your `.Renviron` file.
 
 ```{bash, eval = FALSE, engine = "sh"}
 KOBOTOOLBOX_URL="https://kobo.unhcr.org/"
@@ -49,7 +42,7 @@ kobo_setup(url = "https://kobo.unhcr.org",
            token = "xxxxxxxxxxxxxxxxxxxxxxxxxx")
 ```
 
-You can get your `token` manually through the `Kobotoolbox` web interface in your account settings. There is also the `kobo_token` function to do the same thing automagically from `R`.
+You can get your `token` manually through the `Kobotoolbox` web interface in your account settings. There is also a `kobo_token` function to do the same thing automagically from `R`.
 
 ```{r, eval = FALSE}
 token <- kobo_token(username = "cool_user_name",
@@ -57,14 +50,14 @@ token <- kobo_token(username = "cool_user_name",
                     overwrite = TRUE)
 ```
 
-This token can then be used in the setup.
+This token can then be used in the setup through `kobo_setup` or in your `.Renviron`.
 
 ```{r, eval = FALSE}
 kobo_setup(url = "https://kobo.unhcr.org",
            token = token)
 ```
 
-and we can check our settings with `kobo_settings` function.
+Settings can be checked using `kobo_settings` function.
 
 ```{r, eval = FALSE}
 kobo_settings()
@@ -78,7 +71,6 @@ kobo_settings()
 ## List your projects
 
 All your `Kobotoolbox` projects also named `asset` can be checked and listed through the web interface.
-
 
 ```{r, echo = FALSE}
 knitr::include_graphics("./img/list_assets.png")
@@ -125,7 +117,6 @@ data(asset1)
 asset <- robotoolbox::asset1
 ```
 
-
 Since `al`, the list of assets, is a `data.frame`, we can subset it and select the `uid` of interest based on the other available metadata.
 
 As an example, you can get the `uid` associated to the project with the largest number of submissions.
@@ -159,14 +150,15 @@ al |>
   kobo_asset()
 ```
 
+A `kobo_asset` give you some basic information about your project. You can easily get the name, the nmber of submissions, when the project was created, and when it was last modified.
 
 # Kobotoolbox data
 
 The main function on the `robotoolbox` package is `kobo_data` (or `kobo_submissions` its alias), and as the name suggests, it loads your data from the server.
 
-We can illustrate its usage trying to read data from the project named `Multiple languages`.
+We can illustrate its usage by trying to read data from the project named `Multiple languages`.
 
-The first step, is to get uid of the project
+The first step, is to get the uid of the project
 
 ```{r}
 uid_ml <- al |>
@@ -175,7 +167,7 @@ uid_ml <- al |>
 uid_ml
 ```
 
-We can then use `uid_ml`, that uniquely identify the `Multiple languages` asset to read its data
+We can then use `uid_ml`, which uniquely identify the `Multiple languages` asset to read its data
 
 ```{r, echo = FALSE}
 data_ml <- robotoolbox::data1
@@ -186,12 +178,14 @@ data_ml <- kobo_data(uid_ml)
 
 data_ml |>
   select(start:uuid) |>
+  slice_head(n = 6) |>
   knitr::kable()
 ```
 
 ```{r, echo = FALSE}
 data_ml |>
   select(start:uuid) |>
+  slice_head(n = 6) |>
   knitr::kable()
 ```
 
