@@ -21,10 +21,10 @@ knitr::opts_chunk$set(
 
 ## Loading data
 
-In `Kobotoolbox`, this feature is implemented using a repeat group. It works by inserting the questions you want to repeat inside a `begin_repeat`/`end_repeat` loop. It's also to have a nested structure, repeat questions within another repeat instance. It can illustrated with following project, and associated form.
+In `Kobotoolbox`, this feature is implemented using a repeat group. It works by inserting the questions you want to repeat inside a `begin_repeat`/`end_repeat` loop. Repeat groups can be nested, making possible to have repeat questions within another repeat instance. It can be illustrated with the following project, and associated form.
 
 
-```{r setup}
+```{r setup, echo = FALSE}
 library(robotoolbox)
 library(dplyr)
 library(dm)
@@ -88,6 +88,8 @@ l <- asset_list1
 The above form was uploaded to the server, it's named `nested_roster`, and can be loaded from the list of asset `al`.
 
 ```{r, eval = FALSE}
+library(robotoolbox)
+library(dplyr)
 al <- kobo_asset_list()
 uid <- filter(al, name == "nested_roster") |>
   pull(uid)
@@ -102,7 +104,7 @@ asset
 
 ### Extracting the data
 
-We can see that the output is not a standard a `data.frame` or `tibble`. It's a listing of each repeat loops in our form.
+We can see that the output is not a standard a `data.frame` or `tibble`. It's a listing of each `repeat group` loop in our form.
 
 ```{r, eval = FALSE}
 df <- kobo_data(asset)
@@ -117,7 +119,7 @@ df
 The output is a `dm` object, from the the `dm` package.
 
 ```{r, echo = FALSE}
-class(dm)
+class(df)
 ```
 
 ## Manipulating repeat groups as dm object
@@ -143,13 +145,14 @@ dm_nrow(df)
 
 ### A `dm` object is a list of `tibble`
 
-A `dm` object is a `list`. As in any list of `tibble`, you can extract each table, and analyze it separately. The principal table, where you have the first repeat groups is named `main`.
+A `dm` object is a `list`. As in any list of `tibble`, you can extract each table (`tibble` or `data.frame`), and analyze it separately.
+The principal table, where you have the first `repeat group` is named `main`.
 
 ```{r access_specific1}
 glimpse(df$main)
 ```
 
-The other tables uses their form names, for example `education`.
+The other tables uses their form names, for example `education` for the education `repeat group`.
 
 ```{r access_specific2}
 glimpse(df$education)
@@ -157,7 +160,8 @@ glimpse(df$education)
 
 ## Filtering data
 
-One major advantage of using the `dm` package, is the ability to dynamically filter tables while keeping the link between them. In this example, filtering the `main` table will propagate to the `education` and `demo` tables. The `hobbies_list` and `lang_list` tables are linked to the `demo` table, and will be filtered too.
+One major advantage of using the `dm` package, is the ability to dynamically filter tables while keeping the links between them.
+In this example, filtering the `main` table will propagate to the `education` and `demo` tables. The `hobbies_list` and `lang_list` tables are linked to the `demo` table, and will be filtered too.
 
 ```{r filter_data}
 df |>
@@ -178,7 +182,7 @@ df |>
   glimpse()
 ```
 
-We can push this logic to have the widest table possible through a cascade of joins.
+We can push this logic to have the widest table possible through a cascade of joins, starting from a table.
 
 ```{r join_all}
 df |>
