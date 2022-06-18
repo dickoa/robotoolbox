@@ -25,7 +25,7 @@ knitr::opts_chunk$set(
 
 `robotoolbox` is built around [`KoboToolbox API v2`](https://support.kobotoolbox.org/api.html) and its main goal is to ease the process by which you access your collected data.
 
-You will need to set your API token and specify your `KoboToolbox` server URL. The easiest way to set up `robotoolbox` is to store the token and the url in your `.Renviron`.
+You will need to set your API token and specify your `KoboToolbox` server URL. An API token is a unique identifier, just like a password. It allows the user to authenticate to `Kobotoolbox` APIs to access your data. The easiest way to set up `robotoolbox` is to store the API token and the server url in your `.Renviron`.
 
 We are using the following environment variables `KOBOTOOLBOX_URL` and `KOBOTOOLBOX_TOKEN` for the url and the token. You can use the `usethis` package and the `usethis::edit_r_environ()` to add the following variables to your `.Renviron` file.
 
@@ -82,21 +82,21 @@ Using `robotoolbox`, you can do something similar from `R` with the `kobo_asset_
 library(robotoolbox)
 library(dplyr)
 data(asset_list1)
-al <- robotoolbox::asset_list1
+asset_list <- robotoolbox::asset_list1
 ```
 
 ```{r, eval = FALSE}
 library(robotoolbox)
 library(dplyr)
-al <- kobo_asset_list()
+asset_list <- kobo_asset_list()
 
-al |>
+asset_list |>
   slice_head(n = 6) |>
   knitr::kable()
 ```
 
 ```{r, echo = FALSE}
-al |>
+asset_list |>
   slice_head(n = 6) |>
   knitr::kable()
 ```
@@ -104,7 +104,7 @@ al |>
 
 ## KoboToolbox asset
 
-You can also manipulate directly each `asset` (project) using `kobo_asset`. An asset is uniquely identified by a unique identifier: the `uid`.
+You can also manipulate directly each `asset` (project) using `kobo_asset`. In the server, an asset is uniquely identified by a `uid`.
 
 ```{r, eval = FALSE}
 uid <- "aEwTYNcU76UvLgiY89rPWm"
@@ -117,18 +117,18 @@ data(asset1)
 asset <- robotoolbox::asset1
 ```
 
-Since `al`, the list of assets, is a `data.frame`, we can subset it and select the `uid` of interest based on the other available metadata.
+Since `asset_list`, the list of assets, is a `data.frame`, we can subset it, and select the `uid` of interest based on the other available metadata.
 
 As an example, you can get the `uid` associated to the project with the largest number of submissions.
 
 ```{r, eval = FALSE}
-al |>
+asset_list |>
   slice_max(submissions) |>
   pull(uid)
 ```
 
 ```{r, echo = FALSE}
-al |>
+asset_list |>
   slice_max(submissions) |>
   pull(uid)
 ```
@@ -137,14 +137,14 @@ And it's then possible to get the associated `asset` object.
 
 
 ```{r, eval = FALSE}
-al |>
+asset_list |>
   slice_max(submissions) |>
   pull(uid) |>
   kobo_asset()
 ```
 
 ```{r, echo = FALSE}
-al |>
+asset_list |>
   slice_max(submissions) |>
   pull(uid) |>
   kobo_asset()
@@ -161,7 +161,7 @@ We can illustrate its usage by trying to read data from the project named `Multi
 The first step, is to get the uid of the project
 
 ```{r}
-uid_ml <- al |>
+uid_ml <- asset_list |>
   filter(name == "Multiple languages") |>
   pull(uid)
 uid_ml

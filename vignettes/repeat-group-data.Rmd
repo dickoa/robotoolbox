@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 
 ## Loading data
 
-In `Kobotoolbox`, this feature is implemented using a repeat group. It works by inserting the questions you want to repeat inside a `begin_repeat`/`end_repeat` loop. Repeat groups can be nested, making it possible to have repeat questions within another repeat instance. It can be illustrated with the following project and associated form.
+In `Kobotoolbox`, this feature is implemented by repeating a group of questions. It uses the concept of [`repeat group`](https://support.kobotoolbox.org/group_repeat.html). It works by inserting the questions you want to repeat inside a `begin_repeat`/`end_repeat` loop. `repeat group` can be nested, making it possible to have a group of questions repeated within another `repeat group` instance. It can be illustrated with the following project and associated form.
 
 
 ```{r setup, echo = FALSE}
@@ -85,13 +85,13 @@ l <- asset_list1
 
 ### Loading the project asset
 
-The above form was uploaded to the server, it's named `nested_roster`, and can be loaded from the list of asset `al`.
+The above form was uploaded to the server, it's named `nested_roster`, and can be loaded from the list of asset `asset_list`.
 
 ```{r, eval = FALSE}
 library(robotoolbox)
 library(dplyr)
-al <- kobo_asset_list()
-uid <- filter(al, name == "nested_roster") |>
+asset_list <- kobo_asset_list()
+uid <- filter(asset_list, name == "nested_roster") |>
   pull(uid)
 asset <- kobo_asset(uid)
 asset
@@ -104,7 +104,7 @@ asset
 
 ### Extracting the data
 
-We can see that the output is not a standard a `data.frame` or `tibble`. It's a listing of each `repeat group` loop in our form.
+We can see that the output is not a standard a `data.frame`. It's a listing of each `repeat group` loop in our form.
 
 ```{r, eval = FALSE}
 df <- kobo_data(asset)
@@ -122,7 +122,7 @@ The output is a `dm` object, from the the `dm` package.
 class(df)
 ```
 
-## Manipulating repeat groups as dm object
+## Manipulating `repeat group` as `dm` object
 
 A `dm` object is a list of linked `data.frame`, and it can be manipulated using the `dm` package.
 
@@ -143,9 +143,9 @@ The `dm` package has a lot of helper functions to manipulated `dm` object. We ca
 dm_nrow(df)
 ```
 
-### A `dm` object is a list of `tibble`
+### A `dm` object is a list of `data.frame`
 
-A `dm` object is a `list`. As in any list of `tibble`, you can extract each table (`tibble` or `data.frame`), and analyze it separately.
+A `dm` object is a `list`. As in any list of `data.frame`, you can extract each table, and analyze it separately.
 The principal table, where you have the first `repeat group` is named `main`.
 
 ```{r access_specific1}

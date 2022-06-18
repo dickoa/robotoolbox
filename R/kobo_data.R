@@ -1,6 +1,6 @@
-#' Get all submissions from a project (Kobotoolbox asset)
+#' Get all submissions from a Kobotoolbox project
 #'
-#' Get all submissions from a project (KoboToolbox asset)
+#' Get all submissions from a Kobotoolbox project through a \code{\link{kobo_asset}} or asset uid.
 #'
 #' @rdname kobo_data
 #'
@@ -9,21 +9,20 @@
 #' @importFrom tibble rowid_to_column tibble
 #' @importFrom dm as_dm dm_add_pk dm_add_fk
 #'
-#' @param x a kobo_asset or asset uid, the asset
+#' @param x a \code{\link{kobo_asset}} or character, the asset
 #' @param paginate logical, split submissions by page. Default to FALSE
 #' @param page_size integer, number of submissions per page.
 #' if missing, default to number of submissions divided by 5
 #' @param lang character, language for the variable and value labels
 #'
-#' @return data.frame
+#' @return A data.frame
 #'
 #' @examples
 #' \dontrun{
-#' kobo_setup()
-#' asset_list <- kobo_asset_list()
-#' uid <- asset_list$uid[1]
+#' kobo_setup() # setup using your url and token
+#' uid <- "a9cwEQcbWqWzA5hzkjRUWi" # pick a valid uid
 #' asset <- kobo_asset(uid)
-#' subs <- kobo_data(asset)
+#' subs <- kobo_data(asset) ## kobo_submissions(asset)
 #' library(dplyr)
 #' glimpse(subs)
 #' }

@@ -4,17 +4,17 @@
 #'
 #' @rdname kobo_asset
 #'
-#' @param x the unique identifier of a specific asset or an asset object
-#'
 #' @importFrom RcppSimdJson fparse
 #'
-#' @return a kobo_asset object
+#' @param x the unique identifier of a specific asset or an asset object
+#'
+#'
+#' @return a \code{kobo_asset} object
 #'
 #' @examples
 #' \dontrun{
-#' kobo_setup()
-#' asset_list <- kobo_asset_list()
-#' uid <- asset_list$uid[1]
+#' kobo_setup() # setup using your url and token
+#' uid <- "a9cwEQcbWqWzA5hzkjRUWi" # pick a valid uid
 #' asset <- kobo_asset(uid)
 #' asset
 #' }
@@ -50,7 +50,7 @@ kobo_asset.default <- function(x) {
 #' @importFrom RcppSimdJson fparse
 #' @importFrom tibble tibble
 #'
-#' @return a list of kobo_asset
+#' @return a list of \code{\link{kobo_asset}}
 #'
 #' @examples
 #' \dontrun{
@@ -74,9 +74,9 @@ kobo_asset_list <- function() {
          submissions = map_int2(res, "deployment__submission_count"))
 }
 
-#' Get a specific KoboToolbox Asset version from an asset uid or \code{kobo_asset}
+#' Get a specific KoboToolbox Asset version from an asset uid or \code{\link{kobo_asset}}
 #'
-#' Get a specific KoboToolbox Asset version from an asset uid or \code{kobo_asset}
+#' Get a specific KoboToolbox Asset version from an asset uid or \code{\link{kobo_asset}}
 #'
 #' @rdname kobo_asset_version
 #'
@@ -85,13 +85,12 @@ kobo_asset_list <- function() {
 #'
 #' @importFrom RcppSimdJson fparse
 #'
-#' @return a kobo_asset object
+#' @return a \code{kobo_asset_version} object
 #'
 #' @examples
 #' \dontrun{
-#' kobo_setup()
-#' asset_list <- kobo_asset_list()
-#' uid <- asset_list$uid[1]
+#' kobo_setup() # setup using your url and token
+#' uid <- "a9cwEQcbWqWzA5hzkjRUWi" # pick a valid uid
 #' asset <- kobo_asset(uid)
 #' asset_version_list <- kobo_asset_version_list(asset)
 #' kobo_asset_version(asset, asset_version_list$uid[1])
@@ -134,13 +133,12 @@ kobo_asset_version.default <- function(x, version) {
 #' @importFrom RcppSimdJson fparse
 #' @importFrom tibble tibble
 #'
-#' @return a list of kobo_asset_version
+#' @return a list of \code{\link{kobo_asset_version}}
 #'
 #' @examples
 #' \dontrun{
-#' kobo_setup()
-#' asset_list <- kobo_asset_list()
-#' uid <- asset_list$uid[1]
+#' kobo_setup() # setup using your url and token
+#' uid <- "a9cwEQcbWqWzA5hzkjRUWi" # pick a valid uid
 #' asset <- kobo_asset(uid)
 #' kobo_asset_version_list(asset)
 #' }
@@ -158,7 +156,7 @@ kobo_asset_version_list.character <- function(x) {
   tibble(uid = map_chr2(res, "uid"),
          url = map_chr2(res, "url"),
          asset_deployed = is.na(as.logical(map_chr2(res,
-                                                         "date_deployed"))),
+                                                    "date_deployed"))),
          date_modified = as.POSIXct(map_chr2(res, "date_modified")))
 }
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/kobo_token.R
 \name{kobo_token}
 \alias{kobo_token}
-\title{Get your KoboToolbox API token from your username and password}
+\title{Get your KoboToolbox API token}
 \usage{
 kobo_token(username = NULL, password = NULL, url = NULL, overwrite = FALSE)
 }
@@ -19,7 +19,7 @@ kobo_token(username = NULL, password = NULL, url = NULL, overwrite = FALSE)
 character, the KoboToolbox API token
 }
 \description{
-Get your KoboToolbox API token from your username and password
+Get your KoboToolbox API token from your username and password.
 }
 \examples{
 \dontrun{

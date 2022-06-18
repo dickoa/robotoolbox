@@ -10,16 +10,15 @@ kobo_asset(x)
 \item{x}{the unique identifier of a specific asset or an asset object}
 }
 \value{
-a kobo_asset object
+a \code{kobo_asset} object
 }
 \description{
 Get a specific KoboToolbox Asset from a uid
 }
 \examples{
 \dontrun{
-kobo_setup()
-asset_list <- kobo_asset_list()
-uid <- asset_list$uid[1]
+kobo_setup() # setup using your url and token
+uid <- "a9cwEQcbWqWzA5hzkjRUWi" # pick a valid uid
 asset <- kobo_asset(uid)
 asset
 }

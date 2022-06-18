@@ -2,7 +2,7 @@
 % Please edit documentation in R/kobo_setup.R
 \name{kobo_setup}
 \alias{kobo_setup}
-\title{Set \code{robotoolbox} settings}
+\title{Set the \code{robotoolbox} settings}
 \usage{
 kobo_setup(
   url = Sys.getenv("KOBOTOOLBOX_URL", ""),
@@ -10,17 +10,22 @@ kobo_setup(
 )
 }
 \arguments{
-\item{url}{the base url of the KoboToolbox server}
+\item{url}{character, the base url of the KoboToolbox server}
 
-\item{token}{the API token}
+\item{token}{character, the API token}
+}
+\value{
+a \code{\link{kobo_settings}} object
 }
 \description{
-Set \code{robotoolbox} settings
+Set the Kobotoolbox server url and the API token.
 }
 \examples{
 \dontrun{
  kobo_setup(url = "https://kf.kobotoolbox.org/",
-            token = "")
+            token = "9et1814c285w094f6v9bd629df47a1a0e81x53a0")
+ kobo_settings()
 }
+
 
 }

@@ -1,45 +1,26 @@
 #' Languages used in the KoboToolbox project
 #'
-#' Languages used in the KoboToolbox project
+#' Languages used in the KoboToolbox project from a \code{\link{kobo_asset}} or asset uid.
 #'
 #' @rdname kobo_lang
 #'
-#' @param x kobo_asset or asset uid
+#' @param x kobo_asset or asset uid, the asset
+#'
+#' @return a vector of languages used in the form. It returns "Labels" when no language is set
 #'
 #' @examples
 #' \dontrun{
-#' #' kobo_setup()
-#' asset_list <- kobo_asset_list()
-#' uid <- asset_list$uid[1]
+#' kobo_setup() # setup using your url and token
+#' uid <- "a9cwEQcbWqWzA5hzkjRUWi" # pick a valid uid
 #' asset <- kobo_asset(uid)
-#' form <- kobo_form(uid)
-#' # form <- kobo_form(asset)
+#' lang <- kobo_lang(asset) ## or kobo_lang(uid)
+#' lang
 #' }
 #'
-#' @return a vector of languages. It returnes "Labels" when no language is set
 #' @export
 kobo_lang <- function(x)
   UseMethod("kobo_lang")
 
-#' Languages used in the KoboToolbox project
-#'
-#' Languages used in the KoboToolbox project
-#'
-#' @rdname kobo_lang
-#'
-#' @param x kobo_asset or asset uid
-#'
-#' @examples
-#' \dontrun{
-#' #' kobo_setup()
-#' asset_list <- kobo_asset_list()
-#' uid <- asset_list$uid[1]
-#' asset <- kobo_asset(uid)
-#' form <- kobo_form(uid)
-#' # form <- kobo_form(asset)
-#' }
-#'
-#' @return a vector of languages. It returnes "Labels" when no language is set
 #' @export
 kobo_lang.kobo_asset <- function(x) {
   lng <- x$content$translations

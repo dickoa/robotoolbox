@@ -7,7 +7,7 @@
 kobo_asset_list()
 }
 \value{
-a list of kobo_asset
+a list of \code{\link{kobo_asset}}
 }
 \description{
 List all available KoboToolbox API assets

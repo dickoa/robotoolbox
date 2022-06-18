@@ -6,11 +6,15 @@
 \usage{
 kobo_settings()
 }
+\value{
+a list, prints your server url and token
+}
 \description{
-Print the current token and server url used
+Print the current token and server url used.
 }
 \examples{
 \dontrun{
  kobo_settings()
 }
+
 }

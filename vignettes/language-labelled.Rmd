@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 
 `robotoolbox` allows you to access labels from languages in your form. It uses the [`labelled`](https://cran.r-project.org/package=labelled/vignettes/intro_labelled.html) package to encode variable labels for questions labels and value labels for choices labels.
 
-To illustrate its use, let's load data from the following project which uses three languages: English, French, and Arabic.
+To illustrate its use, let's load data from the following project, which uses three languages: English, French, and Arabic.
 
 ### Survey questions
 
@@ -44,7 +44,9 @@ To illustrate its use, let's load data from the following project which uses thr
 |           |      |                     |                      |                    |
 
 
-### Load the project asset
+### Loading the project asset
+
+This project uploaded on a `Kobotoolbox` server, is loaded using his `uid`.
 
 ```{r, eval = FALSE}
 library(robotoolbox)
@@ -62,15 +64,17 @@ asset
 ```
 
 
-### List availables languages
+### Listing availables languages
+
+You can list all availables languages in the project using the `kobo_lang` function.
 
 ```{r list_lang}
 kobo_lang(asset)
 ```
 
-### Read data in each languages
+### Reading data in each languages
 
-We can use the `lang` parameter in the `kobo_data` function to specify which language to load.
+We can use the `lang` parameter in the `kobo_data` function to specify which language to load. You can use `kobo_lang` to check the spelling of each language first.
 
 ```{r, eval = FALSE}
 df_en <- kobo_data(asset, lang = "English (en)")
@@ -99,7 +103,7 @@ df_default <- data2_default
 all.equal(df_default, df_en)
 ```
 
-### Access variable labels
+### Accessing variable labels
 
 Questions labels can be accessed using `var_label` function from the `labelled` package.
 
@@ -117,7 +121,7 @@ var_label(df_fr$pet_yesno)
 var_label(df_ar$pet_yesno)
 ```
 
-### Access `select_one` type question labels
+### Accessing `select_one` type question labels
 
 `to_factor` can be used to turn single choice questions values into labels.
 

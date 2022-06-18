@@ -1,6 +1,6 @@
-#' Get the form used for this asset
+#' Get a Kobotoolbox project form
 #'
-#' Get the form used for this asset
+#' Get a Kobotoolbox project form from a \code{\link{kobo_asset}} or asset uid.
 #'
 #' @param x the asset uid or the kobo_asset object
 #' @param version character, uid of the version of the asset
@@ -16,7 +16,7 @@
 #' @importFrom tidyselect contains everything
 #' @importFrom rlang .data
 #'
-#' @return tbl_form, the project form
+#' @return a data.frame with information on name, label, lang, and list-column representing form choices
 #'
 #' @examples
 #' \dontrun{

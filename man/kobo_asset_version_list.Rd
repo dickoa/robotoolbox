@@ -10,7 +10,7 @@ kobo_asset_version_list(x)
 \item{x}{the uid or kobo_asset object}
 }
 \value{
-a list of kobo_asset_version
+a list of \code{\link{kobo_asset_version}}
 }
 \description{
 List all available versions of a KoboToolbox asset. Works only if you own
@@ -18,9 +18,8 @@ the project.
 }
 \examples{
 \dontrun{
-kobo_setup()
-asset_list <- kobo_asset_list()
-uid <- asset_list$uid[1]
+kobo_setup() # setup using your url and token
+uid <- "a9cwEQcbWqWzA5hzkjRUWi" # pick a valid uid
 asset <- kobo_asset(uid)
 kobo_asset_version_list(asset)
 }

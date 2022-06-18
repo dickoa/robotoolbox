@@ -6,7 +6,7 @@
 \alias{kobo_submissions.kobo_asset}
 \alias{kobo_submissions.character}
 \alias{kobo_submissions.default}
-\title{Get all submissions from a project (Kobotoolbox asset)}
+\title{Get all submissions from a Kobotoolbox project}
 \usage{
 kobo_data(x, paginate, page_size, lang)
 
@@ -19,7 +19,7 @@ kobo_submissions(x, paginate, page_size, lang)
 \method{kobo_submissions}{default}(x, paginate = FALSE, page_size = NULL, lang = NULL)
 }
 \arguments{
-\item{x}{a kobo_asset or asset uid, the asset}
+\item{x}{a \code{\link{kobo_asset}} or character, the asset}
 
 \item{paginate}{logical, split submissions by page. Default to FALSE}
 
@@ -29,18 +29,17 @@ if missing, default to number of submissions divided by 5}
 \item{lang}{character, language for the variable and value labels}
 }
 \value{
-data.frame
+A data.frame
 }
 \description{
-Get all submissions from a project (KoboToolbox asset)
+Get all submissions from a Kobotoolbox project through a \code{\link{kobo_asset}} or asset uid.
 }
 \examples{
 \dontrun{
-kobo_setup()
-asset_list <- kobo_asset_list()
-uid <- asset_list$uid[1]
+kobo_setup() # setup using your url and token
+uid <- "a9cwEQcbWqWzA5hzkjRUWi" # pick a valid uid
 asset <- kobo_asset(uid)
-subs <- kobo_data(asset)
+subs <- kobo_data(asset) ## kobo_submissions(asset)
 library(dplyr)
 glimpse(subs)
 }

@@ -1,6 +1,6 @@
-#' Get your KoboToolbox API token from your username and password
+#' Get your KoboToolbox API token
 #'
-#' Get your KoboToolbox API token from your username and password
+#' Get your KoboToolbox API token from your username and password.
 #'
 #'
 #' @importFrom crul auth HttpClient

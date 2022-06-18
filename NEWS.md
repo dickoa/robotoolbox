@@ -1,4 +1,14 @@
-robotoolbox 0.8.9001
+robotoolbox 1.0.0
+======================
+
+### NEW FEATURES
+First release to CRAN.
+
+### BUG FIXES
+
+
+
+robotoolbox 0.9.9001
 ======================
 
 ### NEW FEATURES

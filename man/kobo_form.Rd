@@ -2,7 +2,7 @@
 % Please edit documentation in R/kobo_form.R
 \name{kobo_form}
 \alias{kobo_form}
-\title{Get the form used for this asset}
+\title{Get a Kobotoolbox project form}
 \usage{
 kobo_form(x, version)
 }
@@ -12,10 +12,10 @@ kobo_form(x, version)
 \item{version}{character, uid of the version of the asset}
 }
 \value{
-tbl_form, the project form
+a data.frame with information on name, label, lang, and list-column representing form choices
 }
 \description{
-Get the form used for this asset
+Get a Kobotoolbox project form from a \code{\link{kobo_asset}} or asset uid.
 }
 \examples{
 \dontrun{
