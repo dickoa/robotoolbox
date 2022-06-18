@@ -59,7 +59,7 @@ asset
 ```{r, echo = FALSE}
 library(robotoolbox)
 library(dplyr)
-asset <- asset2
+asset <- asset_ml
 asset
 ```
 
@@ -84,9 +84,9 @@ glimpse(df_en)
 ```
 
 ```{r, echo = FALSE}
-df_en <- data2_en
-df_fr <- data2_fr
-df_ar <- data2_ar
+df_en <- data_ml_en
+df_fr <- data_ml_fr
+df_ar <- data_ml_ar
 glimpse(df_en)
 ```
 
@@ -99,7 +99,7 @@ all.equal(df_default, df_en)
 ```
 
 ```{r, echo = FALSE}
-df_default <- data2_default
+df_default <- data_ml_default
 all.equal(df_default, df_en)
 ```
 

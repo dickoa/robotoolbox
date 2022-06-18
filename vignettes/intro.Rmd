@@ -81,8 +81,7 @@ Using `robotoolbox`, you can do something similar from `R` with the `kobo_asset_
 ```{r, echo = FALSE}
 library(robotoolbox)
 library(dplyr)
-data(asset_list1)
-asset_list <- robotoolbox::asset_list1
+asset_list <- robotoolbox::asset_list
 ```
 
 ```{r, eval = FALSE}
@@ -101,91 +100,92 @@ asset_list |>
   knitr::kable()
 ```
 
-
 ## KoboToolbox asset
 
 You can also manipulate directly each `asset` (project) using `kobo_asset`. In the server, an asset is uniquely identified by a `uid`.
 
 ```{r, eval = FALSE}
-uid <- "aEwTYNcU76UvLgiY89rPWm"
+uid <- "aYuTZn9vegi3Z49MXwKjep"
 asset <- kobo_asset(uid)
 asset
 ```
 
 ```{r, echo = FALSE}
-data(asset1)
-asset <- robotoolbox::asset1
+asset <- robotoolbox::asset_ml
+asset
 ```
 
-Since `asset_list`, the list of assets, is a `data.frame`, we can subset it, and select the `uid` of interest based on the other available metadata.
+Since `asset_list`, the list of assets, is a `data.frame`, we can subset it, and select the `uid` of interest based on the available metadata.
 
-As an example, you can get the `uid` associated to the project with the largest number of submissions.
+As an example, you can get the `uid` associated to the project onamed `Multiple languages`.
 
 ```{r, eval = FALSE}
 asset_list |>
-  slice_max(submissions) |>
+  filter(name == "Multiple languages") |>
   pull(uid)
 ```
 
 ```{r, echo = FALSE}
 asset_list |>
-  slice_max(submissions) |>
+  filter(name == "Multiple languages") |>
   pull(uid)
 ```
 
-And it's then possible to get the associated `asset` object.
+And it's then possible to get the associated `asset` object, using the `kobo_asset` function.
 
 
 ```{r, eval = FALSE}
 asset_list |>
-  slice_max(submissions) |>
+  filter(name == "Multiple languages") |>
   pull(uid) |>
   kobo_asset()
 ```
 
 ```{r, echo = FALSE}
-asset_list |>
-  slice_max(submissions) |>
-  pull(uid) |>
-  kobo_asset()
+asset
 ```
 
-A `kobo_asset` give you some basic information about your project. You can easily get the name, the nmber of submissions, when the project was created, and when it was last modified.
+A `kobo_asset` give you some basic information about your project. You can easily get the name, the number of submissions, when the project was created, and when it was last modified.
 
 # Kobotoolbox data
 
 The main function on the `robotoolbox` package is `kobo_data` (or `kobo_submissions` its alias), and as the name suggests, it loads your data from the server.
 
-We can illustrate its usage by trying to read data from the project named `Multiple languages`.
+We can illustrate its usage by trying to read data from the same project named `Multiple languages`.
 
-The first step, is to get the uid of the project
+We can follow the steps above to get uid, and the asset.
 
-```{r}
-uid_ml <- asset_list |>
+```{r, eval = FALSE}
+asset_ml <- asset_list |>
   filter(name == "Multiple languages") |>
-  pull(uid)
-uid_ml
+  pull(uid) |>
+  kobo_asset()
+asset_ml
 ```
 
-We can then use `uid_ml`, which uniquely identify the `Multiple languages` asset to read its data
+```{r, echo = FALSE}
+asset
+```
+
+We can then use the `asset_ml` object, which uniquely identify the `Multiple languages` asset to read its data
 
 ```{r, echo = FALSE}
-data_ml <- robotoolbox::data1
+data_ml <- robotoolbox::data_ml_default
 ```
 
 ```{r, eval = FALSE}
-data_ml <- kobo_data(uid_ml)
+data_ml <- kobo_data(asset_ml)
 
 data_ml |>
   select(start:uuid) |>
-  slice_head(n = 6) |>
+  slice_head(n = 3) |>
   knitr::kable()
 ```
 
 ```{r, echo = FALSE}
 data_ml |>
   select(start:uuid) |>
-  slice_head(n = 6) |>
+  slice_head(n = 3) |>
   knitr::kable()
 ```
 
@@ -194,7 +194,7 @@ data_ml |>
 `robotoolbox` allows you to represent and manipulate `Kobotoolbox` forms. You can pull the form from a particular project using the `kobo_form` function
 
 ```{r}
-uid_ml |>
+asset_ml |>
   kobo_form() |>
   knitr::kable()
 ```

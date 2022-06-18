@@ -32,7 +32,7 @@ library(dm)
 
 
 ```{r asset_list, echo = FALSE}
-l <- asset_list1
+l <- asset_list
 ```
 
 ### Survey questions
@@ -98,7 +98,7 @@ asset
 ```
 
 ```{r, echo = FALSE}
-asset <- asset3
+asset <- asset_rg
 asset
 ```
 
@@ -112,7 +112,7 @@ df
 ```
 
 ```{r, echo = FALSE}
-df <- data3
+df <- data_rg
 df
 ```
 

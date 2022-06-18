@@ -1,109 +1,37 @@
-#' KoboToolbox asset list for the introduction vignette
+#' KoboToolbox asset, assets list and submissions data
 #'
-#' KoboToolbox asset list for the introduction vignette.
+#' KoboToolbox asset, assets list and submissions data
 #'
-#' KoboToolbox asset list for the introduction vignette
+#' Examples of KoboToolbox asset, assets list and submissions data
 #'
 #' @rdname dummy_data
-#'
-#' @format A data.frame with one row per KoboToolbox asset
-"asset_list1"
+#' @format asset_list: a data.frame of _ml8 rows and 7 columns
+"asset_list"
 
-#' KoboToolbox asset used in the introduction vignette
-#'
-#' KoboToolbox asset used in the introduction vignette.
-#'
-#' KoboToolbox asset used in the introduction vignette
-#'
 #' @rdname dummy_data
-#'
-#' @format A kobo_asset
-"asset1"
+#' @format asset_ml: A kobo_asset object on a project using multiple languages.
+"asset_ml"
 
-#' KoboToolbox asset used in the multi-lang vignette
-#'
-#' KoboToolbox asset used in the multi-lang vignette.
-#'
-#' KoboToolbox asset used in the multi-lang vignette
-#'
 #' @rdname dummy_data
-#'
-#' @format A kobo_asset
-"asset2"
+#' @format asset_rg: A kobo_asset object on a project using repeat groups.
+"asset_rg"
 
-#' KoboToolbox asset used in the repeat group vignette
-#'
-#' KoboToolbox asset used in the repeat group vignette.
-#'
-#' KoboToolbox asset used in the repeat group vignette
-#'
 #' @rdname dummy_data
-#'
-#' @format A kobo_asset
-"asset3"
+#' @format data_ml: A data.frame with submissions from the \code{asset_ml} in English.
+"data_ml_en"
 
-#' KoboToolbox submissions for the introduction vignette
-#'
-#' KoboToolbox submissions for the introduction vignette.
-#'
-#' KoboToolbox asset list for the introduction vignette
-#'
 #' @rdname dummy_data
-#'
-#' @format A data.frame with submissions of the asset1
-"data1"
+#' @format data_ml: A data.frame with submissions from the \code{asset_ml} in French.
+"data_ml_fr"
 
-#' KoboToolbox asset list for the multi-lang vignette
-#'
-#' KoboToolbox asset list for the multi-lang vignette.
-#'
-#' KoboToolbox asset list for the multi-lang vignette
-#'
 #' @rdname dummy_data
-#'
-#' @format A data.frame with submissions of the asset2 in English
-"data2_en"
+#' @format data_ml: A data.frame with submissions from the \code{asset_ml} in Arabic
+"data_ml_ar"
 
-#' KoboToolbox asset list for the multi-lang vignette
-#'
-#' KoboToolbox asset list for the multi-lang vignette.
-#'
-#' KoboToolbox asset list for the multi-lang vignette
-#'
 #' @rdname dummy_data
-#'
-#' @format A data.frame with submissions of the asset2 in French
-"data2_fr"
+#' @format data_ml: A data.frame with submissions from the \code{asset_ml} with default language.
+"data_ml_default"
 
-#' KoboToolbox asset list for the multi-lang vignette
-#'
-#' KoboToolbox asset list for the multi-lang vignette.
-#'
-#' KoboToolbox asset list for the multi-lang vignette
-#'
 #' @rdname dummy_data
-#'
-#' @format A data.frame with submissions of the asset2 in Arabic
-"data2_ar"
-
-#' KoboToolbox asset list for the multi-lang vignette
-#'
-#' KoboToolbox asset list for the multi-lang vignette.
-#'
-#' KoboToolbox asset list for the multi-lang vignette
-#'
-#' @rdname dummy_data
-#'
-#' @format A data.frame with submissions of the asset2
-"data2_default"
-
-#' KoboToolbox asset list for the repeat group vignette
-#'
-#' KoboToolbox asset list for the repeat group vignette.
-#'
-#' KoboToolbox asset list for the repeat group vignette
-#'
-#' @rdname dummy_data
-#'
-#' @format A data.frame with submissions of the asset3
-"data3"
+#' @format data_rg: A dm object (list of data.frame) with submissions from the \code{asset_rg}
+"data_rg"

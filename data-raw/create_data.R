@@ -9,43 +9,40 @@ kobo_setup(url = Sys.getenv("KOBOTOOLBOX_PROD_URL"),
 kobo_settings()
 
 ###
-# asset_list1 <- kobo_asset_list()
+# asset_list <- kobo_asset_list()
 
 ###
-uid1 <- "aEwTYNcU76UvLgiY89rPWm"
-asset1 <- kobo_asset(uid1)
-asset1
+## uid1 <- "a7XzRuPFn9j5WkT2mR6wbg"
+## asset1 <- kobo_asset(uid1)
+## asset1
 
 ###
-uid2 <- "aYuTZn9vegi3Z49MXwKjep"
-asset2 <- kobo_asset(uid2)
-asset2
+uid_ml <- "aYuTZn9vegi3Z49MXwKjep"
+asset_ml <- kobo_asset(uid_ml)
+asset_ml
 
 ###
-uid3 <- "aANhxwX9S6BCsiYMgQj9kV"
-asset3 <- kobo_asset(uid3)
-asset3
+uid_rg <- "aANhxwX9S6BCsiYMgQj9kV"
+asset_rg <- kobo_asset(uid_rg)
+asset_rg
 
 ###
-data1 <- kobo_data(asset1)
+data_ml_en <- kobo_data(asset_ml, lang = "English (en)")
+data_ml_fr <- kobo_data(asset_ml, lang = "Francais (fr)")
+data_ml_ar <- kobo_data(asset_ml, lang = "Arabic (ar)")
+data_ml_default <- kobo_data(asset_ml)
 
 ###
-data2_en <- kobo_data(asset2, lang = "English (en)")
-data2_fr <- kobo_data(asset2, lang = "Francais (fr)")
-data2_ar <- kobo_data(asset2, lang = "Arabic (ar)")
-data2_default <- kobo_data(asset2)
+data_rg <- kobo_data(asset_rg)
 
 ###
-data3 <- kobo_data(asset3)
-
-###
-usethis::use_data(asset1, overwrite = TRUE)
-usethis::use_data(asset2, overwrite = TRUE)
-usethis::use_data(asset3, overwrite = TRUE)
-#usethis::use_data(asset_list1, overwrite = TRUE)
-usethis::use_data(data1, overwrite = TRUE)
-usethis::use_data(data2_en, overwrite = TRUE)
-usethis::use_data(data2_fr, overwrite = TRUE)
-usethis::use_data(data2_ar, overwrite = TRUE)
-usethis::use_data(data2_default, overwrite = TRUE)
-usethis::use_data(data3, overwrite = TRUE)
+#usethis::use_data(asset1, overwrite = TRUE)
+usethis::use_data(asset_ml, overwrite = TRUE)
+usethis::use_data(asset_rg, overwrite = TRUE)
+#usethis::use_data(asset_list, overwrite = TRUE)
+#usethis::use_data(data1, overwrite = TRUE)
+usethis::use_data(data_ml_en, overwrite = TRUE)
+usethis::use_data(data_ml_fr, overwrite = TRUE)
+usethis::use_data(data_ml_ar, overwrite = TRUE)
+usethis::use_data(data_ml_default, overwrite = TRUE)
+usethis::use_data(data_rg, overwrite = TRUE)
