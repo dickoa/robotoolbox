@@ -1,6 +1,6 @@
-#' Get all submissions from a Kobotoolbox project
+#' Get all submissions from a KoboToolbox project
 #'
-#' Get all submissions from a Kobotoolbox project through a \code{\link{kobo_asset}} or asset uid.
+#' Get all submissions from a KoboToolbox project through a \code{\link{kobo_asset}} or asset uid.
 #'
 #' @rdname kobo_data
 #'

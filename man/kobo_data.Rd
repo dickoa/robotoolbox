@@ -6,7 +6,7 @@
 \alias{kobo_submissions.kobo_asset}
 \alias{kobo_submissions.character}
 \alias{kobo_submissions.default}
-\title{Get all submissions from a Kobotoolbox project}
+\title{Get all submissions from a KoboToolbox project}
 \usage{
 kobo_data(x, paginate, page_size, lang)
 
@@ -32,7 +32,7 @@ if missing, default to number of submissions divided by 5}
 A data.frame
 }
 \description{
-Get all submissions from a Kobotoolbox project through a \code{\link{kobo_asset}} or asset uid.
+Get all submissions from a KoboToolbox project through a \code{\link{kobo_asset}} or asset uid.
 }
 \examples{
 \dontrun{

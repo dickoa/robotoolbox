@@ -2,7 +2,7 @@
 % Please edit documentation in R/kobo_form.R
 \name{kobo_form}
 \alias{kobo_form}
-\title{Get a Kobotoolbox project form}
+\title{Get a KoboToolbox project form}
 \usage{
 kobo_form(x, version)
 }
@@ -15,7 +15,7 @@ kobo_form(x, version)
 a data.frame with information on name, label, lang, and list-column representing form choices
 }
 \description{
-Get a Kobotoolbox project form from a \code{\link{kobo_asset}} or asset uid.
+Get a KoboToolbox project form from a \code{\link{kobo_asset}} or asset uid.
 }
 \examples{
 \dontrun{

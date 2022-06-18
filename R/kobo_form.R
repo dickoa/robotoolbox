@@ -1,6 +1,6 @@
-#' Get a Kobotoolbox project form
+#' Get a KoboToolbox project form
 #'
-#' Get a Kobotoolbox project form from a \code{\link{kobo_asset}} or asset uid.
+#' Get a KoboToolbox project form from a \code{\link{kobo_asset}} or asset uid.
 #'
 #' @param x the asset uid or the kobo_asset object
 #' @param version character, uid of the version of the asset

@@ -18,7 +18,7 @@ kobo_setup(
 a \code{\link{kobo_settings}} object
 }
 \description{
-Set the Kobotoolbox server url and the API token.
+Set the KoboToolbox server url and the API token.
 }
 \examples{
 \dontrun{

@@ -18,7 +18,7 @@ kobo_settings <- function() {
 
 #' Set the \code{robotoolbox} settings
 #'
-#' Set the Kobotoolbox server url and the API token.
+#' Set the KoboToolbox server url and the API token.
 #'
 #' @param url character, the base url of the KoboToolbox server
 #' @param token character, the API token

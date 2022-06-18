@@ -18,9 +18,9 @@ knitr::opts_chunk$set(
 
 ```
 
-`Kobotoolbox` projects support multi-languages forms. It can be used to label questions, and choices values in single or multiple choices questions.
+`Kobotoolbox` projects support multi-languages forms. It can be used to label questions and choices values in single or multiple-choice questions.
 
-`robotoolbox` allows you to access labels from languages in your form. It uses the [`labelled`](https://cran.r-project.org/package=labelled/vignettes/intro_labelled.html) package to encode variable labels for questions labels and value labels for choices labels.
+`robotoolbox` allows you to access labels from languages in your form. It uses the [`labelled`](https://cran.r-project.org/package=labelled/vignettes/intro_labelled.html) package to encode variable labels for question labels and value labels for choice labels.
 
 To illustrate its use, let's load data from the following project, which uses three languages: English, French, and Arabic.
 
@@ -46,7 +46,7 @@ To illustrate its use, let's load data from the following project, which uses th
 
 ### Loading the project asset
 
-This project uploaded on a `Kobotoolbox` server, is loaded using his `uid`.
+This project was uploaded on a `Kobotoolbox` server. It can be loaded into your session using its `uid`.
 
 ```{r, eval = FALSE}
 library(robotoolbox)
@@ -64,9 +64,9 @@ asset
 ```
 
 
-### Listing availables languages
+### Listing available languages
 
-You can list all availables languages in the project using the `kobo_lang` function.
+You can list all available languages in the project using the `kobo_lang` function.
 
 ```{r list_lang}
 kobo_lang(asset)
@@ -131,7 +131,7 @@ table(to_factor(df_fr$pet_yesno))
 table(to_factor(df_ar$pet_yesno))
 ```
 
-`to_character` is an alternative to `to_factor`. It can also be used if you prefer the type of the column to be `character`.
+`to_character` is an alternative to `to_factor`, when you prefer to use `character` instead of `factor`.
 
 
 ```{r val_label_character}
