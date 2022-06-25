@@ -33,7 +33,8 @@ get_subs <- function(uid, args = list(), ...) {
   path <- paste0("api/v2/assets/", uid, "/data.json")
   res <- xget(path = path, args = args, ...)
   res <- fparse(res, max_simplify_lvl = "data_frame")
-  res$result
+  res <- res$result
+  as_tibble(res)
 }
 
 #' @importFrom glue glue glue_data

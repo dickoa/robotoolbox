@@ -40,7 +40,7 @@ kobo_submissions <- function(x, paginate, page_size, lang)
 kobo_data.kobo_asset <- function(x, paginate = FALSE,
                                  page_size = NULL, lang = NULL) {
   size <- x$deployment__submission_count
-  if (size >= 30000)
+  if (size >= 10000)
     paginate <- TRUE
 
   if (isTRUE(paginate)) {
@@ -58,9 +58,8 @@ kobo_data.kobo_asset <- function(x, paginate = FALSE,
   if (is.null(lang) || !lang %in% klang)
     lang <- klang[1]
 
-  subs <- name_repair_(tibble(subs))
-
   if ("begin_repeat" %in% form$type) {
+    subs <- name_repair_(subs)
     subs <- c(list(main = rowid_to_column(subs, "_index")),
               kobo_extract_repeat_tbl(subs, form))
     subs <- lapply(subs, function(d) {
@@ -83,6 +82,7 @@ kobo_data.kobo_asset <- function(x, paginate = FALSE,
                         {{ref_tbl_nm}})
     }
   } else {
+    subs <- set_names(subs, make_unique_names_)
     subs <- postprocess_data_(x = subs,
                               form = form,
                               lang = lang)

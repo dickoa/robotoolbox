@@ -39,6 +39,7 @@ kobo_token <- function(username = NULL, password = NULL,
     res <- fparse(res$parse("UTF-8"))
     token <- res$token
     Sys.setenv("KOBOTOOLBOX_TOKEN" = token)
+    Sys.setenv("KOBOTOOLBOX_URL" = url)
   }
   token
 }
