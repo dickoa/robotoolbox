@@ -172,21 +172,22 @@ df |>
 
 ## Joining tables
 
-In some cases, it's simpler to analyze the joined data, `dm_join_to_tbl` can be used for safely joining the data using the structure and links between tables.
+In some cases, it's simpler to analyze the joined data, `dm_flatten_to_tbl` can be used for safely joining the data keeping its structure and the links between tables.
+We can join the `education` table to the `main` table, by usign `dm_flatten_to_tbl` and starting from `education`.
 
 ```{r join_two}
 df |>
-  dm_join_to_tbl("main",
-                 "education",
-                 join = left_join) |>
+  dm_flatten_to_tbl(start = education,
+                    join = left_join) |>
   glimpse()
 ```
 
-We can push this logic to have the widest table possible through a cascade of joins, starting from a table.
+We can push this logic to have the widest table possible through a cascade of joins from a deeper table (`start` argument) to the `main` table. Using `hobbies_list` as an example, it'll perform two joins.
+`hobbies_list` will be joined to the `demo` table, and the `demo` table will be joined to the `main` table.
 
 ```{r join_all}
 df |>
-  dm_flatten_to_tbl(start = "hobbies_list",
+  dm_flatten_to_tbl(start = hobbies_list,
                     join = left_join) |>
   glimpse()
 ```

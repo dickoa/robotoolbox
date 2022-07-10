@@ -177,6 +177,7 @@ print.kobo_asset <- function(x, ...) {
   cat("<robotoolbox asset> ", x$uid, "\n")
   cat("  Asset name: ", x$name, "\n", sep = "")
   cat("  Asset type: ", x$asset_type, "\n", sep = "")
+  cat("  Asset owner: ", x$owner__username, "\n", sep = "")
   cat("  Created: ",
       as.character(parse_kobo_date(x$date_created)),  "\n", sep = "")
   cat("  Last modified: ",
