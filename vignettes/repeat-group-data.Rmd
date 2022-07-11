@@ -187,8 +187,8 @@ We can push this logic to have the widest table possible through a cascade of jo
 
 ```{r join_all}
 df |>
-  dm_flatten_to_tbl(start = hobbies_list,
-                    join = left_join) |>
+  dm_squash_to_tbl(start = hobbies_list,
+                   join = left_join) |>
   glimpse()
 ```
 
