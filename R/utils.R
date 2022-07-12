@@ -162,17 +162,6 @@ asset_list_to_tbl <- function(x) {
 }
 
 #' @importFrom RcppSimdJson fparse
-#' @importFrom tibble tibble
-#' @noRd
-get_asset_list <- function() {
-  res <- xget(path = "/api/v2/assets",
-              args = list(metadata = "on"))
-  res <- fparse(res, max_simplify_lvl = "list")
-  res <- res$results
-  asset_list_tbl(res)
-}
-
-#' @importFrom RcppSimdJson fparse
 #' @noRd
 get_form_media <- function(uid) {
   headers <- list(Authorization = paste("Token",
