@@ -50,6 +50,8 @@ kobo_asset.default <- function(x) {
 #' @importFrom RcppSimdJson fparse
 #' @importFrom tibble tibble
 #'
+#' @param limit integer, the number of project to display per page. Default to 100
+#'
 #' @return a list of \code{\link{kobo_asset}}
 #'
 #' @examples
@@ -60,18 +62,17 @@ kobo_asset.default <- function(x) {
 #' }
 #'
 #' @export
-kobo_asset_list <- function() {
+kobo_asset_list <- function(limit = 100L) {
   res <- xget(path = "/api/v2/assets",
-              args = list(metadata = "on"))
+              args = list(metadata = "on", limit = limit))
   res <- fparse(res, max_simplify_lvl = "list")
-  res <- res$results
-  tibble(uid = map_chr2(res, "uid"),
-         name = map_chr2(res, "name"),
-         asset_type = map_chr2(res, "asset_type"),
-         owner_username = map_chr2(res, "owner__username"),
-         date_created = parse_kobo_date(map_chr2(res, "date_created")),
-         date_modified = parse_kobo_date(map_chr2(res, "date_modified")),
-         submissions = map_int2(res, "deployment__submission_count"))
+  cnt <- res$count
+  if (cnt > limit) {
+    res <- get_asset_list_async(limit, cnt)
+  } else {
+    res <- asset_list_to_tbl(res$results)
+  }
+  res
 }
 
 #' Get a specific KoboToolbox Asset version from an asset uid or \code{\link{kobo_asset}}

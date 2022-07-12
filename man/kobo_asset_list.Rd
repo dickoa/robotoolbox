@@ -4,7 +4,10 @@
 \alias{kobo_asset_list}
 \title{List all available KoboToolbox API assets}
 \usage{
-kobo_asset_list()
+kobo_asset_list(limit = 100L)
+}
+\arguments{
+\item{limit}{integer, the number of project to display per page. Default to 100}
 }
 \value{
 a list of \code{\link{kobo_asset}}

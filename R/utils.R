@@ -40,7 +40,7 @@ get_subs <- function(uid, args = list(), ...) {
 #' @importFrom glue glue glue_data
 #' @importFrom tibble tibble
 #' @noRd
-build_urls <- function(uid, size, chunk_size = NULL) {
+build_subs_urls <- function(uid, size, chunk_size = NULL) {
   if (chunk_size >= size || is.null(chunk_size)) {
     urls <- glue("api/v2/assets/{uid}/data.json", uid = uid)
   } else {
@@ -66,7 +66,7 @@ build_urls <- function(uid, size, chunk_size = NULL) {
 get_subs_async <- function(uid, size, chunk_size = NULL, ...) {
   headers <- list(Authorization = paste("Token",
                                         Sys.getenv("KOBOTOOLBOX_TOKEN")))
-  urls <- build_urls(uid, size, chunk_size)
+  urls <- build_subs_urls(uid, size, chunk_size)
   reqs <- lapply(urls, function(url) {
     HttpRequest$new(url,
                     headers = headers,
@@ -95,6 +95,81 @@ get_subs_async <- function(uid, size, chunk_size = NULL, ...) {
   res <- as_tibble(res)
   attr(res, ".internal.selfref") <- NULL
   res
+}
+
+#' @importFrom glue glue glue_data
+#' @importFrom tibble tibble
+#' @noRd
+build_assets_urls <- function(limit, count) {
+  if (limit >= count) {
+    urls <- "api/v2/assets/?format=json&metadata=on"
+  } else {
+    idx <- seq.int(limit, count, by = limit)
+    df <- tibble(limit = limit, offset = idx[idx < count])
+    template <- "api/v2/assets/?format=json&limit={limit}&metadata=on&offset={offset}"
+    urls <- glue_data(df, template)
+    urls <- c(glue_data(tibble(limit = limit),
+                        "api/v2/assets/?format=json&limit={limit}&metadata=on"),
+              urls)
+  }
+  file.path(Sys.getenv("KOBOTOOLBOX_URL"), urls)
+}
+
+#' @importFrom crul AsyncQueue HttpRequest
+#' @importFrom RcppSimdJson fparse
+#' @importFrom data.table rbindlist setattr
+#' @importFrom tibble as_tibble
+#' @importFrom dplyr case_when
+#' @noRd
+get_asset_list_async <- function(limit, count, ...) {
+  headers <- list(Authorization = paste("Token",
+                                        Sys.getenv("KOBOTOOLBOX_TOKEN")))
+  urls <- build_assets_urls(limit, count)
+  reqs <- lapply(urls, function(url) {
+    HttpRequest$new(url,
+                    headers = headers,
+                    opts = list(...))$get()
+  })
+  sleep <- 0.05
+  res <- AsyncQueue$new(.list = reqs,
+                        bucket_size = Inf,
+                        sleep = sleep)
+  res$request()
+  cond <- any(res$status_code() > 200L)
+  if (cond)
+    stop("Request failed! check the settings and try again",
+         call. = FALSE)
+  res <- res$parse(encoding = "UTF-8")
+  res <- fparse(res,
+                max_simplify_lvl = "list")
+  res <- lapply(res, function(r) asset_list_to_tbl(r$results))
+  res <- rbindlist(res, fill = TRUE)
+  res <- as_tibble(res)
+  attr(res, ".internal.selfref") <- NULL
+  res
+}
+
+#' @importFrom tibble tibble
+#' @noRd
+asset_list_to_tbl <- function(x) {
+  tibble(uid = map_chr2(x, "uid"),
+         name = map_chr2(x, "name"),
+         asset_type = map_chr2(x, "asset_type"),
+         owner_username = map_chr2(x, "owner__username"),
+         date_created = parse_kobo_date(map_chr2(x, "date_created")),
+         date_modified = parse_kobo_date(map_chr2(x, "date_modified")),
+         submissions = map_int2(x, "deployment__submission_count"))
+}
+
+#' @importFrom RcppSimdJson fparse
+#' @importFrom tibble tibble
+#' @noRd
+get_asset_list <- function() {
+  res <- xget(path = "/api/v2/assets",
+              args = list(metadata = "on"))
+  res <- fparse(res, max_simplify_lvl = "list")
+  res <- res$results
+  asset_list_tbl(res)
 }
 
 #' @importFrom RcppSimdJson fparse
