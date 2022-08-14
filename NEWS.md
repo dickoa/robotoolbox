@@ -1,3 +1,14 @@
+robotoolbox 1.0.0.9000
+======================
+
+### NEW FEATURES
+
+-  Adapt vignette to {dm} new features since version one and above.
+-  Add `retry` support in simple queries.
+
+### BUG FIXES
+
+
 robotoolbox 1.0.0
 ======================
 

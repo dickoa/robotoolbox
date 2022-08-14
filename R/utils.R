@@ -1,6 +1,6 @@
 #' @noRd
 #' @importFrom utils packageVersion
-user_agent <- function(x) {
+user_agent_ <- function() {
   robotoolbox_version <- packageVersion("robotoolbox")
   os <- Sys.info()[["sysname"]]
   os_version <- paste(Sys.info()[["release"]],
@@ -16,12 +16,16 @@ user_agent <- function(x) {
 }
 
 #' @noRd
-xget <- function(path, args = list(), ...) {
+xget <- function(path, args = list(), n_retry = 3L, ...) {
   headers <- list(Authorization = paste("Token",
-                                        Sys.getenv("KOBOTOOLBOX_TOKEN")))
+                                        Sys.getenv("KOBOTOOLBOX_TOKEN")),
+                  `User-Agent` = user_agent_())
   cli <- crul::HttpClient$new(Sys.getenv("KOBOTOOLBOX_URL"),
                               headers = headers, opts = list(...))
-  res <- cli$get(path = path, query = args)
+  res <- cli$retry("GET", path = path,
+                   query = args,
+                   times = n_retry,
+                   terminate_on = 404)
   res$raise_for_status()
   res$raise_for_ct_json()
   res$parse("UTF-8")
@@ -73,11 +77,11 @@ get_subs_async <- function(uid, size, chunk_size = NULL, ...) {
                     opts = list(...))$get()
   })
   sleep <- case_when(
-    size > 30000 ~ 3,
-    size > 15000 ~ 2,
+    size > 30000 ~ 2.5,
+    size > 15000 ~ 1.5,
     size > 5000 ~ 1,
     size > 1000 ~ 0.5,
-    TRUE ~ 0.5
+    TRUE ~ 0.25
   )
   res <- AsyncQueue$new(.list = reqs,
                         bucket_size = Inf,
@@ -85,7 +89,7 @@ get_subs_async <- function(uid, size, chunk_size = NULL, ...) {
   res$request()
   cond <- any(res$status_code() > 200L)
   if (cond)
-    stop("Request failed! check the settings and try again",
+    stop("A request failed! check the settings and try again",
          call. = FALSE)
   res <- res$parse(encoding = "UTF-8")
   res <- fparse(res,
@@ -477,4 +481,12 @@ kobo_display_fields <- function() {
   c("label", "hint", "guidance_hint",
     "constraint_message", "required_message",
     "image", "audio", "video")
+}
+
+#' @importFrom dplyr bind_rows
+#' @importFrom rlang set_names
+#' @noRd
+empty_tibble_ <- function(cnames) {
+  x <- set_names(lapply(cnames, \(x) NA), cnames)
+  bind_rows(x)
 }

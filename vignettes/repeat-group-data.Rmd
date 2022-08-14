@@ -165,8 +165,7 @@ In this example, filtering the `main` table will propagate to the `education` an
 
 ```{r filter_data}
 df |>
-  dm_filter("main", `_index` == 2) |>
-  dm_apply_filters() |>
+  dm_filter(main = (`_index` == 2)) |>
   dm_nrow()
 ```
 
@@ -177,8 +176,8 @@ We can join the `education` table to the `main` table, by usign `dm_flatten_to_t
 
 ```{r join_two}
 df |>
-  dm_flatten_to_tbl(start = education,
-                    join = left_join) |>
+  dm_flatten_to_tbl(.start = education,
+                    .join = left_join) |>
   glimpse()
 ```
 
@@ -187,8 +186,9 @@ We can push this logic to have the widest table possible through a cascade of jo
 
 ```{r join_all}
 df |>
-  dm_squash_to_tbl(start = hobbies_list,
-                   join = left_join) |>
+  dm_flatten_to_tbl(.start = hobbies_list,
+                    .join = left_join,
+                    .recursive = TRUE) |>
   glimpse()
 ```
 

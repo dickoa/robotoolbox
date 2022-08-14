@@ -1,6 +1,6 @@
 Package: robotoolbox
 Title: An R Client for the KoboToolbox API
-Version: 1.0.0
+Version: 1.0.0.9000
 Authors@R: c(person(given = "Ahmadou",
                     family = "Dicko",
 		    email = "mail@ahmadoudicko.com",
@@ -31,7 +31,7 @@ Imports:
     tibble (>= 3.1.6),
     stringi (>= 1.7.6),
     glue (>= 1.6.0),
-    dm (>= 0.2.6),
+    dm (>= 1.0.1),
     labelled (>= 2.9.0)
 Suggests:
     roxygen2 (>= 7.1.2),
@@ -43,6 +43,6 @@ Suggests:
     rmarkdown (>= 2.11),
     DiagrammeR (>= 1.0.9)
 VignetteBuilder: knitr
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 Roxygen: list(markdown = TRUE)
 LazyData: true
