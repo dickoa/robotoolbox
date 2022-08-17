@@ -59,16 +59,23 @@ kobo_data.kobo_asset <- function(x, paginate = FALSE,
     lang <- klang[1]
 
   if ("begin_repeat" %in% form$type) {
+    names_list <- kobo_form_name_to_list_(filter(form, .data$lang == lang))
     subs <- name_repair_(subs)
     subs <- c(list(main = rowid_to_column(subs, "_index")),
               kobo_extract_repeat_tbl(subs, form))
-    subs <- lapply(subs, function(d) {
+    nm <- names(subs)
+    names_list <- names_list[names(subs)]
+    subs <- lapply(nm, function(n) {
+      d <- subs[[n]]
+      cn_list <- names_list[[n]]
+      d[setdiff(cn_list, names(d))] <- NA
       d <- postprocess_data_(x = d,
                              form = form,
                              lang = lang)
       cn <- intersect(cn, names(d))
       select(d, starts_with(cn), everything())
     })
+    subs <- setNames(subs, nm)
     subs <- as_dm(subs)
     subs <- dm_add_pk(subs, "main", "_index")
     p <- length(subs)
@@ -83,6 +90,7 @@ kobo_data.kobo_asset <- function(x, paginate = FALSE,
     }
   } else {
     subs <- set_names(subs, make_unique_names_)
+    subs[setdiff(cn, names(subs))] <- NA
     subs <- postprocess_data_(x = subs,
                               form = form,
                               lang = lang)

@@ -490,3 +490,48 @@ empty_tibble_ <- function(cnames) {
   x <- set_names(lapply(cnames, \(x) NA), cnames)
   bind_rows(x)
 }
+
+
+#' @importFrom dplyr distinct
+#' @noRd
+kobo_repeat_form_to_list <- function(x, .dm) {
+  types <- c("begin_repeat", "end_repeat",
+             kobo_question_types())
+  x <- filter(x, .data$type %in% types)
+  x <- distinct(x, .data$name, .data$type)
+  rpt_name <- c("main", x$name[x$type %in% "begin_repeat"])
+  idx <- which(x$type %in% "begin_repeat")
+  idx <- c(0, idx, length(x$type))
+  seq_idx <- 1:(length(idx) - 1L)
+  setNames(lapply(seq_idx,
+                  function(i) x$name[seq(idx[i] + 1, idx[i+1] - 1, by = 1)]),
+           rpt_name)
+}
+
+#' @importFrom purrr map map_chr accumulate
+#' @importFrom dplyr mutate right_join arrange if_else
+#' @importFrom tibble rowid_to_column
+#' @importFrom rlang set_names
+#' @importFrom tidyr fill
+#' @noRd
+kobo_form_name_to_list_ <- function(x) {
+  x <- distinct(x, .data$name, .data$type, .data$kuid)
+
+  x <- x |>
+    rowid_to_column() |>
+    filter(grepl( "repeat", .data$type)) |>
+    mutate(scope = accumulate(.data$name, ~ if(!is.na(.y)) c(.x, .y) else head(.x, -1))) |>
+    select(.data$rowid, .data$scope) |>
+    right_join(rowid_to_column(x), by = "rowid") |>
+    arrange(.data$rowid) |>
+    select(-.data$rowid) |>
+    fill(.data$scope) |>
+    mutate(scope = map_chr(.data$scope, paste, collapse = "/"),
+           scope = if_else(.data$scope == "", "main", .data$scope)) |>
+    filter(!grepl("repeat", .data$type))
+
+  x |>
+    split(x$scope) |>
+    map(~ .x$name) |>
+    set_names(basename)
+}

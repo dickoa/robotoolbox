@@ -73,8 +73,9 @@ kobo_form.kobo_asset <- function(x, version = NULL) {
                             cols = is_list_cols(survey),
                             keep_empty = TRUE),
                      gsub("^\\$", "", names(survey)))
-  is.na(survey$lang) <- is.na(survey$label)
-  survey <- drop_na(survey, "name")
+  stypes <- c("begin_repeat", "end_repeat",
+              kobo_question_types())
+  survey <- filter(survey, .data$type %in% stypes)
   survey$version <- version
   if ("choices" %in% asset_content_nm) {
     choices <- lapply(asset$content$choices, function(l) {
@@ -113,19 +114,4 @@ kobo_form.character <- function(x, version = NULL) {
 kobo_form.default <- function(x, version) {
   stop("You need to use a 'kobo_asset' or an asset uid",
        call. = FALSE)
-}
-
-#' @importFrom dplyr distinct
-#' @noRd
-kobo_form_to_list <- function(x, .dm) {
-  types <- c("begin_repeat", kobo_question_types())
-  x <- filter(x, .data$type %in% types)
-  x <- distinct(x, .data$name, .data$type)
-  rpt_name <- c("main", x$name[x$type %in% "begin_repeat"])
-  idx <- which(x$type %in% "begin_repeat")
-  idx <- c(0, idx, length(x$type))
-  seq_idx <- 1:(length(idx) - 1L)
-  setNames(lapply(seq_idx,
-                  function(i) x$name[seq(idx[i] + 1, idx[i+1] - 1, by = 1)]),
-           rpt_name)
 }
