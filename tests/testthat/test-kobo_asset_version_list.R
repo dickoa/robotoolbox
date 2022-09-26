@@ -18,5 +18,4 @@ test_that("kobo_asset_version_list works", {
   cn <- c("uid", "url", "asset_deployed", "date_modified")
 
   expect_equal(names(al1), cn)
-
 })

@@ -47,3 +47,4 @@ test_that("kobo_form can load form with choices tab", {
   form <- kobo_form(uid)
   expect_true(!"choices" %in% names(form))
  })
+t

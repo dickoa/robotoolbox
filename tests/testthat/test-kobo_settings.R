@@ -9,6 +9,6 @@ test_that("kobo_asset_version_list works", {
   settings <- kobo_settings()
   expect_is(settings, "kobo_settings")
 
-  local_edition(3)
+  testthat::local_edition(3)
   expect_snapshot_output(print.kobo_settings(settings))
 })

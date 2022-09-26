@@ -38,10 +38,11 @@ kobo_form.kobo_asset <- function(x, version = NULL) {
   form_display_fields <- function(x, lang) {
     nm <- intersect(names(x),
                     kobo_display_fields())
+    nm <- c(nm, "lang")
+    ss <- length(x$label)
+    x$lang <- lang[seq.int(ss)]
     for (n in nm)
       x[[n]] <- lapply(x[[n]], null2char)
-    ss <- sum(lengths(x$label))
-    x$lang <- lang[seq.int(ss)]
     x
   }
 

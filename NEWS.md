@@ -1,3 +1,11 @@
+robotoolbox 1.0.1.9000
+======================
+
+### NEW FEATURES
+
+- An empty tibble is returned for project with zero submissions
+- Fixed bug on `kobo_form`
+
 robotoolbox 1.0.0.9000
 ======================
 

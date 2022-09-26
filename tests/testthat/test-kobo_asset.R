@@ -12,6 +12,6 @@ test_that("kobo_asset works", {
   expect_is(asset1, class = "kobo_asset")
   expect_error(kobo_asset(1L))
 
-  local_edition(3)
+  testthat::local_edition(3)
   expect_snapshot_output(print.kobo_asset(asset1))
 })

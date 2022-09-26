@@ -223,6 +223,13 @@ map_chr2 <- function(x, key)
   vapply(x, function(l) as.character(l[[key]]), character(1))
 
 #' @noRd
+map_if_chr2 <- function(x, key)
+  vapply(x,
+         function(l)
+           if (length(l) > 0) as.character(l[[key]]) else NA_character_,
+         character(1))
+
+#' @noRd
 map_int2 <- function(x, key)
   vapply(x, function(l) l[[key]], integer(1))
 
@@ -534,4 +541,11 @@ kobo_form_name_to_list_ <- function(x) {
     split(x$scope) |>
     map(~ .x$name) |>
     set_names(basename)
+}
+
+#' @noRd
+kobo_add_validation_status_ <- function(x) {
+  if (any("_validation_status" %in% names(x)))
+    x[["_validation_status_label"]] <- map_if_chr2(x[["_validation_status"]], "label")
+  x
 }

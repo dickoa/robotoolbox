@@ -18,7 +18,6 @@ test_that("with kobo_data you can read your submissions", {
   expect_equal(class(raw_uid),
                c("tbl_df", "tbl", "data.frame"))
   expect_error(kobo_data(1L))
-
 })
 
 test_that("kobo_data with multiple languages", {
@@ -55,7 +54,6 @@ test_that("repeating groups use the dm package", {
   uid <- "aANhxwX9S6BCsiYMgQj9kV"
   raw_uid <- kobo_data(uid)
   expect_is(raw_uid, "dm")
-
 })
 
 test_that("kobo_submissions is similar to kobo_data", {
@@ -79,7 +77,6 @@ test_that("kobo_submissions is similar to kobo_data", {
   expect_equal(raw_uid1, raw_uid2)
   expect_equal(raw_asset1, raw_asset2)
   expect_equal(raw_paginate1, raw_paginate2)
-
 })
 
 
@@ -97,5 +94,4 @@ test_that("kobo_data paginate automatically large data", {
   raw1 <- kobo_data(uid, paginate = TRUE)
 
   expect_equal(raw, raw1)
-
 })

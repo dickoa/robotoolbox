@@ -1,51 +1,11 @@
-#' Get all submissions from a KoboToolbox project
-#'
-#' Get all submissions from a KoboToolbox project through a \code{\link{kobo_asset}} or asset uid.
-#'
-#' @rdname kobo_data
-#'
-#' @importFrom tidyselect starts_with everything
-#' @importFrom dplyr select
-#' @importFrom tibble rowid_to_column tibble
-#' @importFrom dm as_dm dm_add_pk dm_add_fk
-#'
-#' @param x a \code{\link{kobo_asset}} or character, the asset
-#' @param paginate logical, split submissions by page. Default to FALSE
-#' @param page_size integer, number of submissions per page.
-#' if missing, default to number of submissions divided by 5
-#' @param lang character, language for the variable and value labels
-#'
-#' @return A data.frame
-#'
-#' @examples
-#' \dontrun{
-#' kobo_setup() # setup using your url and token
-#' uid <- "a9cwEQcbWqWzA5hzkjRUWi" # pick a valid uid
-#' asset <- kobo_asset(uid)
-#' subs <- kobo_data(asset) ## kobo_submissions(asset)
-#' library(dplyr)
-#' glimpse(subs)
-#' }
-#'
-#' @export
-kobo_data <- function(x, paginate, page_size, lang)
-  UseMethod("kobo_data")
-
-#' @rdname kobo_data
-#' @export
-kobo_submissions <- function(x, paginate, page_size, lang)
-  UseMethod("kobo_submissions")
-
-#' @export
-kobo_data.kobo_asset <- function(x, paginate = FALSE,
-                                 page_size = NULL, lang = NULL) {
-  size <- x$deployment__submission_count
+#' @noRd
+kobo_data_ <- function(x, paginate, page_size, size, lang) {
   if (size >= 10000)
     paginate <- TRUE
 
   if (isTRUE(paginate)) {
     if (is.null(page_size))
-      page_size <- size %/% 5
+      page_size <- max(size %/% 5, 1)
     subs <- get_subs_async(x$uid, size, page_size)
   } else {
     subs <- get_subs(x$uid)
@@ -98,6 +58,60 @@ kobo_data.kobo_asset <- function(x, paginate = FALSE,
     subs <- select(subs, starts_with(cn), everything())
   }
   subs
+}
+
+#' Get all submissions from a KoboToolbox project
+#'
+#' Get all submissions from a KoboToolbox project through a \code{\link{kobo_asset}} or asset uid.
+#'
+#' @rdname kobo_data
+#'
+#' @importFrom tidyselect starts_with everything
+#' @importFrom dplyr select
+#' @importFrom tibble rowid_to_column tibble
+#' @importFrom dm as_dm dm_add_pk dm_add_fk
+#'
+#' @param x a \code{\link{kobo_asset}} or character, the asset
+#' @param paginate logical, split submissions by page. Default to FALSE
+#' @param page_size integer, number of submissions per page.
+#' if missing, default to number of submissions divided by 5
+#' @param lang character, language for the variable and value labels
+#'
+#' @return A data.frame
+#'
+#' @examples
+#' \dontrun{
+#' kobo_setup() # setup using your url and token
+#' uid <- "a9cwEQcbWqWzA5hzkjRUWi" # pick a valid uid
+#' asset <- kobo_asset(uid)
+#' subs <- kobo_data(asset) ## kobo_submissions(asset)
+#' library(dplyr)
+#' glimpse(subs)
+#' }
+#'
+#' @export
+kobo_data <- function(x, paginate, page_size, lang)
+  UseMethod("kobo_data")
+
+#' @rdname kobo_data
+#' @export
+kobo_submissions <- function(x, paginate, page_size, lang)
+  UseMethod("kobo_submissions")
+
+#' @export
+kobo_data.kobo_asset <- function(x, paginate = FALSE,
+                                 page_size = NULL, lang = NULL) {
+  size <- x$deployment__submission_count
+  if (size > 0) {
+    res <- kobo_data_(x = x,
+                      paginate = paginate,
+                      page_size = page_size,
+                      size = size,
+                      lang = lang)
+  } else {
+    res <- tibble()
+  }
+  res
 }
 
 #' @rdname kobo_data
