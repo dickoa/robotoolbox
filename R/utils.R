@@ -77,7 +77,7 @@ get_subs_async <- function(uid, size, chunk_size = NULL, ...) {
                     opts = list(...))$get()
   })
   sleep <- case_when(
-    size > 30000 ~ 2.5,
+    size > 30000 ~ 2,
     size > 15000 ~ 1.5,
     size > 5000 ~ 1,
     size > 1000 ~ 0.5,
@@ -378,6 +378,7 @@ kobo_extract_repeat_tbl <- function(x, form) {
 }
 
 #' @importFrom dplyr mutate across filter
+#' @importFrom tidyselect all_of
 #' @importFrom stats setNames
 #' @importFrom labelled set_value_labels
 #' @importFrom rlang .data
@@ -400,7 +401,7 @@ val_labels_from_form_ <- function(x, form, lang) {
     })
     names(choices) <- nm
     labels <- choices[nm]
-    x <- set_value_labels(mutate(x, across(nm, as.character)),
+    x <- set_value_labels(mutate(x, across(all_of(nm), as.character)),
                           .labels = labels,
                           .strict = FALSE)
   } else {
@@ -410,6 +411,7 @@ val_labels_from_form_ <- function(x, form, lang) {
 }
 
 #' @importFrom dplyr mutate across filter
+#' @importFrom tidyselect all_of
 #' @importFrom stats setNames
 #' @importFrom labelled set_value_labels
 #' @importFrom rlang .data
@@ -432,7 +434,7 @@ val_labels_from_form_external_ <- function(x, form, lang) {
     })
     names(choices) <- nm
     labels <- choices[nm]
-    x <- set_value_labels(mutate(x, across(nm, as.character)),
+    x <- set_value_labels(mutate(x, across(all_of(nm), as.character)),
                           .labels = labels,
                           .strict = FALSE)
   } else {
@@ -461,10 +463,11 @@ var_labels_from_form_ <- function(x, form, lang) {
 }
 
 #' @importFrom utils type.convert
+#' @importFrom readr type_convert
 #' @noRd
 postprocess_data_ <- function(x, form, lang) {
   x <- dummy_from_form_(x, form)
-  x <- type.convert(x, as.is = TRUE)
+  x <- suppressMessages(type_convert(x))
   x <- val_labels_from_form_(x = x, form = form, lang = lang)
   x <- var_labels_from_form_(x = x, form = form, lang = lang)
   x
@@ -478,7 +481,7 @@ kobo_question_types <- function() {
     "select_one", "select_multiple",
     "select_one_from_file", "select_multiple_from_file",
     "rank", "geopoint", "geotrace", "geoshape",
-    "date", "time", "dateTime", "image", "audio",
+    "date", "time", "dateTime", "datetime", "image", "audio",
     "background-audio", "video", "file", "barcode",
     "calculate", "acknowledge", "hidden")
 }
@@ -526,13 +529,14 @@ kobo_form_name_to_list_ <- function(x) {
 
   x <- x |>
     rowid_to_column() |>
-    filter(grepl( "repeat", .data$type)) |>
-    mutate(scope = accumulate(.data$name, ~ if(!is.na(.y)) c(.x, .y) else head(.x, -1))) |>
-    select(.data$rowid, .data$scope) |>
+    filter(grepl("repeat", .data$type)) |>
+    mutate(scope = accumulate(.data$name, ~ if(!is.na(.y))
+      c(.x, .y) else head(.x, -1))) |>
+    select("rowid", "scope") |>
     right_join(rowid_to_column(x), by = "rowid") |>
     arrange(.data$rowid) |>
-    select(-.data$rowid) |>
-    fill(.data$scope) |>
+    select(-"rowid") |>
+    fill("scope") |>
     mutate(scope = map_chr(.data$scope, paste, collapse = "/"),
            scope = if_else(.data$scope == "", "main", .data$scope)) |>
     filter(!grepl("repeat", .data$type))

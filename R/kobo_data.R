@@ -1,5 +1,6 @@
 #' @noRd
 kobo_data_ <- function(x, paginate, page_size, size, lang) {
+
   if (size >= 10000)
     paginate <- TRUE
 

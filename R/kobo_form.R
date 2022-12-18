@@ -69,7 +69,7 @@ kobo_form.kobo_asset <- function(x, version = NULL) {
                    label = "label",
                    lang = "lang",
                    everything(),
-                   -.data$name)
+                   -"name")
   survey <- setNames(unnest(survey,
                             cols = is_list_cols(survey),
                             keep_empty = TRUE),

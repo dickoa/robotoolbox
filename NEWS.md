@@ -1,3 +1,11 @@
+robotoolbox 1.0.4.9000
+======================
+
+### NEW FEATURES
+
+- Update code to remove depecrated `.data` arguments in `tidyselect` function. Introduced as of `tidyselect` version `1.2.0`
+- Use `readr::type_convert` instead of `utils::type.convert` to get the right date, datetime types
+
 robotoolbox 1.0.1.9000
 ======================
 
