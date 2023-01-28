@@ -286,6 +286,13 @@ col2choices <- function(x, form, col) {
             numeric = TRUE)
 }
 
+#' @noRd
+hide_token <- function(x) {
+  a <- paste(rep("x", 35), collapse = "")
+  b <- substr(x, 36, nchar(x))
+  paste(c(a, b), collapse = "")
+}
+
 #' @importFrom data.table as.data.table alloc.col `:=` chmatch set
 #' @importFrom stringi stri_detect_regex
 #' @importFrom tibble as_tibble
