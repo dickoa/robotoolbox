@@ -1,3 +1,10 @@
+robotoolbox 1.0.5.9000
+======================
+
+### NEW FEATURES
+
+- Update to make it compatible with `tidyr` `1.3.0`
+
 robotoolbox 1.0.4.9000
 ======================
 

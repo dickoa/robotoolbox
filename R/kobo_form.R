@@ -13,7 +13,7 @@
 #' @importFrom tidyr unnest drop_na
 #' @importFrom stringi stri_trans_general
 #' @importFrom stats setNames
-#' @importFrom tidyselect contains everything
+#' @importFrom tidyselect contains everything all_of
 #' @importFrom rlang .data
 #'
 #' @return a data.frame with information on name, label, lang, and list-column representing form choices
@@ -70,8 +70,9 @@ kobo_form.kobo_asset <- function(x, version = NULL) {
                    lang = "lang",
                    everything(),
                    -"name")
+  cols_to_unnest <- is_list_cols_names(survey)
   survey <- setNames(unnest(survey,
-                            cols = is_list_cols(survey),
+                            cols = all_of(cols_to_unnest),
                             keep_empty = TRUE),
                      gsub("^\\$", "", names(survey)))
   stypes <- c("begin_repeat", "end_repeat",
@@ -92,9 +93,10 @@ kobo_form.kobo_asset <- function(x, version = NULL) {
                       value_lang = "lang")
     choices <- drop_na(choices, "value_label")
     choices$value_label <- stri_trans_general(choices$value_label,
-                                              id = "Latin-ASCII")
+                                              id = "latin-ascii")
+    cols_to_unnest <- is_list_cols_names(choices)
     choices <- setNames(unnest(choices,
-                               cols = is_list_cols(choices),
+                               cols = all_of(cols_to_unnest),
                                keep_empty = TRUE),
                         gsub("^\\$", "", names(choices)))
     form <- nest_join(survey, choices,
@@ -102,7 +104,7 @@ kobo_form.kobo_asset <- function(x, version = NULL) {
   } else {
     form <- survey
   }
-  form$name <- stri_trans_general(form$name, "Latin-ASCII")
+  form$name <- stri_trans_general(form$name, "latin-ascii")
   form
 }
 

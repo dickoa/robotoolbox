@@ -243,6 +243,10 @@ is_list_cols <- function(x)
   which(vapply(x, is.list, logical(1)))
 
 #' @noRd
+is_list_cols_names <- function(x)
+  names(is_list_cols(x))
+
+#' @noRd
 is_null_recursive <- function(x)
   is.null(x) | all(vapply(x, is.null, logical(1)))
 
