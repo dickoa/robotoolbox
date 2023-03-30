@@ -14,7 +14,7 @@
 #' @importFrom stringi stri_trans_general
 #' @importFrom stats setNames
 #' @importFrom tidyselect contains everything all_of
-#' @importFrom rlang .data
+#' @importFrom rlang .data set_names
 #'
 #' @return a data.frame with information on name, label, lang, and list-column representing form choices
 #'
@@ -77,6 +77,8 @@ kobo_form.kobo_asset <- function(x, version = NULL) {
                      gsub("^\\$", "", names(survey)))
   stypes <- c("begin_repeat", "end_repeat",
               kobo_question_types())
+  if (any(duplicated(names(survey))))
+    survey <- set_names(survey, make.names, unique = TRUE)
   survey <- filter(survey, .data$type %in% stypes)
   survey$version <- version
   if ("choices" %in% asset_content_nm) {

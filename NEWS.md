@@ -1,3 +1,11 @@
+robotoolbox 1.0.6.9000
+======================
+
+### BUG FIX
+
+- `kobo_form` was not working with survey with duplicated columns. Duplicared columns will be deduped.
+
+
 robotoolbox 1.0.5.9000
 ======================
 

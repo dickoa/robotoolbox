@@ -22,7 +22,8 @@ xget <- function(path, args = list(), n_retry = 3L, ...) {
                   `User-Agent` = user_agent_())
   cli <- crul::HttpClient$new(Sys.getenv("KOBOTOOLBOX_URL"),
                               headers = headers, opts = list(...))
-  res <- cli$retry("GET", path = path,
+  res <- cli$retry("GET",
+                   path = path,
                    query = args,
                    times = n_retry,
                    terminate_on = 404)
@@ -563,4 +564,11 @@ kobo_add_validation_status_ <- function(x) {
   if (any("_validation_status" %in% names(x)))
     x[["_validation_status_label"]] <- map_if_chr2(x[["_validation_status"]], "label")
   x
+}
+
+#' @noRd
+kobo_process_geopoint_ <- function(x, form) {
+  geopoint_cols <- form$name[form$type %in% "geopoint"]
+  geopoint_cols <- unique(geopoint_cols)
+  nm <- paste0()
 }
