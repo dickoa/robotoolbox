@@ -1,3 +1,11 @@
+robotoolbox 1.0.7.9000
+======================
+
+### Improvement
+
+- `kobo_data` and `kobo_submissions` are faster for surveys with `repeat group`.
+
+
 robotoolbox 1.0.6.9000
 ======================
 

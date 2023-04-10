@@ -16,6 +16,7 @@ user_agent_ <- function() {
 }
 
 #' @noRd
+#' @importFrom rlang abort
 xget <- function(path, args = list(), n_retry = 3L, ...) {
   headers <- list(Authorization = paste("Token",
                                         Sys.getenv("KOBOTOOLBOX_TOKEN")),
@@ -27,7 +28,10 @@ xget <- function(path, args = list(), n_retry = 3L, ...) {
                    query = args,
                    times = n_retry,
                    terminate_on = 404)
-  res$raise_for_status()
+  if (res$status_code >= 300)
+    abort(c("The request failed!",
+            "i" = "Please check again your asset `uid`, API token and the server url!"),
+            call = NULL)
   res$raise_for_ct_json()
   res$parse("UTF-8")
 }
@@ -67,6 +71,7 @@ build_subs_urls <- function(uid, size, chunk_size = NULL) {
 #' @importFrom data.table rbindlist setattr
 #' @importFrom tibble as_tibble
 #' @importFrom dplyr case_when
+#' @importFrom rlang abort
 #' @noRd
 get_subs_async <- function(uid, size, chunk_size = NULL, ...) {
   headers <- list(Authorization = paste("Token",
@@ -90,8 +95,9 @@ get_subs_async <- function(uid, size, chunk_size = NULL, ...) {
   res$request()
   cond <- any(res$status_code() > 200L)
   if (cond)
-    stop("A request failed! check the settings and try again",
-         call. = FALSE)
+    abort(c("The request failed!",
+            "i" = "Please check again your asset `uid`, API token and the server url!"),
+         call = NULL)
   res <- res$parse(encoding = "UTF-8")
   res <- fparse(res,
                 max_simplify_lvl = "data_frame")
@@ -142,8 +148,9 @@ get_asset_list_async <- function(limit, count, ...) {
   res$request()
   cond <- any(res$status_code() > 200L)
   if (cond)
-    stop("Request failed! check the settings and try again",
-         call. = FALSE)
+    abort(c("The request failed!",
+            "i" = "Please check again your asset `uid`, API token and the server url!"),
+          call = NULL)
   res <- res$parse(encoding = "UTF-8")
   res <- fparse(res,
                 max_simplify_lvl = "list")
@@ -361,6 +368,7 @@ extract_repeat_tbl <- function(x, form) {
                        idcol = "_parent_index",
                        fill = TRUE)
       res <- tibble(res)
+      res <- set_names(res, make_unique_names_)
       rowid_to_column(res, "_index")
     }), nm)
   }

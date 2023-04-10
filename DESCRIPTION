@@ -1,6 +1,6 @@
 Package: robotoolbox
 Title: An R Client for the KoboToolbox API
-Version: 1.0.6.9000
+Version: 1.0.7.9000
 Authors@R: c(person(given = "Ahmadou",
                     family = "Dicko",
 		    email = "mail@ahmadoudicko.com",
@@ -32,7 +32,7 @@ Imports:
     readr (>= 2.1.0),
     stringi (>= 1.7.6),
     glue (>= 1.6.0),
-    dm (>= 1.0.1),
+    dm (>= 1.0.3),
     labelled (>= 2.9.0)
 Suggests:
     roxygen2 (>= 7.1.2),
