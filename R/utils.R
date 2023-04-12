@@ -436,6 +436,39 @@ val_labels_from_form_ <- function(x, form, lang) {
 #' @importFrom labelled set_value_labels
 #' @importFrom rlang .data
 #' @noRd
+val_labels_from_form_multiple_ <- function(x, form, lang) {
+  form <- filter(form,
+                 .data$lang %in% !!lang,
+                 grepl("select_multiple", .data$type))
+  nm <- unique(form$name)
+  nm <- intersect(names(x), nm)
+  if (length(nm) > 0) {
+    form <- form[match(nm, form$name), ]
+    choices <- form$choices
+    choices <- lapply(choices, function(ch) {
+      ch <- filter(ch,
+                   .data$value_lang %in% !!lang)
+      ch$value_label <- make.unique(ch$value_label, sep = "_")
+      ch <- setNames(ch$value_name, ch$value_label)
+      ch[!duplicated(ch)]
+    })
+    names(choices) <- nm
+    labels <- choices[nm]
+    x <- set_value_labels(mutate(x, across(all_of(nm), as.character)),
+                          .labels = labels,
+                          .strict = FALSE)
+  } else {
+    x
+  }
+  x
+}
+
+#' @importFrom dplyr mutate across filter
+#' @importFrom tidyselect all_of
+#' @importFrom stats setNames
+#' @importFrom labelled set_value_labels
+#' @importFrom rlang .data
+#' @noRd
 val_labels_from_form_external_ <- function(x, form, lang) {
   form <- filter(form,
                  .data$lang %in% !!lang,
@@ -463,6 +496,15 @@ val_labels_from_form_external_ <- function(x, form, lang) {
   x
 }
 
+#' @noRd
+replace_na_list_ <- function(x) {
+  b <- is.na(x)
+  v <- names(x)[b]
+  for (i in seq_along(v))
+    x[b][[i]] <- v[i]
+  x
+}
+
 #' @importFrom labelled set_variable_labels
 #' @importFrom stats setNames
 #' @noRd
@@ -470,14 +512,21 @@ var_labels_from_form_ <- function(x, form, lang) {
   cond <- form$lang %in% lang & form$name %in% names(x)
   form <- form[cond, ]
   nm <- unique(form$name)
+  nm_missing <- setdiff(names(x), nm)
   nm <- intersect(names(x), nm)
   if (length(nm) > 0) {
     labels <- setNames(as.list(form$label), form$name)
+    labels_missing <- setNames(as.list(nm_missing), nm_missing)
+    labels <- c(labels, labels_missing)
+    labels <- replace_na_list_(labels)
     x <- set_variable_labels(x,
                              .labels = labels,
                              .strict = FALSE)
   } else {
-    x
+    labels <- setNames(as.list(names(x)), names(x))
+    x <- set_variable_labels(x,
+                             .labels = labels,
+                             .strict = FALSE)
   }
   x
 }
