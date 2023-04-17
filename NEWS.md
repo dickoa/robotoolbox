@@ -1,10 +1,11 @@
-robotoolbox 1.0.7.9000
+robotoolbox 1.0.7.9001
 ======================
 
 ### Improvement
 
 - `kobo_data` and `kobo_submissions` are faster for surveys with `repeat group`.
 -  Add variables as labels when a variable label is missing
+-  Custom labels for `select_multiple` dummy variables
 
 
 robotoolbox 1.0.6.9000

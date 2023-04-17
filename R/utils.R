@@ -505,6 +505,24 @@ replace_na_list_ <- function(x) {
   x
 }
 
+#' @importFrom tidyr unnest
+#' @importFrom dplyr transmute
+#' @noRd
+select_multiple_var_label <- function(x, form, lang) {
+  labels <- list()
+  if (any(form$type %in% "select_multiple")) {
+    choices <- filter(form,
+                      .data$lang %in% !!lang,
+                      .data$type %in% "select_multiple") |>
+      unnest(choices) |>
+      filter(.data$value_lang %in% !!lang) |>
+      transmute(value_name = paste0(name, "_", value_name),
+                value_label = paste0(label, "::", value_label))
+    labels <- setNames(as.list(choices$value_label), make.unique(choices$value_name, sep = "_"))
+  }
+  labels
+}
+
 #' @importFrom labelled set_variable_labels
 #' @importFrom stats setNames
 #' @noRd
@@ -512,12 +530,15 @@ var_labels_from_form_ <- function(x, form, lang) {
   cond <- form$lang %in% lang & form$name %in% names(x)
   form <- form[cond, ]
   nm <- unique(form$name)
+  labels_select_multiple <- select_multiple_var_label(x = x, form = form, lang = lang)
+  nm_select_multiple <- names(labels_select_multiple)
   nm_missing <- setdiff(names(x), nm)
+  nm_missing <- setdiff(nm_missing, nm_select_multiple)
   nm <- intersect(names(x), nm)
   if (length(nm) > 0) {
     labels <- setNames(as.list(form$label), form$name)
     labels_missing <- setNames(as.list(nm_missing), nm_missing)
-    labels <- c(labels, labels_missing)
+    labels <- c(labels, labels_missing, labels_select_multiple)
     labels <- replace_na_list_(labels)
     x <- set_variable_labels(x,
                              .labels = labels,
