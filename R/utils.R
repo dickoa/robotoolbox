@@ -375,6 +375,22 @@ extract_repeat_tbl <- function(x, form) {
   res
 }
 
+#' @noRd
+duplicated_all <- function(x)
+  duplicated(x) | duplicated(x, fromLast = TRUE)
+
+#' @noRd
+#' @importFrom purrr list_rbind
+rbind_duplicate_list <- function(x) {
+  bool <- duplicated_all(names(x))
+  key <- unique(names(x)[bool])
+  a <- x[!bool]
+  b <- x[bool]
+  res <- c(a, setNames(list(list_rbind(b)), key))
+  res[unique(names(x))]
+}
+
+
 #' @importFrom rlang squash
 #' @noRd
 kobo_extract_repeat_tbl <- function(x, form) {
@@ -394,7 +410,9 @@ kobo_extract_repeat_tbl <- function(x, form) {
       } else {
         list()
       })
-  suppressWarnings(squash(res))
+  res <- suppressWarnings(squash(res))
+  res <- set_names(res, make.unique, sep = "_")
+  res
 }
 
 #' @importFrom dplyr mutate across filter group_by distinct bind_rows ungroup slice
@@ -412,8 +430,8 @@ val_labels_from_form_ <- function(x, form, lang) {
   if (length(nm) > 0) {
     form <- form |>
       filter(.data$name %in% nm) |>
-      distinct(name, choices) |>
-      group_by(name) |>
+      distinct(.data$name, .data$choices) |>
+      group_by(.data$name) |>
       mutate(choices = list(unique(distinct(bind_rows(choices))))) |>
       ungroup()
     choices <- form$choices
@@ -490,8 +508,8 @@ select_multiple_var_label <- function(x, form, lang) {
                       .data$type %in% "select_multiple") |>
       unnest(choices) |>
       filter(.data$value_lang %in% !!lang) |>
-      transmute(value_name = paste0(name, "_", value_name),
-                value_label = paste0(label, "::", value_label)) |>
+      transmute(value_name = paste0(.data$name, "_", .data$value_name),
+                value_label = paste0(.data$label, "::", .data$value_label)) |>
       distinct()
     labels <- setNames(as.list(choices$value_label),
                        make.unique(choices$value_name, sep = "_"))
