@@ -12,7 +12,13 @@ kobo_data_ <- function(x, paginate, page_size, size, lang) {
     subs <- get_subs(x$uid)
   }
 
-  form <- kobo_form(x)
+  if (nrow(kobo_asset_version_list(x$uid))) {
+    version <- unique(subs[["__version__"]])
+    form <- lapply(version, \(v) kobo_form(x, v))
+    form <- list_rbind(form)
+  } else {
+    form <- kobo_form(x)
+  }
   cn <- form$name[form$type %in% kobo_question_types()]
   cn <- unique(cn)
   klang <- kobo_lang(x)
@@ -25,7 +31,7 @@ kobo_data_ <- function(x, paginate, page_size, size, lang) {
     subs <- c(list(main = rowid_to_column(subs, "_index")),
               kobo_extract_repeat_tbl(subs, form))
     nm <- names(subs)
-    names_list <- names_list[names(subs)]
+    names_list <- names_list[nm]
     subs <- lapply(nm, function(n) {
       d <- subs[[n]]
       cn_list <- names_list[[n]]
@@ -69,6 +75,7 @@ kobo_data_ <- function(x, paginate, page_size, size, lang) {
 #'
 #' @importFrom tidyselect starts_with everything
 #' @importFrom dplyr select
+#' @importFrom purrr list_rbind
 #' @importFrom tibble rowid_to_column tibble
 #' @importFrom dm as_dm dm_add_pk dm_add_fk
 #'

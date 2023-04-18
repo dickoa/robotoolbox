@@ -397,7 +397,7 @@ kobo_extract_repeat_tbl <- function(x, form) {
   suppressWarnings(squash(res))
 }
 
-#' @importFrom dplyr mutate across filter
+#' @importFrom dplyr mutate across filter group_by distinct bind_rows ungroup slice
 #' @importFrom tidyselect all_of
 #' @importFrom stats setNames
 #' @importFrom labelled set_value_labels
@@ -410,42 +410,16 @@ val_labels_from_form_ <- function(x, form, lang) {
   nm <- unique(form$name)
   nm <- intersect(names(x), nm)
   if (length(nm) > 0) {
-    form <- form[match(nm, form$name), ]
+    form <- form |>
+      filter(.data$name %in% nm) |>
+      distinct(name, choices) |>
+      group_by(name) |>
+      mutate(choices = list(unique(distinct(bind_rows(choices))))) |>
+      ungroup()
     choices <- form$choices
-    choices <- lapply(choices, function(ch) {
-      ch <- filter(ch,
-                   .data$value_lang %in% !!lang)
-      ch$value_label <- make.unique(ch$value_label, sep = "_")
-      ch <- setNames(ch$value_name, ch$value_label)
-      ch[!duplicated(ch)]
-    })
-    names(choices) <- nm
-    labels <- choices[nm]
-    x <- set_value_labels(mutate(x, across(all_of(nm), as.character)),
-                          .labels = labels,
-                          .strict = FALSE)
-  } else {
-    x
-  }
-  x
-}
-
-#' @importFrom dplyr mutate across filter
-#' @importFrom tidyselect all_of
-#' @importFrom stats setNames
-#' @importFrom labelled set_value_labels
-#' @importFrom rlang .data
-#' @noRd
-val_labels_from_form_multiple_ <- function(x, form, lang) {
-  form <- filter(form,
-                 .data$lang %in% !!lang,
-                 grepl("select_multiple", .data$type))
-  nm <- unique(form$name)
-  nm <- intersect(names(x), nm)
-  if (length(nm) > 0) {
-    form <- form[match(nm, form$name), ]
-    choices <- form$choices
-    choices <- lapply(choices, function(ch) {
+    names(choices) <- form$name
+    choices <- lapply(nm, function(n) {
+      ch <- choices[[n]]
       ch <- filter(ch,
                    .data$value_lang %in% !!lang)
       ch$value_label <- make.unique(ch$value_label, sep = "_")
@@ -506,7 +480,7 @@ replace_na_list_ <- function(x) {
 }
 
 #' @importFrom tidyr unnest
-#' @importFrom dplyr transmute
+#' @importFrom dplyr transmute distinct
 #' @noRd
 select_multiple_var_label <- function(x, form, lang) {
   labels <- list()
@@ -517,8 +491,10 @@ select_multiple_var_label <- function(x, form, lang) {
       unnest(choices) |>
       filter(.data$value_lang %in% !!lang) |>
       transmute(value_name = paste0(name, "_", value_name),
-                value_label = paste0(label, "::", value_label))
-    labels <- setNames(as.list(choices$value_label), make.unique(choices$value_name, sep = "_"))
+                value_label = paste0(label, "::", value_label)) |>
+      distinct()
+    labels <- setNames(as.list(choices$value_label),
+                       make.unique(choices$value_name, sep = "_"))
   }
   labels
 }

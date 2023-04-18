@@ -1,3 +1,13 @@
+robotoolbox 1.0.9.9000
+======================
+
+### BUG FIX
+
+- It is now possible to match submissions to form based on the version of the form used even when you're not the owner of the project. This new feature work best with `Kobotoolbox kpi` version `2.023.12` and up.
+
+### Improvement
+- Update `purrr` to 1.0.1
+
 robotoolbox 1.0.7.9001
 ======================
 
