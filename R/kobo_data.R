@@ -12,7 +12,9 @@ kobo_data_ <- function(x, paginate, page_size, size, lang) {
     subs <- get_subs(x$uid)
   }
 
-  if (nrow(kobo_asset_version_list(x$uid))) {
+  cond1 <- sum(grepl("\\_version\\_", names(subs))) == 1
+  cond2 <- nrow(kobo_asset_version_list(x$uid)) > 0
+  if (cond1 & cond2) {
     version <- unique(subs[["__version__"]])
     form <- lapply(version, \(v) kobo_form(x, v))
     form <- list_rbind(form)
