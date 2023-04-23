@@ -3,6 +3,7 @@ robotoolbox 1.1.0.9000
 
 ### Improvement
 
+- `robotoolbox` provides WKT columns for `geopoint`, `geotrace` and `geoshape` question types, for easier spatial data analysis.
 - Remove unnecessary list-columns and pre-process `_validation_status` column.
 
 ### BUG FIX
