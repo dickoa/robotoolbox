@@ -5,7 +5,7 @@
 #' Examples of KoboToolbox asset, assets list and submissions data
 #'
 #' @rdname dummy_data
-#' @format asset_list: a data.frame of _ml8 rows and 7 columns
+#' @format asset_list: a data.frame of 28 rows and 7 columns with a list of projects
 "asset_list"
 
 #' @rdname dummy_data
@@ -15,6 +15,10 @@
 #' @rdname dummy_data
 #' @format asset_rg: A kobo_asset object on a project using repeat groups.
 "asset_rg"
+
+#' @rdname dummy_data
+#' @format asset_spatial: A kobo_asset object on a project showcasing gps questions.
+"asset_spatial"
 
 #' @rdname dummy_data
 #' @format data_ml: A data.frame with submissions from the \code{asset_ml} in English.
@@ -35,3 +39,7 @@
 #' @rdname dummy_data
 #' @format data_rg: A dm object (list of data.frame) with submissions from the \code{asset_rg}
 "data_rg"
+
+#' @rdname dummy_data
+#' @format data_spatial: A data.frame with submissions from the \code{asset_spatial}.
+"data_spatial"

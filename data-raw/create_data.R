@@ -36,9 +36,15 @@ data_ml_default <- kobo_data(asset_ml)
 data_rg <- kobo_data(asset_rg)
 
 ###
+uid_spatial <- "a9NCKTJxBPKdy49gX57WL5"
+asset_spatial <- kobo_asset(uid_spatial)
+data_spatial <- kobo_data(uid_spatial)
+
+###
 #usethis::use_data(asset1, overwrite = TRUE)
 usethis::use_data(asset_ml, overwrite = TRUE)
 usethis::use_data(asset_rg, overwrite = TRUE)
+usethis::use_data(asset_spatial, overwrite = TRUE)
 #usethis::use_data(asset_list, overwrite = TRUE)
 #usethis::use_data(data1, overwrite = TRUE)
 usethis::use_data(data_ml_en, overwrite = TRUE)
@@ -46,3 +52,4 @@ usethis::use_data(data_ml_fr, overwrite = TRUE)
 usethis::use_data(data_ml_ar, overwrite = TRUE)
 usethis::use_data(data_ml_default, overwrite = TRUE)
 usethis::use_data(data_rg, overwrite = TRUE)
+usethis::use_data(data_spatial, overwrite = TRUE)

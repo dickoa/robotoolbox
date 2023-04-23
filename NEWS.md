@@ -1,3 +1,14 @@
+robotoolbox 1.1.0.9000
+======================
+
+### Improvement
+
+- Remove unnecessary list-columns and pre-process `_validation_status` column.
+
+### BUG FIX
+
+- Fix a bug in `kobo_form` when you have a `list_name` in the `choices` tab but no associated question in the `survey` tab.
+
 robotoolbox 1.0.9.9002
 ======================
 

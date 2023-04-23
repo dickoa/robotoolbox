@@ -11,14 +11,18 @@
 #'
 #' @export
 kobo_settings <- function() {
-  ops <- list(token = Sys.getenv("KOBOTOOLBOX_TOKEN", ""),
-              url = Sys.getenv("KOBOTOOLBOX_URL", ""))
+  token <- Sys.getenv("KOBOTOOLBOX_TOKEN", "")
+  url <- Sys.getenv("KOBOTOOLBOX_URL", "")
+  ops <- list(token = token,
+              url = url)
   structure(ops, class = "kobo_settings")
 }
 
 #' Set the \code{robotoolbox} settings
 #'
 #' Set the KoboToolbox server url and the API token.
+#'
+#' @importFrom rlang abort
 #'
 #' @param url character, the base url of the KoboToolbox server
 #' @param token character, the API token
@@ -36,10 +40,11 @@ kobo_settings <- function() {
 #' @export
 kobo_setup <- function(url = Sys.getenv("KOBOTOOLBOX_URL", ""),
                        token = Sys.getenv("KOBOTOOLBOX_TOKEN", "")) {
+  if (!assert_url(url))
+    abort(message = "Invalid URL")
+  Sys.setenv("KOBOTOOLBOX_URL" = url)
   if (token != "")
     Sys.setenv("KOBOTOOLBOX_TOKEN" = token)
-  if (url != "")
-    Sys.setenv("KOBOTOOLBOX_URL" = url)
   invisible(kobo_settings())
 }
 

@@ -1,6 +1,6 @@
 Package: robotoolbox
 Title: An R Client for the KoboToolbox API
-Version: 1.0.9.9002
+Version: 1.1.0.9000
 Authors@R: c(person(given = "Ahmadou",
                     family = "Dicko",
 		    email = "mail@ahmadoudicko.com",
@@ -42,8 +42,12 @@ Suggests:
     testthat (>= 3.1.1),
     covr (>= 3.5.1),
     rmarkdown (>= 2.11),
-    DiagrammeR (>= 1.0.9)
+    DiagrammeR (>= 1.0.9),
+    sf (>= 1.0-9),
+    mapview (>= 2.11)
 VignetteBuilder: knitr
 RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)
 LazyData: true
+X-schema.org-applicationCategory: Data Access
+X-schema.org-keywords: database, open-data, kobotoolbox, kpi, api, data, dataset

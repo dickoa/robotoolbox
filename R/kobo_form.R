@@ -80,8 +80,10 @@ kobo_form.kobo_asset <- function(x, version = NULL) {
   if (any(duplicated(names(survey))))
     survey <- set_names(survey, make.names, unique = TRUE)
   survey <- filter(survey, .data$type %in% stypes)
-  survey$version <- version
-  if ("choices" %in% asset_content_nm) {
+  if (!is.null(version))
+    survey$version <- version
+  form <- survey
+  if ("choices" %in% asset_content_nm && "list_name" %in% names(survey)) {
     choices <- lapply(asset$content$choices, function(l) {
       x <- form_display_fields(l, lang)
       x
@@ -103,8 +105,6 @@ kobo_form.kobo_asset <- function(x, version = NULL) {
                         gsub("^\\$", "", names(choices)))
     form <- nest_join(survey, choices,
                       by = "list_name")
-  } else {
-    form <- survey
   }
   form$name <- stri_trans_general(form$name, "latin-ascii")
   form

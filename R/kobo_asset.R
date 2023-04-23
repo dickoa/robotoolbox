@@ -180,9 +180,9 @@ print.kobo_asset <- function(x, ...) {
   cat("  Asset type: ", x$asset_type, "\n", sep = "")
   cat("  Asset owner: ", x$owner__username, "\n", sep = "")
   cat("  Created: ",
-      as.character(parse_kobo_date(x$date_created)),  "\n", sep = "")
+      parse_kobo_date(x$date_created),  "\n", sep = "")
   cat("  Last modified: ",
-      as.character(parse_kobo_date(x$date_modified)),  "\n", sep = "")
+      parse_kobo_date(x$date_modified),  "\n", sep = "")
   cat("  Submissions: ", x$deployment__submission_count, "\n", sep = "")
 }
 
@@ -194,5 +194,5 @@ print.kobo_asset_version <- function(x, ...) {
   cat("  Asset deployed: ",
       is.na(as.logical(x$date_deployed)),  "\n", sep = "")
   cat("  Date modified: ",
-      as.character(as.POSIXct(x$date_modified)),  "\n", sep = "")
+      parse_kobo_date2(x$date_modified),  "\n", sep = "")
 }

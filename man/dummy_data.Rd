@@ -5,18 +5,22 @@
 \alias{asset_list}
 \alias{asset_ml}
 \alias{asset_rg}
+\alias{asset_spatial}
 \alias{data_ml_en}
 \alias{data_ml_fr}
 \alias{data_ml_ar}
 \alias{data_ml_default}
 \alias{data_rg}
+\alias{data_spatial}
 \title{KoboToolbox asset, assets list and submissions data}
 \format{
-asset_list: a data.frame of _ml8 rows and 7 columns
+asset_list: a data.frame of 28 rows and 7 columns with a list of projects
 
 asset_ml: A kobo_asset object on a project using multiple languages.
 
 asset_rg: A kobo_asset object on a project using repeat groups.
+
+asset_spatial: A kobo_asset object on a project showcasing gps questions.
 
 data_ml: A data.frame with submissions from the \code{asset_ml} in English.
 
@@ -27,6 +31,8 @@ data_ml: A data.frame with submissions from the \code{asset_ml} in Arabic
 data_ml: A data.frame with submissions from the \code{asset_ml} with default language.
 
 data_rg: A dm object (list of data.frame) with submissions from the \code{asset_rg}
+
+data_spatial: A data.frame with submissions from the \code{asset_spatial}.
 }
 \usage{
 asset_list
@@ -34,6 +40,8 @@ asset_list
 asset_ml
 
 asset_rg
+
+asset_spatial
 
 data_ml_en
 
@@ -44,6 +52,8 @@ data_ml_ar
 data_ml_default
 
 data_rg
+
+data_spatial
 }
 \description{
 KoboToolbox asset, assets list and submissions data

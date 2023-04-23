@@ -1,4 +1,10 @@
 #' @noRd
+assert_url <- function(x) {
+  url_pattern <- "^(https?:\\/\\/)?([\\da-z.-]+)\\.([a-z.]{2,6})(\\/[\\w .-]*)*\\/?$"
+  all(grepl(pattern = url_pattern, x))
+}
+
+#' @noRd
 #' @importFrom utils packageVersion
 user_agent_ <- function() {
   robotoolbox_version <- packageVersion("robotoolbox")
@@ -16,6 +22,18 @@ user_agent_ <- function() {
 }
 
 #' @noRd
+#' @importFrom RcppSimdJson fparse
+error_msg <- function(x) {
+  msg <- fparse(rawToChar(x))$detail
+  info <- case_when(grepl("not found", msg, ignore.case = TRUE) ~ c("uid (project) not found",
+                                                                    i = "Check your uid and try again"),
+                    grepl("invalid token", msg, ignore.case = TRUE) ~ c("Invalid API token",
+                                                                        i = "Check that your API token in `kobo_setup` is correct or use `kobo_token`"),
+                    .default = setNames("Check that you have the right server and if it's working", "i"))
+  info
+}
+
+#' @noRd
 #' @importFrom rlang abort
 xget <- function(path, args = list(), n_retry = 3L, ...) {
   headers <- list(Authorization = paste("Token",
@@ -27,11 +45,11 @@ xget <- function(path, args = list(), n_retry = 3L, ...) {
                    path = path,
                    query = args,
                    times = n_retry,
+                   retry_only_on = c(500, 503),
                    terminate_on = 404)
   if (res$status_code >= 300)
-    abort(c("The request failed!",
-            "i" = "Please check again your asset `uid`, API token and the server url!"),
-            call = NULL)
+    abort(error_msg(res$content),
+          call = NULL)
   res$raise_for_ct_json()
   res$parse("UTF-8")
 }
@@ -93,11 +111,12 @@ get_subs_async <- function(uid, size, chunk_size = NULL, ...) {
                         bucket_size = Inf,
                         sleep = sleep)
   res$request()
-  cond <- any(res$status_code() > 200L)
-  if (cond)
-    abort(c("The request failed!",
-            "i" = "Please check again your asset `uid`, API token and the server url!"),
-         call = NULL)
+  cond <- res$status_code() >= 300L
+  if (any(cond)) {
+    msg <- res$content()[cond]
+    abort(error_msg(msg[[1]]),
+          call = NULL)
+  }
   res <- res$parse(encoding = "UTF-8")
   res <- fparse(res,
                 max_simplify_lvl = "data_frame")
@@ -175,7 +194,7 @@ asset_list_to_tbl <- function(x) {
 
 #' @importFrom RcppSimdJson fparse
 #' @noRd
-get_form_media <- function(uid) {
+get_form_media <- function(ui) {
   headers <- list(Authorization = paste("Token",
                                         Sys.getenv("KOBOTOOLBOX_TOKEN")))
   path <- paste0("api/v2/assets/", uid, "/files/?file_type=form_media")
@@ -242,10 +261,18 @@ map_int2 <- function(x, key)
   vapply(x, function(l) l[[key]], integer(1))
 
 #' @noRd
-parse_kobo_date <- function(x)
-  as.POSIXct(x,
-             format = "%Y-%m-%dT%H:%M:%OS",
-             tz = "GMT")
+parse_kobo_date <- function(x) {
+  x <- as.POSIXct(x,
+                  format = "%Y-%m-%dT%H:%M:%OS",
+                  tz = "GMT")
+  x <- round(x, "secs")
+  as.character(x)
+}
+
+#' @noRd
+parse_kobo_date2 <- function(x)
+  as.character(round(as.POSIXct(x), "secs"))
+
 #' @noRd
 is_list_cols <- function(x)
   which(vapply(x, is.list, logical(1)))
@@ -253,6 +280,13 @@ is_list_cols <- function(x)
 #' @noRd
 is_list_cols_names <- function(x)
   names(is_list_cols(x))
+
+#' @noRd
+is_list_cols_nulls <- function(x) {
+  b1 <- vapply(x, is.list, logical(1))
+  b2 <- vapply(x[b1], is.null, logical(1))
+  list(b1, b2)
+}
 
 #' @noRd
 is_null_recursive <- function(x)
@@ -546,14 +580,134 @@ var_labels_from_form_ <- function(x, form, lang) {
   x
 }
 
+#' @noRd
+#' @importFrom dplyr rename_with
+#' @importFrom tidyr separate_wider_delim
+extract_geopoint_ <- function(x, form) {
+  cond <- form$type %in% "geopoint"
+  nm <- unique(form$name[cond])
+  nm <- intersect(names(x), nm)
+  if (any(cond) && length(nm) > 0) {
+    wkt_geopoint <- function(x) {
+      pattern <- "^(\\s*-?\\d+(?:\\.\\d+)?)\\s+(-?\\d+(?:\\.\\d+)?)\\s+(-?\\d+(?:\\.\\d+)?)(\\s+-?\\d+(?:\\.\\d+)?)$"
+      replacement <- "POINT (\\2 \\1 \\3)"
+      gsub(pattern, replacement, x)
+    }
+
+    separate_geopoint <- function(x, col) {
+      x <- x |>
+        mutate(across(.cols = all_of(col),
+                      .fns = ~ wkt_geopoint(.x),
+                      .names = "{.col}_wkt")) |>
+        separate_wider_delim({{col}},
+                             names = c("latitude", "longitude",
+                                       "altitude", "precision"),
+                             delim = " ",
+                             names_sep = "_",
+                             cols_remove = FALSE) |>
+        rename_with(~ gsub("^(.+)_(\\1)$", "\\1", .x), starts_with(col))
+      x
+    }
+    x <- separate_geopoint(x, nm)
+  }
+  x
+}
+
+#' @noRd
+extract_geotrace_ <- function(x, form) {
+  cond <- form$type %in% "geotrace"
+  nm <- unique(form$name[cond])
+  nm <- intersect(names(x), nm)
+  if (any(cond) && length(nm) > 0) {
+    wkt_geotrace <- function(x) {
+      x <- strsplit(x, ";")
+      pattern <- "^(\\s*-?\\d+(?:\\.\\d+)?)\\s+(-?\\d+(?:\\.\\d+)?)\\s+(-?\\d+(?:\\.\\d+)?)(\\s+-?\\d+(?:\\.\\d+)?)$"
+      replacement <- "\\2 \\1 \\3"
+      x <- lapply(x, \(s) gsub(pattern, replacement, s))
+      vapply(x, \(s) paste0("LINESTRING (", paste0(s, collapse = ", "), ")"),
+             character(1))
+    }
+
+    separate_geotrace <- function(x, col) {
+      x <- x |>
+        mutate(across(.cols = all_of(col),
+                      .fns = ~ wkt_geotrace(.x),
+                      .names = "{.col}_wkt"))
+      x
+    }
+    x <- separate_geotrace(x, nm)
+  }
+  x
+}
+
+#' @noRd
+extract_geoshape_ <- function(x, form) {
+  cond <- form$type %in% "geoshape"
+  nm <- unique(form$name[cond])
+  nm <- intersect(names(x), nm)
+  if (any(cond) && length(nm) > 0) {
+    wkt_geoshape <- function(x) {
+      x <- strsplit(x, ";")
+      pattern <- "^(\\s*-?\\d+(?:\\.\\d+)?)\\s+(-?\\d+(?:\\.\\d+)?)\\s+(-?\\d+(?:\\.\\d+)?)(\\s+-?\\d+(?:\\.\\d+)?)$"
+      replacement <- "\\2 \\1 \\3"
+      x <- lapply(x, \(s) gsub(pattern, replacement, s))
+      x <- vapply(x, \(s) paste0("POLYGON ((", paste0(s, collapse = ", "), "))"),
+                  character(1))
+      x
+    }
+
+    separate_geoshape <- function(x, col) {
+      x <- x |>
+        mutate(across(.cols = all_of(col),
+                      .fns = ~ wkt_geoshape(.x),
+                      .names = "{.col}_wkt"))
+      x
+    }
+    x <- separate_geoshape(x, nm)
+  }
+  x
+}
+
+#' @noRd
+#' @importFrom dplyr select
+#' @importFrom labelled labelled
+#' @importFrom tidyselect any_of
+remove_list_cols <- function(x) {
+  val_col <- x[["_validation_status"]]
+  cond <- all(vapply(val_col, is.null, logical(1)))
+  if (!cond) {
+  val_stat <- vapply(val_col,
+                     \(x) if (is.null(x$uid)) NA_character_ else x$uid, character(1))
+  val_lbl <- vapply(val_col,
+                    \(x) if (is.null(x$label)) NA_character_ else x$label, character(1))
+  b <- is.na(val_stat)
+  val_dict <- setNames(val_stat[!b], val_lbl[!b])
+  val_dict <- val_dict[unique(names(val_dict))]
+  x <- x |>
+    mutate(across(.cols = c("_tags", "_notes"), toString),
+           `_validation_status` = labelled(val_stat, val_dict))
+  x <- select(x, -is_list_cols(x))
+  } else {
+  x <- x |>
+    mutate(across(.cols = any_of(c("_tags", "_notes")), toString),
+           `_validation_status` = NA_character_)
+  x <- select(x, -is_list_cols(x))
+  }
+  x
+}
+
 #' @importFrom utils type.convert
 #' @importFrom readr type_convert
 #' @noRd
 postprocess_data_ <- function(x, form, lang) {
   x <- dummy_from_form_(x, form)
+  x <- extract_geopoint_(x, form)
+  x <- extract_geotrace_(x, form)
+  x <- extract_geoshape_(x, form)
   x <- suppressMessages(type_convert(x))
   x <- val_labels_from_form_(x = x, form = form, lang = lang)
   x <- var_labels_from_form_(x = x, form = form, lang = lang)
+  x <- remove_list_cols(x)
   x
 }
 
@@ -636,11 +790,4 @@ kobo_add_validation_status_ <- function(x) {
   if (any("_validation_status" %in% names(x)))
     x[["_validation_status_label"]] <- map_if_chr2(x[["_validation_status"]], "label")
   x
-}
-
-#' @noRd
-kobo_process_geopoint_ <- function(x, form) {
-  geopoint_cols <- form$name[form$type %in% "geopoint"]
-  geopoint_cols <- unique(geopoint_cols)
-  nm <- paste0()
 }
