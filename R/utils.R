@@ -583,6 +583,8 @@ var_labels_from_form_ <- function(x, form, lang) {
 #' @noRd
 #' @importFrom dplyr rename_with
 #' @importFrom tidyr separate_wider_delim
+#' @importFrom tidyselect all_of
+#' @importFrom labelled set_variable_labels var_label
 extract_geopoint_ <- function(x, form) {
   cond <- form$type %in% "geopoint"
   nm <- unique(form$name[cond])
@@ -595,6 +597,13 @@ extract_geopoint_ <- function(x, form) {
     }
 
     separate_geopoint <- function(x, col) {
+      lbl <- var_label(select(x, all_of(col)))
+      nm <- c("latitude", "longitude", "altitude", "precision", "wkt")
+      lbl <- lapply(seq_along(lbl), function(i)  setNames(paste0(lbl[[i]], "::", nm),
+                                                          paste0(names(lbl)[i], "_", nm)))
+      lbl <- lapply(lbl, as.list)
+      lbl <- unlist(lbl, recursive = FALSE)
+
       x <- x |>
         mutate(across(.cols = all_of(col),
                       .fns = ~ wkt_geopoint(.x),
@@ -605,7 +614,8 @@ extract_geopoint_ <- function(x, form) {
                              delim = " ",
                              names_sep = "_",
                              cols_remove = FALSE) |>
-        rename_with(~ gsub("^(.+)_(\\1)$", "\\1", .x), starts_with(col))
+        rename_with(~ gsub("^(.+)_(\\1)$", "\\1", .x), starts_with(col)) |>
+        set_variable_labels(.labels = lbl, .strict = FALSE)
       x
     }
     x <- separate_geopoint(x, nm)
@@ -614,6 +624,10 @@ extract_geopoint_ <- function(x, form) {
 }
 
 #' @noRd
+#' @importFrom dplyr rename_with
+#' @importFrom tidyr separate_wider_delim
+#' @importFrom tidyselect all_of
+#' @importFrom labelled set_variable_labels var_label
 extract_geotrace_ <- function(x, form) {
   cond <- form$type %in% "geotrace"
   nm <- unique(form$name[cond])
@@ -629,10 +643,15 @@ extract_geotrace_ <- function(x, form) {
     }
 
     separate_geotrace <- function(x, col) {
+      lbl <- var_label(select(x, all_of(col)))
+      lbl <- set_names(lbl, paste0(col, "_wkt"))
+      lbl <- lapply(lbl, function(x)  paste0(x, "::", "wkt"))
+
       x <- x |>
         mutate(across(.cols = all_of(col),
                       .fns = ~ wkt_geotrace(.x),
-                      .names = "{.col}_wkt"))
+                      .names = "{.col}_wkt")) |>
+        set_variable_labels(.labels = lbl, .strict = FALSE)
       x
     }
     x <- separate_geotrace(x, nm)
@@ -641,6 +660,10 @@ extract_geotrace_ <- function(x, form) {
 }
 
 #' @noRd
+#' @importFrom dplyr rename_with
+#' @importFrom tidyr separate_wider_delim
+#' @importFrom tidyselect all_of
+#' @importFrom labelled set_variable_labels var_label
 extract_geoshape_ <- function(x, form) {
   cond <- form$type %in% "geoshape"
   nm <- unique(form$name[cond])
@@ -657,10 +680,15 @@ extract_geoshape_ <- function(x, form) {
     }
 
     separate_geoshape <- function(x, col) {
+      lbl <- var_label(select(x, all_of(col)))
+      lbl <- set_names(lbl, paste0(col, "_wkt"))
+      lbl <- lapply(lbl, function(x)  paste0(x, "::", "wkt"))
+
       x <- x |>
         mutate(across(.cols = all_of(col),
                       .fns = ~ wkt_geoshape(.x),
-                      .names = "{.col}_wkt"))
+                      .names = "{.col}_wkt")) |>
+        set_variable_labels(.labels = lbl, .strict = FALSE)
       x
     }
     x <- separate_geoshape(x, nm)
@@ -701,13 +729,13 @@ remove_list_cols <- function(x) {
 #' @noRd
 postprocess_data_ <- function(x, form, lang) {
   x <- dummy_from_form_(x, form)
+  x <- suppressMessages(type_convert(x))
+  x <- remove_list_cols(x)
+  x <- val_labels_from_form_(x = x, form = form, lang = lang)
+  x <- var_labels_from_form_(x = x, form = form, lang = lang)
   x <- extract_geopoint_(x, form)
   x <- extract_geotrace_(x, form)
   x <- extract_geoshape_(x, form)
-  x <- suppressMessages(type_convert(x))
-  x <- val_labels_from_form_(x = x, form = form, lang = lang)
-  x <- var_labels_from_form_(x = x, form = form, lang = lang)
-  x <- remove_list_cols(x)
   x
 }
 
