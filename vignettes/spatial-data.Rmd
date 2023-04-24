@@ -134,7 +134,7 @@ pull(df, polygon_wkt)
 
 Now that we know how `robotoolbox` store spatial question types, we can now turn these column to spatial object `R` can use for spatial data analysis.
 
-## Geopoints
+## Geopoint
 
 The standard way to manipulate spatial vector data in `R` is to use the `sf` package.
 `sf` stands for Simple Features and it extends a data.frame by adding a geometry list-column.
