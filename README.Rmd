@@ -173,11 +173,17 @@ The package [`dm`](https://cynkra.github.io/dm/) is used to model such relations
 
 https://dickoa.gitlab.io/robotoolbox/articles/repeat-group-data.html
 
+
+### Spatial data
+
+`Kobotoolbox` provides three types of question to record spatial data: `geopoint` for points, `geotrace` for lines and `geoshape` to map close polygons. `robotoolbox` associates to each spatial column a [`WKT`](https://libgeos.org/specifications/wkt/) column. It provides a simple way to use it with various GIS software and R package for spatial data analysis. The `sf` package is the standard for spatial vector data handling and visualization.
+
+https://dickoa.gitlab.io/robotoolbox/articles/spatial-data.html
+
+
 ## Caveats and limitations
 
-`robotoolbox` uses the `labelled` package to manipulate `labels` for `select_one` question. For `select_multiple` questions, dummy columns are used. They are based on values not labels. Please feel free to submit an issue, if you want to have `labels` for `select_multiple`.
-
-`robotoolbox` uses the `Kobotoolbox` API v2. Using the API, if you don't own the project, [it is not currently possible to access all versions of the form used to collect the data](https://github.com/kobotoolbox/kpi/issues/1164). You can just access the latest version of the form. It has an impact on how `robotoolbox` can map the raw data and the information from the associated form (labels, languages, etc.).
+`robotoolbox` uses the `labelled` package to manipulate `labels` for `select_one` question types. For `select_multiple` questions, dummy columns are used. These dummy variables lack value label but they have variable labels associated to the variable of label of the original variable.
 
 ## Meta
 

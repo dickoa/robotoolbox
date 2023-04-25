@@ -87,7 +87,7 @@ asset <- asset_spatial
 asset
 ```
 
-We have just one submission, we recorded one location using `geopoint`, used `geotrace` to map a portion of a road, and stadium was outlined with the `geoshape` question type.
+We have just one submission, we recorded one location using a `geopoint` question, used a `geotrace` question to map a portion of a road, and stadium was outlined with a `geoshape` question type.
 
 ### Extracting the data
 
@@ -103,7 +103,7 @@ df <- data_spatial
 glimpse(df)
 ```
 
-We can see that we have all of our three columns `point`, `line` and `polygon`. For each columns, we have a WKT column.
+We can see that we have all of our three columns `point`, `line` and `polygon`. For each of them, we have a corresponding WKT column.
 
 ```{r}
 pull(df, point)
@@ -118,42 +118,42 @@ df |>
   select(starts_with("point_"))
 ```
 
-WKT column for `geotrace` question type for the `line` column.
+The `line` column, from the `geotrace` question, also has an associated `line_wkt` column.
 
 ```{r}
 pull(df, line)
 pull(df, line_wkt)
 ```
 
-WKT column for `geoshape` question type for the `polygon` column.
+Finally, `polygon_wkt` is the WKT column parsed from the `geoshape` question named `polygon`.
 
 ```{r}
 pull(df, polygon)
 pull(df, polygon_wkt)
 ```
 
-Now that we know how `robotoolbox` store spatial question types, we can now turn these column to spatial object `R` can use for spatial data analysis.
+Now that we know how `robotoolbox` store spatial question types, we can turn these columns to spatial object `R` can use for spatial data analysis.
 
 ## Geopoint
 
 The standard way to manipulate spatial vector data in `R` is to use the `sf` package.
-`sf` stands for Simple Features and it extends a data.frame by adding a geometry list-column.
-It provides an interface to [GDAL](http://www.gdal.org/), [GEOS](https://libgeos.org/), [PRØJ](http://proj.org/) and [S2](https://s2geometry.io/) to manipulate and visualize spatial data.
+`sf` stands for Simple Features and it extends a `data.frame` by adding a geometry list-column. It's a spatially enabled `data.frame`.
+It provides an interface to the popular [GDAL](http://www.gdal.org/), [GEOS](https://libgeos.org/), [PRØJ](http://proj.org/) and [S2](https://s2geometry.io/) libraries. It can be used to efficiently manipulate and visualize spatial vector data.
 
-It's easy to create an `sf` object from a column containing [`WKT` representation of geometry](https://libgeos.org/specifications/wkt/).
+It's easy to create an `sf` object from a text column containing [`WKT`](https://libgeos.org/specifications/wkt/) characters. The `sf::st_as_sf` function can be used to turn the `data.frame` with a `WKT` column into an `sf` object.
 
 ```{r}
-point_sf <- st_as_sf(select(data_spatial, point_wkt, point_description),
+point_sf <- st_as_sf(data_spatial,
                      wkt = "point_wkt", crs = 4326)
 mapview(point_sf)
 ```
 
 ## Geotrace
 
-We can also transform Kobotoolbox `geotrace` question to an `sf` line object, using the `WKT` column `line_wkt`.
+We can also transform a `data.frame` with a column from a `geotrace` question to an `sf` object with a `LINESTRING` geometry. The `WKT` column is named `line_wkt`.
 
 ```{r}
-line_sf <- st_as_sf(select(data_spatial, line_wkt, line_description),
+line_sf <- st_as_sf(data_spatial,
                      wkt = "line_wkt", crs = 4326)
 mapview(line_sf)
 ```
@@ -161,13 +161,14 @@ mapview(line_sf)
 
 ## Geoshape
 
-The column `polygon_wkt` can be used to create an `sf` polygon object.
+The column `polygon_wkt` can be used to create an `sf` polygon object. It's a simple closed polygon.
 
 ```{r}
-poly_sf <- st_as_sf(select(data_spatial, polygon_wkt, polygon_description),
+poly_sf <- st_as_sf(data_spatial,
                     wkt = "polygon_wkt", crs = 4326)
 mapview(poly_sf)
 ```
 
+`robotoolbox` relies on the `sf` but also other packages from the same ecosystem to make robust spatial data analysis available for `Kobotoolbox` users.
 
-You can learn a lot about the `sf` packages and spatial data analysis with R from the excellent [Geocomputation with R](https://r.geocompx.org/) and the `sf` [package documentation](https://r-spatial.github.io/sf/).
+You can learn a lot about the `sf` packages and spatial data analysis with R from the excellent [Geocomputation with R](https://r.geocompx.org/) book and through the extensive `sf` [package documentation](https://r-spatial.github.io/sf/).

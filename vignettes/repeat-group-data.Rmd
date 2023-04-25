@@ -128,7 +128,7 @@ A `dm` object is a list of linked `data.frame`, and it can be manipulated using 
 
 ###  Visualizing the relationship between tables
 
-In order to understand, how it's stored we can visualize the schema and relationship between tables (repeat groups loop). The schema can be drawn using the the `dm_draw` function.
+In order to understand how the data is stored, we can visualize the relationships between tables (repeat groups loop) and the schema of the dataset. The schema can be drawn using the the `dm_draw` function.
 
 ```{r draw_data}
 library(dm)
@@ -137,7 +137,7 @@ dm_draw(df)
 
 ### Number of rows of each table
 
-The `dm` package has a lot of helper functions to manipulated `dm` object. We can get the number of rows of each table using `dm_nrow`
+The `dm` package has a lot of helper functions to manipulate `dm` object. For example, we can get the number of rows of each table using `dm_nrow`
 
 ```{r nrow_data}
 dm_nrow(df)
@@ -145,14 +145,14 @@ dm_nrow(df)
 
 ### A `dm` object is a list of `data.frame`
 
-A `dm` object is a `list`. As in any list of `data.frame`, you can extract each table, and analyze it separately.
+A `dm` object is a `list` of `data.frame`. As in any list of `data.frame`, you can extract each table (`data.frame`), and analyze it separately.
 The principal table, where you have the first `repeat group` is named `main`.
 
 ```{r access_specific1}
 glimpse(df$main)
 ```
 
-The other tables uses their form names, for example `education` for the education `repeat group`.
+The other tables are named after the name of the associated repeat group. The `education` table is named after `education` `repeat group`.
 
 ```{r access_specific2}
 glimpse(df$education)
@@ -172,7 +172,7 @@ df |>
 ## Joining tables
 
 In some cases, it's simpler to analyze the joined data, `dm_flatten_to_tbl` can be used for safely joining the data keeping its structure and the links between tables.
-We can join the `education` table to the `main` table, by usign `dm_flatten_to_tbl` and starting from `education`.
+We can join the `education` table to the `main` table, by using `dm_flatten_to_tbl` and starting from `education`.
 
 ```{r join_two}
 df |>
@@ -181,7 +181,7 @@ df |>
   glimpse()
 ```
 
-We can push this logic to have the widest table possible through a cascade of joins from a deeper table (`start` argument) to the `main` table. Using `hobbies_list` as an example, it'll perform two joins.
+We can push this logic to have the widest table possible through a cascade of joins from a deeper table (`start` argument) to the `main` table. Using `.start = hobbies_list` as an example, it'll perform two joins.
 `hobbies_list` will be joined to the `demo` table, and the `demo` table will be joined to the `main` table.
 
 ```{r join_all}
