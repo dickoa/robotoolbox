@@ -724,12 +724,24 @@ remove_list_cols <- function(x) {
   x
 }
 
-#' @importFrom utils type.convert
-#' @importFrom readr type_convert
+#' Transform logical columns to character
+#'
+#' It happens when people use 'true' and/or 'false' as choices values
+#'
+#' @importFrom dplyr mutate across
+#' @importFrom tidyselect where
 #' @noRd
+logical_to_character_ <- function(x) {
+  mutate(x,
+         across(where(is.logical),
+                tolower))
+}
+
+#' @importFrom readr type_convert
 postprocess_data_ <- function(x, form, lang) {
   x <- dummy_from_form_(x, form)
   x <- suppressMessages(type_convert(x))
+  x <- logical_to_character_(x)
   x <- remove_list_cols(x)
   x <- val_labels_from_form_(x = x, form = form, lang = lang)
   x <- var_labels_from_form_(x = x, form = form, lang = lang)
