@@ -29,7 +29,6 @@ Imports:
     rlang (>= 0.4.12),
     tidyselect (>= 1.2.0),
     tibble (>= 3.1.6),
-    readr (>= 2.1.0),
     stringi (>= 1.7.6),
     glue (>= 1.6.0),
     dm (>= 1.0.3),

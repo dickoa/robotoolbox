@@ -697,12 +697,16 @@ extract_geoshape_ <- function(x, form) {
 }
 
 #' @noRd
+is_zero_length_or_null <- function(x)
+  is.null(x) | length(x) == 0
+
+#' @noRd
 #' @importFrom dplyr select
 #' @importFrom labelled labelled
 #' @importFrom tidyselect any_of
 remove_list_cols <- function(x) {
   val_col <- x[["_validation_status"]]
-  cond <- all(vapply(val_col, is.null, logical(1)))
+  cond <- all(vapply(val_col, is_zero_length_or_null, logical(1)))
   if (!cond) {
   val_stat <- vapply(val_col,
                      \(x) if (is.null(x$uid)) NA_character_ else x$uid, character(1))
@@ -712,13 +716,11 @@ remove_list_cols <- function(x) {
   val_dict <- setNames(val_stat[!b], val_lbl[!b])
   val_dict <- val_dict[unique(names(val_dict))]
   x <- x |>
-    mutate(across(.cols = c("_tags", "_notes"), toString),
-           `_validation_status` = labelled(val_stat, val_dict))
+    mutate(`_validation_status` = labelled(val_stat, val_dict))
   x <- select(x, -is_list_cols(x))
   } else {
   x <- x |>
-    mutate(across(.cols = any_of(c("_tags", "_notes")), toString),
-           `_validation_status` = NA_character_)
+    mutate(`_validation_status` = NA_character_)
   x <- select(x, -is_list_cols(x))
   }
   x
@@ -737,17 +739,26 @@ logical_to_character_ <- function(x) {
                 tolower))
 }
 
-#' @importFrom readr type_convert
+## parse_kobo_datetime <- function(x, form) {
+##   cond <- form$type %in% c("date", "datetime", "time", )
+##   nm <- unique(form$name[cond])
+##   nm <- intersect(names(x), nm)
+##   if (any(cond) && length(nm) > 0) {
+##     x <- x
+##   }
+##   x
+## }
+
+#' @importFrom utils type.convert
 postprocess_data_ <- function(x, form, lang) {
   x <- dummy_from_form_(x, form)
-  x <- suppressMessages(type_convert(x))
-  x <- logical_to_character_(x)
   x <- remove_list_cols(x)
   x <- val_labels_from_form_(x = x, form = form, lang = lang)
   x <- var_labels_from_form_(x = x, form = form, lang = lang)
   x <- extract_geopoint_(x, form)
   x <- extract_geotrace_(x, form)
   x <- extract_geoshape_(x, form)
+  x <- type.convert(x, as.is = TRUE, tryLogical = FALSE)
   x
 }
 

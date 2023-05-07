@@ -4,6 +4,8 @@ robotoolbox 1.1.0.9001
 ### Bug fix
 
 - Fixing the following issue: Using `true` or `false` as values in `select_one` breaks the labels.
+- Revert to `type.convert` because of flexibility on boolean/logical
+
 
 robotoolbox 1.1.0.9000
 ======================
