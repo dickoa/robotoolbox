@@ -753,12 +753,12 @@ logical_to_character_ <- function(x) {
 postprocess_data_ <- function(x, form, lang) {
   x <- dummy_from_form_(x, form)
   x <- remove_list_cols(x)
-  x <- val_labels_from_form_(x = x, form = form, lang = lang)
-  x <- var_labels_from_form_(x = x, form = form, lang = lang)
   x <- extract_geopoint_(x, form)
   x <- extract_geotrace_(x, form)
   x <- extract_geoshape_(x, form)
   x <- type.convert(x, as.is = TRUE, tryLogical = FALSE)
+  x <- val_labels_from_form_(x = x, form = form, lang = lang)
+  x <- var_labels_from_form_(x = x, form = form, lang = lang)
   x
 }
 
