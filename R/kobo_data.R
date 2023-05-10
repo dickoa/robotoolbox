@@ -29,6 +29,7 @@ kobo_data_ <- function(x, paginate, page_size, size, lang) {
 
   if ("begin_repeat" %in% form$type) {
     names_list <- kobo_form_name_to_list_(filter(form, .data$lang == lang))
+    subs <- dedup_vars_(subs)
     subs <- set_names(subs, make_unique_names_)
     subs <- c(list(main = rowid_to_column(subs, "_index")),
               kobo_extract_repeat_tbl(subs, form))
@@ -58,6 +59,7 @@ kobo_data_ <- function(x, paginate, page_size, size, lang) {
                         {{ref_tbl_nm}})
     }
   } else {
+    subs <- dedup_vars_(subs)
     subs <- set_names(subs, make_unique_names_)
     subs[setdiff(cn, names(subs))] <- NA
     subs <- postprocess_data_(x = subs,

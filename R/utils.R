@@ -371,8 +371,33 @@ dummy_from_form_ <- function(x, form) {
   x
 }
 
+#' In case group_names are changed during data collection
+#'
+#' @importFrom dplyr coalesce
 #' @noRd
-make_unique_names_ <- function(x, ...)
+dedup_vars_ <- function(x) {
+  nm <- names(x)
+  base_nm <- basename(nm)
+  nm_to_test <- paste0("/", base_nm)
+  cond <- duplicated(nm_to_test, fromLast = FALSE)
+  if (any(cond)) {
+    rs <- c(nm[cond],
+            nm[duplicated(nm_to_test, fromLast = TRUE)])
+    rs <- unique(rs)
+    rs_key <- basename(rs)
+    rs <- split(rs, rs_key)
+    rs_key <- names(rs)
+    for (v in rs_key) {
+      old_vars <- rs[[v]]
+      x[[v]] <- with(x, coalesce(!!!as.list(x[old_vars])))
+      x[old_vars] <- NULL
+    }
+  }
+  x
+}
+
+#' @noRd
+make_unique_names_ <- function(x)
   make.unique(basename(x), sep = "_")
 
 #' @importFrom purrr some map modify_if
@@ -402,6 +427,7 @@ extract_repeat_tbl <- function(x, form) {
                        idcol = "_parent_index",
                        fill = TRUE)
       res <- tibble(res)
+      res <- dedup_vars_(res)
       res <- set_names(res, make_unique_names_)
       rowid_to_column(res, "_index")
     }), nm)
@@ -837,8 +863,51 @@ kobo_form_name_to_list_ <- function(x) {
 }
 
 #' @noRd
-kobo_add_validation_status_ <- function(x) {
-  if (any("_validation_status" %in% names(x)))
-    x[["_validation_status_label"]] <- map_if_chr2(x[["_validation_status"]], "label")
+#' @importFrom labelled var_label
+lookup_varlabel_ <- function(x) {
+  v <- var_label(x)
+  setNames(names(v), unlist(v))
+}
+
+
+#' Use variable labels as variable names
+#'
+#' This function can be used alongside labelled::to_factor or labelled::to_character
+#' to match the output you get from Kobotoolbox XLSX export with labels.
+#'
+#' @rdname set_names_from_varlabel
+#'
+#' @importFrom labelled var_label
+#' @importFrom dm dm_rename
+#' @importFrom dplyr rename
+#' @importFrom rlang set_names
+#'
+#' @param x a tibble or dm object imported using \code{\link{kobo_data}}
+#'
+#' @export
+set_names_from_varlabel <- function(x)
+  UseMethod("set_names_from_varlabel")
+
+#' @rdname set_names_from_varlabel
+#' @export
+set_names_from_varlabel.default <- function(x)
+    stop("It is only working with labelled dm or data.frame objects",
+         call. = TRUE)
+
+#' @rdname set_names_from_varlabel
+#' @export
+set_names_from_varlabel.data.frame <- function(x) {
+  rename(x, lookup_varlabel_(x))
+}
+
+#' @rdname set_names_from_varlabel
+#' @export
+set_names_from_varlabel.dm <- function(x) {
+  tbl_nm <- names(x)
+  for (nm in tbl_nm) {
+    x <- dm_rename(x,
+                   {{nm}},
+                   lookup_varlabel_(x[[nm]]))
+  }
   x
 }

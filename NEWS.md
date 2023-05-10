@@ -1,10 +1,14 @@
-robotoolbox 1.1.0.9002
+robotoolbox 1.1.0.9003
 ======================
+
+### Improvement
+- Added a fonction `set_names_from_varlabel` to have variable labels as variables names and have similar export as the Kobotoolbox Excel export tools.
 
 ### Bug fix
 
 - Fixing the following issue: Using `true` or `false` as values in `select_one` breaks the labels.
 - Revert to `type.convert` because of flexibility on boolean/logical
+- Add a fonction to merge the variables from different groups due to different versions of the form used during data collection.
 
 
 robotoolbox 1.1.0.9000
