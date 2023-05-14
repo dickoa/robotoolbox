@@ -25,7 +25,6 @@
 #' uid <- asset_list$uid[1]
 #' asset <- kobo_asset(uid)
 #' form <- kobo_form(uid)
-#' # form <- kobo_form(asset)
 #' }
 #'
 #' @export
@@ -80,6 +79,7 @@ kobo_form.kobo_asset <- function(x, version = NULL) {
   if (any(duplicated(names(survey))))
     survey <- set_names(survey, make.names, unique = TRUE)
   survey <- filter(survey, .data$type %in% stypes)
+  survey$version <- x$deployed_version_id
   if (!is.null(version))
     survey$version <- version
   form <- survey
@@ -103,6 +103,9 @@ kobo_form.kobo_asset <- function(x, version = NULL) {
                                cols = all_of(cols_to_unnest),
                                keep_empty = TRUE),
                         gsub("^\\$", "", names(choices)))
+    choices$value_version <- x$deployed_version_id
+    if (!is.null(version))
+      choices$value_version <- version
     form <- nest_join(survey, choices,
                       by = "list_name")
   }

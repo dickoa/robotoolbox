@@ -24,7 +24,6 @@ asset_list <- kobo_asset_list()
 uid <- asset_list$uid[1]
 asset <- kobo_asset(uid)
 form <- kobo_form(uid)
-# form <- kobo_form(asset)
 }
 
 }

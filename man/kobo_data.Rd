@@ -8,15 +8,33 @@
 \alias{kobo_submissions.default}
 \title{Get all submissions from a KoboToolbox project}
 \usage{
-kobo_data(x, paginate, page_size, lang)
+kobo_data(x, paginate, page_size, lang, select_multiple_label)
 
-kobo_submissions(x, paginate, page_size, lang)
+kobo_submissions(x, paginate, page_size, lang, select_multiple_label)
 
-\method{kobo_submissions}{kobo_asset}(x, paginate = FALSE, page_size = NULL, lang = NULL)
+\method{kobo_submissions}{kobo_asset}(
+  x,
+  paginate = FALSE,
+  page_size = NULL,
+  lang = NULL,
+  select_multiple_label = FALSE
+)
 
-\method{kobo_submissions}{character}(x, paginate = FALSE, page_size = NULL, lang = NULL)
+\method{kobo_submissions}{character}(
+  x,
+  paginate = FALSE,
+  page_size = NULL,
+  lang = NULL,
+  select_multiple_label = FALSE
+)
 
-\method{kobo_submissions}{default}(x, paginate = FALSE, page_size = NULL, lang = NULL)
+\method{kobo_submissions}{default}(
+  x,
+  paginate = FALSE,
+  page_size = NULL,
+  lang = NULL,
+  select_multiple_label = FALSE
+)
 }
 \arguments{
 \item{x}{a \code{\link{kobo_asset}} or character, the asset}
@@ -27,6 +45,8 @@ kobo_submissions(x, paginate, page_size, lang)
 if missing, default to number of submissions divided by 5}
 
 \item{lang}{character, language for the variable and value labels}
+
+\item{select_multiple_label}{logical, whether or not to replace select_multiple columns values by labels. Default to \code{FALSE}.}
 }
 \value{
 A data.frame
@@ -40,8 +60,11 @@ kobo_setup() # setup using your url and token
 uid <- "a9cwEQcbWqWzA5hzkjRUWi" # pick a valid uid
 asset <- kobo_asset(uid)
 subs <- kobo_data(asset) ## kobo_submissions(asset)
-library(dplyr)
-glimpse(subs)
+
+if (require(dplyr)) {
+ library(dplyr)
+ glimpse(subs)
+ }
 }
 
 }

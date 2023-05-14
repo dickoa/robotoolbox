@@ -33,8 +33,8 @@ error_msg <- function(x) {
   info
 }
 
-#' @noRd
 #' @importFrom rlang abort
+#' @noRd
 xget <- function(path, args = list(), n_retry = 3L, ...) {
   headers <- list(Authorization = paste("Token",
                                         Sys.getenv("KOBOTOOLBOX_TOKEN")),
@@ -53,6 +53,36 @@ xget <- function(path, args = list(), n_retry = 3L, ...) {
   res$raise_for_ct_json()
   res$parse("UTF-8")
 }
+
+#' @noRd
+#' @importFrom rlang abort
+xget_csv <- function(path, args = list(), n_retry = 3L, ...) {
+  headers <- list(Authorization = paste("Token",
+                                        Sys.getenv("KOBOTOOLBOX_TOKEN")),
+                  `User-Agent` = user_agent_())
+  cli <- crul::HttpClient$new(Sys.getenv("KOBOTOOLBOX_URL"),
+                              headers = headers, opts = list(...))
+  res <- cli$retry("GET",
+                   path = path,
+                   query = args,
+                   times = n_retry,
+                   retry_only_on = c(500, 503),
+                   terminate_on = 404)
+  if (res$status_code >= 300)
+    abort(error_msg(res$content),
+          call = NULL)
+  #res$raise_for_ct("text/comma-separated-values")
+  res$parse("UTF-8")
+}
+
+#' @importFrom tibble as_tibble
+#' @noRd
+dt2tibble <- function(x) {
+  x <- as_tibble(x)
+  attr(x, ".internal.selfref") <- NULL
+  x
+}
+
 
 #' @importFrom RcppSimdJson fparse
 #' @noRd
@@ -105,7 +135,7 @@ get_subs_async <- function(uid, size, chunk_size = NULL, ...) {
     size > 15000 ~ 1.5,
     size > 5000 ~ 1,
     size > 1000 ~ 0.5,
-    TRUE ~ 0.25
+    .default = 0.25
   )
   res <- AsyncQueue$new(.list = reqs,
                         bucket_size = Inf,
@@ -122,8 +152,7 @@ get_subs_async <- function(uid, size, chunk_size = NULL, ...) {
                 max_simplify_lvl = "data_frame")
   res <- rbindlist(lapply(res, function(r) r$results),
                    fill = TRUE)
-  res <- as_tibble(res)
-  attr(res, ".internal.selfref") <- NULL
+  res <- dt2tibble(res)
   res
 }
 
@@ -175,8 +204,7 @@ get_asset_list_async <- function(limit, count, ...) {
                 max_simplify_lvl = "list")
   res <- lapply(res, function(r) asset_list_to_tbl(r$results))
   res <- rbindlist(res, fill = TRUE)
-  res <- as_tibble(res)
-  attr(res, ".internal.selfref") <- NULL
+  res <- dt2tibble(res)
   res
 }
 
@@ -187,14 +215,14 @@ asset_list_to_tbl <- function(x) {
          name = map_chr2(x, "name"),
          asset_type = map_chr2(x, "asset_type"),
          owner_username = map_chr2(x, "owner__username"),
-         date_created = parse_kobo_date(map_chr2(x, "date_created")),
-         date_modified = parse_kobo_date(map_chr2(x, "date_modified")),
+         date_created = parse_kobo_datetime(map_chr2(x, "date_created")),
+         date_modified = parse_kobo_datetime(map_chr2(x, "date_modified")),
          submissions = map_int2(x, "deployment__submission_count"))
 }
 
 #' @importFrom RcppSimdJson fparse
 #' @noRd
-get_form_media <- function(ui) {
+get_form_media <- function(uid) {
   headers <- list(Authorization = paste("Token",
                                         Sys.getenv("KOBOTOOLBOX_TOKEN")))
   path <- paste0("api/v2/assets/", uid, "/files/?file_type=form_media")
@@ -222,6 +250,19 @@ download_form_media <- function(url, filename) {
   invisible(filename)
 }
 
+#' @importFrom RcppSimdJson fparse
+#' @importFrom purrr list_rbind
+#' @importFrom dplyr select
+#' @noRd
+get_audit_url_ <- function(uid) {
+  path <- paste0("api/v2/assets/", uid, "/data.json")
+  res <- xget(path = path)
+  res <- fparse(res, max_simplify_lvl = "data_frame")
+  res <- res$result
+  list_rbind(res[["_attachments"]]) |>
+    select(`_id` = "instance", "download_url")
+}
+
 #' @importFrom data.table fread
 #' @noRd
 form_media_one_csv_tbl <- function(url) {
@@ -231,8 +272,7 @@ form_media_one_csv_tbl <- function(url) {
   out <- cli$get()
   out$raise_for_status()
   out <- fread(out$parse(encoding = "UTF-8"))
-  out <- as_tibble(out)
-  attr(out, ".internal.selfref") <- NULL
+  out <- dt2tibble(out)
   out
 }
 
@@ -258,10 +298,10 @@ map_if_chr2 <- function(x, key)
 
 #' @noRd
 map_int2 <- function(x, key)
-  vapply(x, function(l) l[[key]], integer(1))
+  vapply(x, function(l) as.integer(l[[key]]), integer(1))
 
 #' @noRd
-parse_kobo_date <- function(x) {
+parse_kobo_datetime <- function(x) {
   x <- as.POSIXct(x,
                   format = "%Y-%m-%dT%H:%M:%OS",
                   tz = "GMT")
@@ -270,7 +310,7 @@ parse_kobo_date <- function(x) {
 }
 
 #' @noRd
-parse_kobo_date2 <- function(x)
+parse_kobo_datetime_simple <- function(x)
   as.character(round(as.POSIXct(x), "secs"))
 
 #' @noRd
@@ -400,17 +440,6 @@ dedup_vars_ <- function(x) {
 make_unique_names_ <- function(x)
   make.unique(basename(x), sep = "_")
 
-#' @importFrom purrr some map modify_if
-#' @importFrom rlang set_names
-#' @noRd
-name_repair_ <- function(x) {
-  if (is.null(x))
-    return(NULL)
-  modify_if(set_names(x, make_unique_names_),
-            ~ some(., is.data.frame),
-            ~ lapply(., name_repair_))
-}
-
 #' @importFrom purrr modify_if
 #' @importFrom tibble tibble rowid_to_column
 #' @importFrom data.table rbindlist
@@ -492,7 +521,8 @@ val_labels_from_form_ <- function(x, form, lang) {
       filter(.data$name %in% nm) |>
       distinct(.data$name, .data$choices) |>
       group_by(.data$name) |>
-      mutate(choices = list(unique(distinct(bind_rows(choices))))) |>
+      mutate(choices = list(distinct(select(bind_rows(choices),
+                                            -"value_version")))) |>
       ungroup()
     choices <- form$choices
     names(choices) <- form$name
@@ -509,6 +539,54 @@ val_labels_from_form_ <- function(x, form, lang) {
     x <- set_value_labels(mutate(x, across(all_of(nm), as.character)),
                           .labels = labels,
                           .strict = FALSE)
+  } else {
+    x
+  }
+  x
+}
+
+#' @importFrom dplyr mutate across filter group_by distinct bind_rows ungroup slice
+#' @importFrom tidyselect all_of
+#' @importFrom stats setNames
+#' @importFrom labelled set_value_labels var_label<-
+#' @importFrom rlang .data
+#' @importFrom stringi stri_replace_all_regex
+#'
+#' @noRd
+val_labels_sm_from_form_ <- function(x, form, lang) {
+  form <- filter(form,
+                 .data$lang %in% !!lang,
+                 .data$type %in% "select_multiple")
+  nm <- unique(form$name)
+  nm <- intersect(names(x), nm)
+  if (length(nm) > 0) {
+    form <- form |>
+      filter(.data$name %in% nm) |>
+      distinct(.data$name, .data$choices) |>
+      group_by(.data$name) |>
+      mutate(choices = list(distinct(select(bind_rows(choices),
+                                            -"value_version")))) |>
+      ungroup()
+    choices <- form$choices
+    names(choices) <- form$name
+    choices <- lapply(nm, function(n) {
+      ch <- choices[[n]]
+      ch <- filter(ch,
+                   .data$value_lang %in% !!lang)
+      ch$value_label <- make.unique(ch$value_label, sep = "_")
+      ch
+    })
+    names(choices) <- nm
+    for (n in nm) {
+      d <- x[[n]]
+      ch <- choices[[n]]
+      vl <- var_label(d)
+      x[[n]] <- stri_replace_all_regex(d,
+                                       paste0("\\b", ch$value_name, "\\b"),
+                                       ch$value_label,
+                                       vectorize_all = FALSE)
+      var_label(x[[n]]) <- vl
+    }
   } else {
     x
   }
@@ -566,8 +644,10 @@ select_multiple_var_label <- function(x, form, lang) {
     choices <- filter(form,
                       .data$lang %in% !!lang,
                       .data$type %in% "select_multiple") |>
-      unnest(choices) |>
+      unnest("choices") |>
       filter(.data$value_lang %in% !!lang) |>
+      select(-"value_version") |>
+      distinct() |>
       transmute(value_name = paste0(.data$name, "_", .data$value_name),
                 value_label = paste0(.data$label, "::", .data$value_label)) |>
       distinct()
@@ -765,27 +845,70 @@ logical_to_character_ <- function(x) {
                 tolower))
 }
 
-## parse_kobo_datetime <- function(x, form) {
-##   cond <- form$type %in% c("date", "datetime", "time", )
+## #' @noRd
+## parse_kobo_datetime <- function(x) {
+##   x <- as.POSIXct(x,
+##                   format = "%Y-%m-%dT%H:%M:%OS",
+##                   tz = "GMT")
+##   x <- round(x, "secs")
+##   as.character(x)
+## }
+
+## #' @noRd
+## parse_date_ <- function(x) {
+##   as.Date(x)
+## }
+
+## #' @noRd
+## parse_datetime_ <- function(x, form) {
+##   x <- as.POSIXct(x,
+##                   format = "%Y-%m-%dT%H:%M:%OS",
+##                   tz = "GMT")
+##   x
+## }
+
+## #' @importFrom tidyselect all_of
+## #' @importFrom parsedate parse_date
+## #' @noRd
+## parse_datetime_ <- function(x, form) {
+##   cond <- form$type %in% c("date", "datetime", "time")
 ##   nm <- unique(form$name[cond])
 ##   nm <- intersect(names(x), nm)
 ##   if (any(cond) && length(nm) > 0) {
-##     x <- x
+##     x <- mutate(x, across(all_of(nm), parse_date))
 ##   }
 ##   x
 ## }
 
+#' @noRd
+add_missing_cols_ <- function(x, cn) {
+  x[setdiff(cn, names(x))] <- NA
+  x
+}
+
+#' @importFrom dplyr select
+#' @importFrom tidyselect any_of everything
+#' @noRd
+reorder_cols_ <- function(x, cn) {
+  cn <- intersect(cn, names(x))
+  select(x, any_of(cn), everything())
+}
+
 #' @importFrom utils type.convert
-postprocess_data_ <- function(x, form, lang) {
+postprocess_data_ <- function(x, form, lang, select_multiple_label = FALSE, cn) {
   x <- dummy_from_form_(x, form)
   x <- remove_list_cols(x)
   x <- extract_geopoint_(x, form)
   x <- extract_geotrace_(x, form)
   x <- extract_geoshape_(x, form)
   x <- type.convert(x, as.is = TRUE, tryLogical = FALSE)
+  x <- add_missing_cols_(x, cn)
   x <- val_labels_from_form_(x = x, form = form, lang = lang)
   x <- var_labels_from_form_(x = x, form = form, lang = lang)
-  x
+  # x <- parse_datetime_(x = x, form = form)
+  if (isTRUE(select_multiple_label))
+    x <- val_labels_sm_from_form_(x = x, form = form, lang = lang) ## not working with set_names
+  x <- reorder_cols_(x, cn)
 }
 
 #' @noRd
@@ -795,7 +918,7 @@ kobo_question_types <- function() {
     "integer", "decimal", "range", "text",
     "select_one", "select_multiple",
     "select_one_from_file", "select_multiple_from_file",
-    "rank", "geopoint", "geotrace", "geoshape",
+    "rank", "note", "geopoint", "geotrace", "geoshape",
     "date", "time", "dateTime", "datetime", "image", "audio",
     "background-audio", "video", "file", "barcode",
     "calculate", "acknowledge", "hidden")
@@ -866,9 +989,9 @@ kobo_form_name_to_list_ <- function(x) {
 #' @importFrom labelled var_label
 lookup_varlabel_ <- function(x) {
   v <- var_label(x)
-  setNames(names(v), unlist(v))
+  setNames(names(v),
+           make.unique(unlist(v), sep = "_"))
 }
-
 
 #' Use variable labels as variable names
 #'
@@ -884,6 +1007,19 @@ lookup_varlabel_ <- function(x) {
 #'
 #' @param x a tibble or dm object imported using \code{\link{kobo_data}}
 #'
+#' @examples
+#' \dontrun{
+#' kobo_setup() # setup using your url and token
+#' uid <- "a9cwEQcbWqWzA5hzkjRUWi" # pick a valid uid
+#' asset <- kobo_asset(uid)
+#' subs <- kobo_data(asset) ## kobo_submissions(asset)
+#' if (require(dplyr)) {
+#'  library(dplyr)
+#'  glimpse(subs)
+#'  glimpse(set_names_from_varlabel(subs))
+#'  }
+#' }
+#'
 #' @export
 set_names_from_varlabel <- function(x)
   UseMethod("set_names_from_varlabel")
@@ -897,7 +1033,8 @@ set_names_from_varlabel.default <- function(x)
 #' @rdname set_names_from_varlabel
 #' @export
 set_names_from_varlabel.data.frame <- function(x) {
-  rename(x, lookup_varlabel_(x))
+  lookup <- lookup_varlabel_(x)
+  rename(x, lookup)
 }
 
 #' @rdname set_names_from_varlabel
@@ -910,4 +1047,29 @@ set_names_from_varlabel.dm <- function(x) {
                    lookup_varlabel_(x[[nm]]))
   }
   x
+}
+
+#' @importFrom dplyr mutate bind_rows if_else
+#' @importFrom stats na.omit
+#' @noRd
+kobo_form_names_ <- function(form) {
+  if ("choices" %in% names(form)) {
+  res <- form |>
+    mutate(choices = lapply(.data$choices,
+                            \(df) bind_rows(mutate(slice(df, 1), value_name = ""),
+                                            df))) |>
+    unnest("choices", keep_empty = TRUE) |>
+    transmute("type",
+              value_name = if_else(.data$value_name != "",
+                                         paste0("_", .data$value_name),
+                                         .data$value_name),
+              name = if_else(.data$type == "select_multiple",
+                                   paste0(.data$name, .data$value_name),
+                                   .data$name)) |>
+    distinct(.data$name)
+  res <- na.omit(res$name)
+  } else {
+    res <- unique(na.omit(form$name))
+  }
+  res
 }

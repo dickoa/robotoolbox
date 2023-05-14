@@ -6,12 +6,16 @@
 \alias{asset_ml}
 \alias{asset_rg}
 \alias{asset_spatial}
+\alias{asset_sm_label}
+\alias{asset_audit}
 \alias{data_ml_en}
 \alias{data_ml_fr}
 \alias{data_ml_ar}
 \alias{data_ml_default}
 \alias{data_rg}
 \alias{data_spatial}
+\alias{data_sm_label}
+\alias{data_audit}
 \title{KoboToolbox asset, assets list and submissions data}
 \format{
 asset_list: a data.frame of 28 rows and 7 columns with a list of projects
@@ -21,6 +25,10 @@ asset_ml: A kobo_asset object on a project using multiple languages.
 asset_rg: A kobo_asset object on a project using repeat groups.
 
 asset_spatial: A kobo_asset object on a project showcasing gps questions.
+
+asset_spatial: A kobo_asset object to showcase select multiple label.
+
+asset_audit: A kobo_asset object on a project with audit log enabled.
 
 data_ml: A data.frame with submissions from the \code{asset_ml} in English.
 
@@ -33,6 +41,10 @@ data_ml: A data.frame with submissions from the \code{asset_ml} with default lan
 data_rg: A dm object (list of data.frame) with submissions from the \code{asset_rg}
 
 data_spatial: A data.frame with submissions from the \code{asset_spatial}.
+
+data_sm_label: A data.frame with submissions from the \code{asset_sm_label}.
+
+data_audit: A data.frame with submissions from the \code{asset_audit}.
 }
 \usage{
 asset_list
@@ -42,6 +54,10 @@ asset_ml
 asset_rg
 
 asset_spatial
+
+asset_sm_label
+
+asset_audit
 
 data_ml_en
 
@@ -54,6 +70,10 @@ data_ml_default
 data_rg
 
 data_spatial
+
+data_sm_label
+
+data_audit
 }
 \description{
 KoboToolbox asset, assets list and submissions data

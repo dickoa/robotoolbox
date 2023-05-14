@@ -189,19 +189,201 @@ linked data for your analysis.
 `geopoint` for points, `geotrace` for lines and `geoshape` to map close
 polygons. `robotoolbox` associates to each spatial column a
 [`WKT`](https://libgeos.org/specifications/wkt/) column. It provides a
-simple way to use it with various GIS software and R package for spatial
-data analysis. The `sf` package is the standard for spatial vector data
-handling and visualization.
+simple way to use it with various GIS software and `R` package for
+spatial data analysis. The `sf` package is the standard for spatial
+vector data handling and visualization.
 
 <https://dickoa.gitlab.io/robotoolbox/articles/spatial-data.html>
 
-## Caveats and limitations
+### Audit logging data
 
-`robotoolbox` uses the `labelled` package to manipulate `labels` for
-`select_one` question types. For `select_multiple` questions, dummy
-columns are used. These dummy variables lack value label but they have
-variable labels associated to the variable of label of the original
-variable.
+`Kobotoolbox` comes with a feature that records all activities related
+to a form submission in a log file. The audit logging metadata is useful
+for data quality control, security and workflow management. The
+`kobo_audit` function allow you to read `Kobotoolbox` audit logs file.
+
+You can learn more in the following vignette:
+
+<https://dickoa.gitlab.io/robotoolbox/articles/audit-data.html>
+
+### Labels for select_multiple columns and variable labels as column names
+
+We can now get `labels` instead of values for `select_multiple`
+questions with `robotoolbox`. Let’s show this new feature, with the
+following example:
+
+``` r
+data_sm <- kobo_data(uid)
+glimpse(data_sm)
+```
+
+    #>  Rows: 5
+    #>  Columns: 21
+    #>  $ start                <chr> "2022-05-09T18:31:40.096-00:00", "2022-05-09T18:31:53.670-00:00", "…
+    #>  $ end                  <chr> "2022-05-09T18:35:12.810-00:00", "2022-05-09T18:34:59.061-00:00", "…
+    #>  $ today                <chr> "2022-05-09", "2022-05-09", "2022-05-09", "2022-05-09", "2022-05-09"
+    #>  $ full_name            <chr> "Rufus", "Romulus", "Remus", "Joe", "Moh"
+    #>  $ pet_type             <chr> "3 4", "4", "5", NA, "3 4 5"
+    #>  $ pet_type_1           <int> 0, 0, 0, NA, 0
+    #>  $ pet_type_2           <int> 0, 0, 0, NA, 0
+    #>  $ pet_type_3           <int> 1, 0, 0, NA, 1
+    #>  $ pet_type_4           <int> 1, 1, 0, NA, 1
+    #>  $ pet_type_5           <int> 0, 0, 1, NA, 1
+    #>  $ `_id`                <int> 20939261, 20939265, 20939278, 20939288, 20939301
+    #>  $ instanceID           <chr> "uuid:147d4f30-7459-42f7-818f-b44f47b2cca7", "uuid:6f67ede0-c594-4a…
+    #>  $ deprecatedID         <chr> "uuid:6840ad57-d9f7-4557-b1f2-11af21e5b0cd", "uuid:3cbdc3ec-bd0a-4a…
+    #>  $ uuid                 <chr> "5c0d08e4deda4a7fbc9634f5e8aba62f", "5c0d08e4deda4a7fbc9634f5e8aba6…
+    #>  $ `__version__`        <chr> "vjPe5qiVxTmyviYSrQE3x4", "vjPe5qiVxTmyviYSrQE3x4", "vjPe5qiVxTmyvi…
+    #>  $ `_xform_id_string`   <chr> "atbUaNGu5PWR2u4tNDsYaH", "atbUaNGu5PWR2u4tNDsYaH", "atbUaNGu5PWR2u…
+    #>  $ `_uuid`              <chr> "147d4f30-7459-42f7-818f-b44f47b2cca7", "6f67ede0-c594-4a28-bf7b-c4…
+    #>  $ `_status`            <chr> "submitted_via_web", "submitted_via_web", "submitted_via_web", "sub…
+    #>  $ `_submission_time`   <chr> "2022-05-09T18:32:03", "2022-05-09T18:32:10", "2022-05-09T18:32:44"…
+    #>  $ `_validation_status` <int> NA, NA, NA, NA, NA
+    #>  $ `_submitted_by`      <int> NA, NA, NA, NA, NA
+
+We noticed that the column `pet_type` contains values (1 to 5).
+
+Now let’s set the new `select_multiple_label` to `TRUE` to read the
+data.
+
+``` r
+data_sm_label <- kobo_data(uid,
+                           select_multiple_label = TRUE)
+glimpse(data_label)
+```
+
+``` r
+glimpse(data_sm_label)
+#>  Rows: 5
+#>  Columns: 21
+#>  $ start                <chr> "2022-05-09T18:31:40.096-00:00", "2022-05-09T18:31:53.670-00:00", "…
+#>  $ end                  <chr> "2022-05-09T18:35:12.810-00:00", "2022-05-09T18:34:59.061-00:00", "…
+#>  $ today                <chr> "2022-05-09", "2022-05-09", "2022-05-09", "2022-05-09", "2022-05-09"
+#>  $ full_name            <chr> "Rufus", "Romulus", "Remus", "Joe", "Moh"
+#>  $ pet_type             <chr> "dog cat", "cat", "turtle", NA, "dog cat turtle"
+#>  $ pet_type_1           <int> 0, 0, 0, NA, 0
+#>  $ pet_type_2           <int> 0, 0, 0, NA, 0
+#>  $ pet_type_3           <int> 1, 0, 0, NA, 1
+#>  $ pet_type_4           <int> 1, 1, 0, NA, 1
+#>  $ pet_type_5           <int> 0, 0, 1, NA, 1
+#>  $ `_id`                <int> 20939261, 20939265, 20939278, 20939288, 20939301
+#>  $ instanceID           <chr> "uuid:147d4f30-7459-42f7-818f-b44f47b2cca7", "uuid:6f67ede0-c594-4a…
+#>  $ deprecatedID         <chr> "uuid:6840ad57-d9f7-4557-b1f2-11af21e5b0cd", "uuid:3cbdc3ec-bd0a-4a…
+#>  $ uuid                 <chr> "5c0d08e4deda4a7fbc9634f5e8aba62f", "5c0d08e4deda4a7fbc9634f5e8aba6…
+#>  $ `__version__`        <chr> "vjPe5qiVxTmyviYSrQE3x4", "vjPe5qiVxTmyviYSrQE3x4", "vjPe5qiVxTmyvi…
+#>  $ `_xform_id_string`   <chr> "atbUaNGu5PWR2u4tNDsYaH", "atbUaNGu5PWR2u4tNDsYaH", "atbUaNGu5PWR2u…
+#>  $ `_uuid`              <chr> "147d4f30-7459-42f7-818f-b44f47b2cca7", "6f67ede0-c594-4a28-bf7b-c4…
+#>  $ `_status`            <chr> "submitted_via_web", "submitted_via_web", "submitted_via_web", "sub…
+#>  $ `_submission_time`   <chr> "2022-05-09T18:32:03", "2022-05-09T18:32:10", "2022-05-09T18:32:44"…
+#>  $ `_validation_status` <int> NA, NA, NA, NA, NA
+#>  $ `_submitted_by`      <int> NA, NA, NA, NA, NA
+```
+
+We can now see the `labels` instead of the `values` (`dog`, `cat`, etc.)
+for the column `pet_type`.
+
+Variable labels has been improved for all the dummy variables related to
+the `select_multiple` question (whether or not you use
+`select_multiple_label`).
+
+``` r
+library(labelled)
+var_label(data_sm_label)
+#>  $start
+#>  [1] "start"
+#>  
+#>  $end
+#>  [1] "end"
+#>  
+#>  $today
+#>  [1] "today"
+#>  
+#>  $full_name
+#>  [1] "What is your name?"
+#>  
+#>  $pet_type
+#>  [1] "What type of pet do you own ?"
+#>  
+#>  $pet_type_1
+#>  [1] "What type of pet do you own ?::rabbit"
+#>  
+#>  $pet_type_2
+#>  [1] "What type of pet do you own ?::chicken"
+#>  
+#>  $pet_type_3
+#>  [1] "What type of pet do you own ?::dog"
+#>  
+#>  $pet_type_4
+#>  [1] "What type of pet do you own ?::cat"
+#>  
+#>  $pet_type_5
+#>  [1] "What type of pet do you own ?::turtle"
+#>  
+#>  $`_id`
+#>  [1] "_id"
+#>  
+#>  $instanceID
+#>  [1] "instanceID"
+#>  
+#>  $deprecatedID
+#>  [1] "deprecatedID"
+#>  
+#>  $uuid
+#>  [1] "uuid"
+#>  
+#>  $`__version__`
+#>  [1] "__version__"
+#>  
+#>  $`_xform_id_string`
+#>  [1] "_xform_id_string"
+#>  
+#>  $`_uuid`
+#>  [1] "_uuid"
+#>  
+#>  $`_status`
+#>  [1] "_status"
+#>  
+#>  $`_submission_time`
+#>  [1] "_submission_time"
+#>  
+#>  $`_validation_status`
+#>  [1] "_validation_status"
+#>  
+#>  $`_submitted_by`
+#>  [1] "_submitted_by"
+```
+
+Finally, with the function `set_names_from_varlabel` you can replace all
+the columns (not just `select_multiple`) by their label
+
+``` r
+data_sm_label |>
+  set_names_from_varlabel() |>
+  glimpse()
+#>  Rows: 5
+#>  Columns: 21
+#>  $ start                                    <chr> "2022-05-09T18:31:40.096-00:00", "2022-05-09T18…
+#>  $ end                                      <chr> "2022-05-09T18:35:12.810-00:00", "2022-05-09T18…
+#>  $ today                                    <chr> "2022-05-09", "2022-05-09", "2022-05-09", "2022…
+#>  $ `What is your name?`                     <chr> "Rufus", "Romulus", "Remus", "Joe", "Moh"
+#>  $ `What type of pet do you own ?`          <chr> "dog cat", "cat", "turtle", NA, "dog cat turtle"
+#>  $ `What type of pet do you own ?::rabbit`  <int> 0, 0, 0, NA, 0
+#>  $ `What type of pet do you own ?::chicken` <int> 0, 0, 0, NA, 0
+#>  $ `What type of pet do you own ?::dog`     <int> 1, 0, 0, NA, 1
+#>  $ `What type of pet do you own ?::cat`     <int> 1, 1, 0, NA, 1
+#>  $ `What type of pet do you own ?::turtle`  <int> 0, 0, 1, NA, 1
+#>  $ `_id`                                    <int> 20939261, 20939265, 20939278, 20939288, 20939301
+#>  $ instanceID                               <chr> "uuid:147d4f30-7459-42f7-818f-b44f47b2cca7", "u…
+#>  $ deprecatedID                             <chr> "uuid:6840ad57-d9f7-4557-b1f2-11af21e5b0cd", "u…
+#>  $ uuid                                     <chr> "5c0d08e4deda4a7fbc9634f5e8aba62f", "5c0d08e4de…
+#>  $ `__version__`                            <chr> "vjPe5qiVxTmyviYSrQE3x4", "vjPe5qiVxTmyviYSrQE3…
+#>  $ `_xform_id_string`                       <chr> "atbUaNGu5PWR2u4tNDsYaH", "atbUaNGu5PWR2u4tNDsY…
+#>  $ `_uuid`                                  <chr> "147d4f30-7459-42f7-818f-b44f47b2cca7", "6f67ed…
+#>  $ `_status`                                <chr> "submitted_via_web", "submitted_via_web", "subm…
+#>  $ `_submission_time`                       <chr> "2022-05-09T18:32:03", "2022-05-09T18:32:10", "…
+#>  $ `_validation_status`                     <int> NA, NA, NA, NA, NA
+#>  $ `_submitted_by`                          <int> NA, NA, NA, NA, NA
+```
 
 ## Meta
 

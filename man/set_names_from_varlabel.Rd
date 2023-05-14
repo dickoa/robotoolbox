@@ -22,3 +22,17 @@ set_names_from_varlabel(x)
 This function can be used alongside labelled::to_factor or labelled::to_character
 to match the output you get from Kobotoolbox XLSX export with labels.
 }
+\examples{
+\dontrun{
+kobo_setup() # setup using your url and token
+uid <- "a9cwEQcbWqWzA5hzkjRUWi" # pick a valid uid
+asset <- kobo_asset(uid)
+subs <- kobo_data(asset) ## kobo_submissions(asset)
+if (require(dplyr)) {
+ library(dplyr)
+ glimpse(subs)
+ glimpse(set_names_from_varlabel(subs))
+ }
+}
+
+}

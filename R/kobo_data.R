@@ -1,5 +1,5 @@
 #' @noRd
-kobo_data_ <- function(x, paginate, page_size, size, lang) {
+kobo_data_ <- function(x, paginate, page_size, size, lang, select_multiple_label) {
 
   if (size >= 10000)
     paginate <- TRUE
@@ -21,8 +21,8 @@ kobo_data_ <- function(x, paginate, page_size, size, lang) {
   } else {
     form <- kobo_form(x)
   }
-  cn <- form$name[form$type %in% kobo_question_types()]
-  cn <- unique(cn)
+
+  cn <- kobo_form_names_(form)
   klang <- kobo_lang(x)
   if (is.null(lang) || !lang %in% klang)
     lang <- klang[1]
@@ -38,12 +38,11 @@ kobo_data_ <- function(x, paginate, page_size, size, lang) {
     subs <- lapply(nm, function(n) {
       d <- subs[[n]]
       cn_list <- names_list[[n]]
-      d[setdiff(cn_list, names(d))] <- NA
-      d <- postprocess_data_(x = d,
-                             form = form,
-                             lang = lang)
-      cn <- intersect(cn, names(d))
-      select(d, starts_with(cn), everything())
+      postprocess_data_(x = d,
+                        form = form,
+                        lang = lang,
+                        select_multiple_label =  select_multiple_label,
+                        cn = cn_list)
     })
     subs <- setNames(subs, nm)
     subs <- as_dm(subs)
@@ -61,12 +60,11 @@ kobo_data_ <- function(x, paginate, page_size, size, lang) {
   } else {
     subs <- dedup_vars_(subs)
     subs <- set_names(subs, make_unique_names_)
-    subs[setdiff(cn, names(subs))] <- NA
     subs <- postprocess_data_(x = subs,
                               form = form,
-                              lang = lang)
-    cn <- intersect(cn, names(subs))
-    subs <- select(subs, starts_with(cn), everything())
+                              lang = lang,
+                              select_multiple_label =  select_multiple_label,
+                              cn = cn)
   }
   subs
 }
@@ -87,6 +85,7 @@ kobo_data_ <- function(x, paginate, page_size, size, lang) {
 #' @param paginate logical, split submissions by page. Default to FALSE
 #' @param page_size integer, number of submissions per page.
 #' if missing, default to number of submissions divided by 5
+#' @param select_multiple_label logical, whether or not to replace select_multiple columns values by labels. Default to `FALSE`.
 #' @param lang character, language for the variable and value labels
 #'
 #' @return A data.frame
@@ -97,31 +96,40 @@ kobo_data_ <- function(x, paginate, page_size, size, lang) {
 #' uid <- "a9cwEQcbWqWzA5hzkjRUWi" # pick a valid uid
 #' asset <- kobo_asset(uid)
 #' subs <- kobo_data(asset) ## kobo_submissions(asset)
-#' library(dplyr)
-#' glimpse(subs)
+#'
+#' if (require(dplyr)) {
+#'  library(dplyr)
+#'  glimpse(subs)
+#'  }
 #' }
 #'
 #' @export
-kobo_data <- function(x, paginate, page_size, lang)
+kobo_data <- function(x, paginate, page_size, lang,
+                      select_multiple_label)
   UseMethod("kobo_data")
 
 #' @rdname kobo_data
 #' @export
-kobo_submissions <- function(x, paginate, page_size, lang)
+kobo_submissions <- function(x, paginate, page_size, lang,
+                             select_multiple_label)
   UseMethod("kobo_submissions")
 
 #' @export
 kobo_data.kobo_asset <- function(x, paginate = FALSE,
-                                 page_size = NULL, lang = NULL) {
+                                 page_size = NULL, lang = NULL,
+                                 select_multiple_label = FALSE) {
   size <- x$deployment__submission_count
   if (size > 0) {
     res <- kobo_data_(x = x,
                       paginate = paginate,
                       page_size = page_size,
                       size = size,
-                      lang = lang)
+                      lang = lang,
+                      select_multiple_label = select_multiple_label)
   } else {
-    res <- tibble()
+    form <- kobo_form(x)
+    cn <- kobo_form_names_(form)
+    res <- tibble(!!!cn, .rows = 0, .name_repair = ~ cn)
   }
   res
 }
@@ -132,11 +140,13 @@ kobo_submissions.kobo_asset <- kobo_data.kobo_asset
 
 #' @export
 kobo_data.character <- function(x, paginate = FALSE,
-                                page_size = NULL, lang = NULL) {
+                                page_size = NULL, lang = NULL,
+                                select_multiple_label = FALSE) {
   kobo_data(kobo_asset(x),
             paginate = paginate,
             page_size = page_size,
-            lang = lang)
+            lang = lang,
+            select_multiple_label = select_multiple_label)
 }
 
 #' @rdname kobo_data
@@ -145,7 +155,8 @@ kobo_submissions.character <- kobo_data.character
 
 #' @export
 kobo_data.default <- function(x, paginate = FALSE,
-                              page_size = NULL, lang = NULL) {
+                              page_size = NULL, lang = NULL,
+                              select_multiple_label = FALSE) {
   stop("You need to use a 'kobo_asset' or an asset uid",
        call. = FALSE)
 }

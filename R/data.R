@@ -21,6 +21,14 @@
 "asset_spatial"
 
 #' @rdname dummy_data
+#' @format asset_spatial: A kobo_asset object to showcase select multiple label.
+"asset_sm_label"
+
+#' @rdname dummy_data
+#' @format asset_audit: A kobo_asset object on a project with audit log enabled.
+"asset_audit"
+
+#' @rdname dummy_data
 #' @format data_ml: A data.frame with submissions from the \code{asset_ml} in English.
 "data_ml_en"
 
@@ -43,3 +51,11 @@
 #' @rdname dummy_data
 #' @format data_spatial: A data.frame with submissions from the \code{asset_spatial}.
 "data_spatial"
+
+#' @rdname dummy_data
+#' @format data_sm_label: A data.frame with submissions from the \code{asset_sm_label}.
+"data_sm_label"
+
+#' @rdname dummy_data
+#' @format data_audit: A data.frame with submissions from the \code{asset_audit}.
+"data_audit"

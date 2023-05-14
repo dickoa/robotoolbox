@@ -41,10 +41,23 @@ asset_spatial <- kobo_asset(uid_spatial)
 data_spatial <- kobo_data(uid_spatial)
 
 ###
+uid_sm_label <- "atbUaNGu5PWR2u4tNDsYaH"
+asset_sm_label <- kobo_asset(uid_sm_label)
+data_sm_label <- kobo_data(uid_sm_label,
+                           select_multiple_label = TRUE)
+
+###
+uid_audit <- "aKQB8xLBd3nsJ7EZQmQhZd"
+asset_audit <- kobo_asset(uid_audit)
+data_audit <- kobo_audit(uid_audit)
+
+###
 #usethis::use_data(asset1, overwrite = TRUE)
 usethis::use_data(asset_ml, overwrite = TRUE)
 usethis::use_data(asset_rg, overwrite = TRUE)
 usethis::use_data(asset_spatial, overwrite = TRUE)
+usethis::use_data(asset_audit, overwrite = TRUE)
+usethis::use_data(asset_sm_label, overwrite = TRUE)
 #usethis::use_data(asset_list, overwrite = TRUE)
 #usethis::use_data(data1, overwrite = TRUE)
 usethis::use_data(data_ml_en, overwrite = TRUE)
@@ -53,3 +66,5 @@ usethis::use_data(data_ml_ar, overwrite = TRUE)
 usethis::use_data(data_ml_default, overwrite = TRUE)
 usethis::use_data(data_rg, overwrite = TRUE)
 usethis::use_data(data_spatial, overwrite = TRUE)
+usethis::use_data(data_sm_label, overwrite = TRUE)
+usethis::use_data(data_audit, overwrite = TRUE)

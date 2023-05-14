@@ -176,14 +176,66 @@ https://dickoa.gitlab.io/robotoolbox/articles/repeat-group-data.html
 
 ### Spatial data
 
-`Kobotoolbox` provides three types of question to record spatial data: `geopoint` for points, `geotrace` for lines and `geoshape` to map close polygons. `robotoolbox` associates to each spatial column a [`WKT`](https://libgeos.org/specifications/wkt/) column. It provides a simple way to use it with various GIS software and R package for spatial data analysis. The `sf` package is the standard for spatial vector data handling and visualization.
+`Kobotoolbox` provides three types of question to record spatial data: `geopoint` for points, `geotrace` for lines and `geoshape` to map close polygons. `robotoolbox` associates to each spatial column a [`WKT`](https://libgeos.org/specifications/wkt/) column. It provides a simple way to use it with various GIS software and `R` package for spatial data analysis. The `sf` package is the standard for spatial vector data handling and visualization.
 
 https://dickoa.gitlab.io/robotoolbox/articles/spatial-data.html
 
 
-## Caveats and limitations
+### Audit logging data
 
-`robotoolbox` uses the `labelled` package to manipulate `labels` for `select_one` question types. For `select_multiple` questions, dummy columns are used. These dummy variables lack value label but they have variable labels associated to the variable of label of the original variable.
+`Kobotoolbox` comes with a feature that records all activities related to a form submission in a log file. The audit logging metadata is useful for data quality control, security and workflow management. The `kobo_audit` function allow you to read `Kobotoolbox` audit logs file.
+
+You can learn more in the following vignette:
+
+https://dickoa.gitlab.io/robotoolbox/articles/audit-data.html
+
+### Labels for select_multiple columns and variable labels as column names
+
+We can now get `labels` instead of values for `select_multiple` questions with `robotoolbox`.
+Let's show this new feature, with the following example:
+
+```{r}
+data_sm <- kobo_data(uid)
+glimpse(data_sm)
+```
+
+```{r, echo = FALSE, eval = TRUE}
+library(dplyr)
+library(robotoolbox)
+glimpse(kobo_data(asset_sm_label))
+```
+
+We noticed that the column `pet_type` contains values (1 to 5).
+
+Now let's set the new `select_multiple_label` to `TRUE` to read the data.
+
+```{r}
+data_sm_label <- kobo_data(uid,
+                           select_multiple_label = TRUE)
+glimpse(data_label)
+```
+
+```{r, eval = TRUE}
+glimpse(data_sm_label)
+```
+
+We can now see the `labels` instead of the `values` (`dog`, `cat`, etc.) for the column `pet_type`.
+
+Variable labels has been improved for all the dummy variables related to the `select_multiple` question (whether or not you use `select_multiple_label`).
+
+```{r, eval = TRUE}
+library(labelled)
+var_label(data_sm_label)
+```
+
+Finally, with the function `set_names_from_varlabel` you can replace all the columns (not just `select_multiple`) by their label
+
+
+```{r, eval = TRUE}
+data_sm_label |>
+  set_names_from_varlabel() |>
+  glimpse()
+```
 
 ## Meta
 

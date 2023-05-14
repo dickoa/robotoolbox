@@ -8,7 +8,6 @@
 #'
 #' @param x the unique identifier of a specific asset or an asset object
 #'
-#'
 #' @return a \code{kobo_asset} object
 #'
 #' @examples
@@ -21,7 +20,6 @@
 #' @export
 kobo_asset <- function(x)
   UseMethod("kobo_asset")
-
 
 #' @export
 kobo_asset.character <- function(x) {
@@ -180,9 +178,9 @@ print.kobo_asset <- function(x, ...) {
   cat("  Asset type: ", x$asset_type, "\n", sep = "")
   cat("  Asset owner: ", x$owner__username, "\n", sep = "")
   cat("  Created: ",
-      parse_kobo_date(x$date_created),  "\n", sep = "")
+      parse_kobo_datetime(x$date_created), "\n", sep = "")
   cat("  Last modified: ",
-      parse_kobo_date(x$date_modified),  "\n", sep = "")
+      parse_kobo_datetime(x$date_modified), "\n", sep = "")
   cat("  Submissions: ", x$deployment__submission_count, "\n", sep = "")
 }
 
@@ -192,7 +190,7 @@ print.kobo_asset_version <- function(x, ...) {
   cat("<robotoolbox asset version> ", x$uid, "\n")
   cat("  Asset uid: ", x$asset_uid, "\n", sep = "")
   cat("  Asset deployed: ",
-      is.na(as.logical(x$date_deployed)),  "\n", sep = "")
+      is.na(as.logical(x$date_deployed)), "\n", sep = "")
   cat("  Date modified: ",
-      parse_kobo_date2(x$date_modified),  "\n", sep = "")
+      parse_kobo_datetime_simple(x$date_modified), "\n", sep = "")
 }
