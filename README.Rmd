@@ -189,13 +189,13 @@ You can learn more in the following vignette:
 
 https://dickoa.gitlab.io/robotoolbox/articles/audit-data.html
 
-### Labels for select_multiple columns and variable labels as column names
+### Labels for `select_multiple` columns and variable labels as column names
 
 We can now get `labels` instead of values for `select_multiple` questions with `robotoolbox`.
 Let's show this new feature, with the following example:
 
 ```{r}
-data_sm <- kobo_data(uid)
+data_sm_label <- kobo_data(uid)
 glimpse(data_sm)
 ```
 
@@ -205,17 +205,16 @@ library(robotoolbox)
 glimpse(kobo_data(asset_sm_label))
 ```
 
-We noticed that the column `pet_type` contains values (1 to 5).
-
-Now let's set the new `select_multiple_label` to `TRUE` to read the data.
+We noticed that the column `pet_type` contains values (`1` to `5`).
+Now let's set the new `select_multiple_label` to `TRUE` and read again the data.
 
 ```{r}
 data_sm_label <- kobo_data(uid,
                            select_multiple_label = TRUE)
-glimpse(data_label)
+glimpse(data_sm_label)
 ```
 
-```{r, eval = TRUE}
+```{r, echo = FALSE, eval = TRUE}
 glimpse(data_sm_label)
 ```
 
