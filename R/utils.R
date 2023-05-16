@@ -1055,7 +1055,7 @@ set_names_from_varlabel.dm <- function(x) {
   x
 }
 
-#' @importFrom dplyr mutate bind_rows if_else
+#' @importFrom dplyr mutate case_when
 #' @importFrom stats na.omit
 #' @noRd
 kobo_form_names_ <- function(form) {
@@ -1079,7 +1079,8 @@ kobo_form_names_ <- function(form) {
                           case_when(type %in% "geopoint" ~ list(c("",
                                                                   "_latitude",
                                                                   "_longitude",
-                                                                  "_accuracy",
+                                                                  "_altitude",
+                                                                  "_precision",
                                                                   "_wkt")),
                                     type %in% "geotrace" ~ list(c("", "_wkt")),
                                     type %in% "geoshape" ~ list(c("", "_wkt")),
