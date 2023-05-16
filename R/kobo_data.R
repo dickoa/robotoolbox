@@ -129,7 +129,7 @@ kobo_data.kobo_asset <- function(x, paginate = FALSE,
   } else {
     form <- kobo_form(x)
     cn <- kobo_form_names_(form)
-    res <- tibble(!!!cn, .rows = 0, .name_repair = ~ cn)
+    res <- empty_tibble_(cn)
   }
   res
 }

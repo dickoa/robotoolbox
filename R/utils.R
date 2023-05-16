@@ -24,12 +24,17 @@ user_agent_ <- function() {
 #' @noRd
 #' @importFrom RcppSimdJson fparse
 error_msg <- function(x) {
+  check_uid_info <- "Check your uid and try again"
+  check_token_info <- "Check again your token in `kobo_setup` is correct or use `kobo_token`"
+  check_default <- "Check that you have the right server and if it's working"
   msg <- fparse(rawToChar(x))$detail
-  info <- case_when(grepl("not found", msg, ignore.case = TRUE) ~ c("uid (project) not found",
-                                                                    i = "Check your uid and try again"),
-                    grepl("invalid token", msg, ignore.case = TRUE) ~ c("Invalid API token",
-                                                                        i = "Check that your API token in `kobo_setup` is correct or use `kobo_token`"),
-                    .default = setNames("Check that you have the right server and if it's working", "i"))
+  info <- case_when(grepl("not found",
+                          msg, ignore.case = TRUE) ~ c("uid (project) not found",
+                                                       i = check_uid_info),
+                    grepl("invalid token",
+                          msg, ignore.case = TRUE) ~ c("Invalid API token",
+                                                       i = check_token_info),
+                    .default = setNames(check_default, "i"))
   info
 }
 
@@ -935,8 +940,9 @@ kobo_display_fields <- function() {
 #' @importFrom rlang set_names
 #' @noRd
 empty_tibble_ <- function(cnames) {
-  x <- set_names(lapply(cnames, \(x) NA), cnames)
-  bind_rows(x)
+  tibble(!!!cnames,
+         .rows = 0,
+         .name_repair = ~ cnames)
 }
 
 
@@ -1054,22 +1060,32 @@ set_names_from_varlabel.dm <- function(x) {
 #' @noRd
 kobo_form_names_ <- function(form) {
   if ("choices" %in% names(form)) {
-  res <- form |>
-    mutate(choices = lapply(.data$choices,
-                            \(df) bind_rows(mutate(slice(df, 1), value_name = ""),
-                                            df))) |>
-    unnest("choices", keep_empty = TRUE) |>
-    transmute("type",
-              value_name = if_else(.data$value_name != "",
-                                         paste0("_", .data$value_name),
-                                         .data$value_name),
-              name = if_else(.data$type == "select_multiple",
-                                   paste0(.data$name, .data$value_name),
-                                   .data$name)) |>
-    distinct(.data$name)
-  res <- na.omit(res$name)
+    res <- mutate(form, "value_name" =
+                          case_when(type %in% "geopoint" ~ list(c("",
+                                                                  "_latitude",
+                                                                  "_longitude",
+                                                                  "_accuracy",
+                                                                  "_wkt")),
+                                    type %in% "geotrace" ~ list(c("", "_wkt")),
+                                    type %in% "geoshape" ~ list(c("", "_wkt")),
+                                    type %in% "select_multiple" ~ lapply(.data$choices,
+                                                                         \(ch) c("", paste0("_", unique(ch$value_name)))),
+                                    .default = list(""))) |>
+      unnest("value_name") |>
+      distinct(.data$name, .data$value_name)
   } else {
-    res <- unique(na.omit(form$name))
+    res <- mutate(form, "value_name" =
+                          case_when(type %in% "geopoint" ~ list(c("",
+                                                                  "_latitude",
+                                                                  "_longitude",
+                                                                  "_accuracy",
+                                                                  "_wkt")),
+                                    type %in% "geotrace" ~ list(c("", "_wkt")),
+                                    type %in% "geoshape" ~ list(c("", "_wkt")),
+                                    .default = list(""))) |>
+      unnest("value_name") |>
+      distinct(.data$name, .data$value_name)
   }
-  res
+  res <- paste0(res$name, res$value_name)
+  na.omit(res)
 }
