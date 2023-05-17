@@ -46,7 +46,7 @@ xget <- function(path, args = list(), n_retry = 3L, ...) {
                   `User-Agent` = user_agent_())
   cli <- crul::HttpClient$new(Sys.getenv("KOBOTOOLBOX_URL"),
                               headers = headers, opts = list(...))
-  res <- cli$retry("GET",
+  res <- cli$retry("get",
                    path = path,
                    query = args,
                    times = n_retry,
@@ -67,7 +67,7 @@ xget_csv <- function(path, args = list(), n_retry = 3L, ...) {
                   `User-Agent` = user_agent_())
   cli <- crul::HttpClient$new(Sys.getenv("KOBOTOOLBOX_URL"),
                               headers = headers, opts = list(...))
-  res <- cli$retry("GET",
+  res <- cli$retry("get",
                    path = path,
                    query = args,
                    times = n_retry,
@@ -126,21 +126,25 @@ build_subs_urls <- function(uid, size, chunk_size = NULL) {
 #' @importFrom dplyr case_when
 #' @importFrom rlang abort
 #' @noRd
-get_subs_async <- function(uid, size, chunk_size = NULL, ...) {
+get_subs_async <- function(uid, size, chunk_size = NULL, n_retry = 3L, ...) {
   headers <- list(Authorization = paste("Token",
                                         Sys.getenv("KOBOTOOLBOX_TOKEN")))
   urls <- build_subs_urls(uid, size, chunk_size)
   reqs <- lapply(urls, function(url) {
-    HttpRequest$new(url,
-                    headers = headers,
-                    opts = list(...))$get()
+    req <- HttpRequest$new(url,
+                           headers = headers,
+                           opts = list(...))
+    req$retry("get",
+              times = n_retry,
+              retry_only_on = c(500, 503),
+              terminate_on = 404)
   })
   sleep <- case_when(
-    size > 30000 ~ 2,
-    size > 15000 ~ 1.5,
-    size > 5000 ~ 1,
-    size > 1000 ~ 0.5,
-    .default = 0.25
+    size > 30000 ~ 1.5,
+    size > 15000 ~ 1,
+    size > 5000 ~ 0.5,
+    size > 1000 ~ 0.25,
+    .default = 0.1
   )
   res <- AsyncQueue$new(.list = reqs,
                         bucket_size = Inf,
@@ -185,25 +189,30 @@ build_assets_urls <- function(limit, count) {
 #' @importFrom tibble as_tibble
 #' @importFrom dplyr case_when
 #' @noRd
-get_asset_list_async <- function(limit, count, ...) {
+get_asset_list_async <- function(limit, count, n_retry = 3L, ...) {
   headers <- list(Authorization = paste("Token",
                                         Sys.getenv("KOBOTOOLBOX_TOKEN")))
   urls <- build_assets_urls(limit, count)
   reqs <- lapply(urls, function(url) {
-    HttpRequest$new(url,
-                    headers = headers,
-                    opts = list(...))$get()
+    req <- HttpRequest$new(url,
+                           headers = headers,
+                           opts = list(...))
+    req$retry("get",
+              times = n_retry,
+              retry_only_on = c(500, 503),
+              terminate_on = 404)
   })
   sleep <- 0.05
   res <- AsyncQueue$new(.list = reqs,
                         bucket_size = Inf,
                         sleep = sleep)
   res$request()
-  cond <- any(res$status_code() > 200L)
-  if (cond)
-    abort(c("The request failed!",
-            "i" = "Please check again your asset `uid`, API token and the server url!"),
+  cond <- res$status_code() >= 300L
+  if (any(cond)) {
+    msg <- res$content()[cond]
+    abort(error_msg(msg[[1]]),
           call = NULL)
+  }
   res <- res$parse(encoding = "UTF-8")
   res <- fparse(res,
                 max_simplify_lvl = "list")
@@ -225,35 +234,35 @@ asset_list_to_tbl <- function(x) {
          submissions = map_int2(x, "deployment__submission_count"))
 }
 
-#' @importFrom RcppSimdJson fparse
-#' @noRd
-get_form_media <- function(uid) {
-  headers <- list(Authorization = paste("Token",
-                                        Sys.getenv("KOBOTOOLBOX_TOKEN")))
-  path <- paste0("api/v2/assets/", uid, "/files/?file_type=form_media")
-  cli <- crul::HttpClient$new(Sys.getenv("KOBOTOOLBOX_URL"),
-                              headers = headers)
-  res <- cli$get(path = path)
-  res$raise_for_status()
-  res$raise_for_ct_json()
-  res <- fparse(res$parse("UTF-8"),
-                max_simplify_lvl = "data_frame")
-  fname <- map_chr2(res$results$metadata, "filename")
-  mtype <- map_chr2(res$results$metadata, "mimetype")
-  uid <- res$results$uid
-  url <- res$results$content
-  tibble(uid = uid, url = url, filename = fname, mimetype = mtype)
-}
+## #' @importFrom RcppSimdJson fparse
+## #' @noRd
+## get_form_media <- function(uid) {
+##   headers <- list(Authorization = paste("Token",
+##                                         Sys.getenv("KOBOTOOLBOX_TOKEN")))
+##   path <- paste0("api/v2/assets/", uid, "/files/?file_type=form_media")
+##   cli <- crul::HttpClient$new(Sys.getenv("KOBOTOOLBOX_URL"),
+##                               headers = headers)
+##   res <- cli$get(path = path)
+##   res$raise_for_status()
+##   res$raise_for_ct_json()
+##   res <- fparse(res$parse("UTF-8"),
+##                 max_simplify_lvl = "data_frame")
+##   fname <- map_chr2(res$results$metadata, "filename")
+##   mtype <- map_chr2(res$results$metadata, "mimetype")
+##   uid <- res$results$uid
+##   url <- res$results$content
+##   tibble(uid = uid, url = url, filename = fname, mimetype = mtype)
+## }
 
-#' @noRd
-download_form_media <- function(url, filename) {
-  headers <- list(Authorization = paste("Token",
-                                        Sys.getenv("KOBOTOOLBOX_TOKEN")))
-  cli <- crul::HttpClient$new(url, headers = headers)
-  out <- cli$get(disk = filename)
-  out$raise_for_status()
-  invisible(filename)
-}
+## #' @noRd
+## download_form_media <- function(url, filename) {
+##   headers <- list(Authorization = paste("Token",
+##                                         Sys.getenv("KOBOTOOLBOX_TOKEN")))
+##   cli <- crul::HttpClient$new(url, headers = headers)
+##   out <- cli$get(disk = filename)
+##   out$raise_for_status()
+##   invisible(filename)
+## }
 
 #' @importFrom RcppSimdJson fparse
 #' @importFrom purrr list_rbind
@@ -268,38 +277,31 @@ get_audit_url_ <- function(uid) {
     select(`_id` = "instance", "download_url")
 }
 
-#' @importFrom data.table fread
-#' @noRd
-form_media_one_csv_tbl <- function(url) {
-  headers <- list(Authorization = paste("Token",
-                                        Sys.getenv("KOBOTOOLBOX_TOKEN")))
-  cli <- crul::HttpClient$new(url, headers = headers)
-  out <- cli$get()
-  out$raise_for_status()
-  out <- fread(out$parse(encoding = "UTF-8"))
-  out <- dt2tibble(out)
-  out
-}
+## #' @importFrom data.table fread
+## #' @noRd
+## form_media_one_csv_tbl <- function(url) {
+##   headers <- list(Authorization = paste("Token",
+##                                         Sys.getenv("KOBOTOOLBOX_TOKEN")))
+##   cli <- crul::HttpClient$new(url, headers = headers)
+##   out <- cli$get()
+##   out$raise_for_status()
+##   out <- fread(out$parse(encoding = "UTF-8"))
+##   out <- dt2tibble(out)
+##   out
+## }
 
-## Find a clever to label it, update example
-#' @noRd
-form_media_csv_tbl <- function(uid) {
-  meta <- get_form_media(uid)
-  df <- lapply(meta$url,
-               function(x) form_media_one_csv_tbl(x))
-  df
-}
+## ## Find a clever to label it, update example
+## #' @noRd
+## form_media_csv_tbl <- function(uid) {
+##   meta <- get_form_media(uid)
+##   df <- lapply(meta$url,
+##                function(x) form_media_one_csv_tbl(x))
+##   df
+## }
 
 #' @noRd
 map_chr2 <- function(x, key)
   vapply(x, function(l) as.character(l[[key]]), character(1))
-
-#' @noRd
-map_if_chr2 <- function(x, key)
-  vapply(x,
-         function(l)
-           if (length(l) > 0) as.character(l[[key]]) else NA_character_,
-         character(1))
 
 #' @noRd
 map_int2 <- function(x, key)
@@ -327,19 +329,8 @@ is_list_cols_names <- function(x)
   names(is_list_cols(x))
 
 #' @noRd
-is_list_cols_nulls <- function(x) {
-  b1 <- vapply(x, is.list, logical(1))
-  b2 <- vapply(x[b1], is.null, logical(1))
-  list(b1, b2)
-}
-
-#' @noRd
 is_null_recursive <- function(x)
   is.null(x) | all(vapply(x, is.null, logical(1)))
-
-#' @noRd
-print_list_res <- function(x)
-  paste(unlist(x), collapse = ", ")
 
 #' @noRd
 drop_nulls <- function(x) {
@@ -469,21 +460,20 @@ extract_repeat_tbl <- function(x, form) {
   res
 }
 
-#' @noRd
-duplicated_all <- function(x)
-  duplicated(x) | duplicated(x, fromLast = TRUE)
+## #' @noRd
+## duplicated_all <- function(x)
+##   duplicated(x) | duplicated(x, fromLast = TRUE)
 
-#' @noRd
-#' @importFrom purrr list_rbind
-rbind_duplicate_list <- function(x) {
-  bool <- duplicated_all(names(x))
-  key <- unique(names(x)[bool])
-  a <- x[!bool]
-  b <- x[bool]
-  res <- c(a, setNames(list(list_rbind(b)), key))
-  res[unique(names(x))]
-}
-
+## #' @noRd
+## #' @importFrom purrr list_rbind
+## rbind_duplicate_list <- function(x) {
+##   bool <- duplicated_all(names(x))
+##   key <- unique(names(x)[bool])
+##   a <- x[!bool]
+##   b <- x[bool]
+##   res <- c(a, setNames(list(list_rbind(b)), key))
+##   res[unique(names(x))]
+## }
 
 #' @importFrom rlang squash
 #' @noRd
@@ -598,38 +588,38 @@ val_labels_sm_from_form_ <- function(x, form, lang) {
   x
 }
 
-#' @importFrom dplyr mutate across filter
-#' @importFrom tidyselect all_of
-#' @importFrom stats setNames
-#' @importFrom labelled set_value_labels
-#' @importFrom rlang .data
-#' @noRd
-val_labels_from_form_external_ <- function(x, form, lang) {
-  form <- filter(form,
-                 .data$lang %in% !!lang,
-                 grepl(".+from\\_file$", .data$type))
-  nm <- unique(form$name)
-  nm <- intersect(names(x), nm)
-  if (length(nm) > 0) {
-    form <- form[match(nm, form$name), ]
-    choices <- form$choices
-    choices <- lapply(choices, function(ch) {
-      ch <- filter(ch,
-                   .data$value_lang %in% !!lang)
-      ch$value_label <- make.unique(ch$value_label, sep = "_")
-      ch <- setNames(ch$value_name, ch$value_label)
-      ch[!duplicated(ch)]
-    })
-    names(choices) <- nm
-    labels <- choices[nm]
-    x <- set_value_labels(mutate(x, across(all_of(nm), as.character)),
-                          .labels = labels,
-                          .strict = FALSE)
-  } else {
-    x
-  }
-  x
-}
+## #' @importFrom dplyr mutate across filter
+## #' @importFrom tidyselect all_of
+## #' @importFrom stats setNames
+## #' @importFrom labelled set_value_labels
+## #' @importFrom rlang .data
+## #' @noRd
+## val_labels_from_form_external_ <- function(x, form, lang) {
+##   form <- filter(form,
+##                  .data$lang %in% !!lang,
+##                  grepl(".+from\\_file$", .data$type))
+##   nm <- unique(form$name)
+##   nm <- intersect(names(x), nm)
+##   if (length(nm) > 0) {
+##     form <- form[match(nm, form$name), ]
+##     choices <- form$choices
+##     choices <- lapply(choices, function(ch) {
+##       ch <- filter(ch,
+##                    .data$value_lang %in% !!lang)
+##       ch$value_label <- make.unique(ch$value_label, sep = "_")
+##       ch <- setNames(ch$value_name, ch$value_label)
+##       ch[!duplicated(ch)]
+##     })
+##     names(choices) <- nm
+##     labels <- choices[nm]
+##     x <- set_value_labels(mutate(x, across(all_of(nm), as.character)),
+##                           .labels = labels,
+##                           .strict = FALSE)
+##   } else {
+##     x
+##   }
+##   x
+## }
 
 #' @noRd
 replace_na_list_ <- function(x) {
@@ -835,19 +825,6 @@ remove_list_cols <- function(x) {
   x <- select(x, -is_list_cols(x))
   }
   x
-}
-
-#' Transform logical columns to character
-#'
-#' It happens when people use 'true' and/or 'false' as choices values
-#'
-#' @importFrom dplyr mutate across
-#' @importFrom tidyselect where
-#' @noRd
-logical_to_character_ <- function(x) {
-  mutate(x,
-         across(where(is.logical),
-                tolower))
 }
 
 ## #' @noRd

@@ -1,4 +1,5 @@
 test_that("kobo_form works", {
+  skip_on_cran()
   url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
   token <- Sys.getenv("KOBOTOOLBOX_PROD_TOKEN")
   skip <-  url == "" & token == ""
@@ -16,6 +17,7 @@ test_that("kobo_form works", {
 })
 
 test_that("kobo_form has a version argument", {
+  skip_on_cran()
   url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
   token <- Sys.getenv("KOBOTOOLBOX_PROD_TOKEN")
   skip <-  url == "" & token == ""
@@ -34,6 +36,7 @@ test_that("kobo_form has a version argument", {
  })
 
 test_that("kobo_form can load form with choices tab", {
+  skip_on_cran()
   url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
   token <- Sys.getenv("KOBOTOOLBOX_PROD_TOKEN")
   skip <-  url == "" & token == ""
@@ -46,4 +49,3 @@ test_that("kobo_form can load form with choices tab", {
   form <- kobo_form(uid)
   expect_true(!"choices" %in% names(form))
  })
-t

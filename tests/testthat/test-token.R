@@ -1,4 +1,5 @@
 test_that("kobo_token works", {
+  skip_on_cran()
   url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
   user <- Sys.getenv("KOBOTOOLBOX_PROD_USER")
   pwd <- Sys.getenv("KOBOTOOLBOX_PROD_PWD")
@@ -21,6 +22,7 @@ test_that("kobo_token works", {
 })
 
 test_that("kobo_token set the kobotoolbox_url env", {
+  skip_on_cran()
   url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
   user <- Sys.getenv("KOBOTOOLBOX_PROD_USER")
   pwd <- Sys.getenv("KOBOTOOLBOX_PROD_PWD")

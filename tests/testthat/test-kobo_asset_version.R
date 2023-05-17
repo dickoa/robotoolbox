@@ -1,4 +1,5 @@
 test_that("kobo_asset_version_list works", {
+  skip_on_cran()
   url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
   token <- Sys.getenv("KOBOTOOLBOX_PROD_TOKEN")
   skip <-  url == "" & token == ""
