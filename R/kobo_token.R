@@ -28,6 +28,9 @@ kobo_token <- function(username = NULL, password = NULL,
   if (!is.null(url) & !nzchar(Sys.getenv("KOBOTOOLBOX_URL")))
      Sys.setenv("KOBOTOOLBOX_URL" = url)
 
+  if (is.null(url) & nzchar(Sys.getenv("KOBOTOOLBOX_URL")))
+    url <- Sys.getenv("KOBOTOOLBOX_URL")
+
   if (nzchar(Sys.getenv("KOBOTOOLBOX_TOKEN")) & !overwrite) {
     token <- Sys.getenv("KOBOTOOLBOX_TOKEN")
   } else {
@@ -35,12 +38,10 @@ kobo_token <- function(username = NULL, password = NULL,
     cli <- crul::HttpClient$new(url = url_path,
                                 auth = auth(user = username,
                                             pwd = password))
-
     res <- cli$retry("get",
                      times = 3L,
                      retry_only_on = c(500, 503),
                      terminate_on = 404)
-
     if (res$status_code >= 300)
       abort(error_msg(res$content),
             call = NULL)

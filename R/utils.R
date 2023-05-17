@@ -26,6 +26,7 @@ user_agent_ <- function() {
 error_msg <- function(x) {
   check_uid_info <- "Check your uid and try again"
   check_token_info <- "Check again your token in `kobo_setup` is correct or use `kobo_token`"
+  check_cred_info <- "Check again your username or password"
   check_default <- "Check that you have the right server and if it's working"
   msg <- fparse(rawToChar(x))$detail
   info <- case_when(grepl("not found",
@@ -34,6 +35,9 @@ error_msg <- function(x) {
                     grepl("invalid token",
                           msg, ignore.case = TRUE) ~ c("Invalid API token",
                                                        i = check_token_info),
+                    grepl("invalid username/password",
+                          msg, ignore.case = TRUE) ~ c("Invalid username or password",
+                                                       i = check_cred_info),
                     .default = setNames(check_default, "i"))
   info
 }
