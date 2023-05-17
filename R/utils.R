@@ -987,6 +987,7 @@ lookup_varlabel_ <- function(x) {
 #' @importFrom dm dm_rename
 #' @importFrom dplyr rename
 #' @importFrom rlang set_names
+#' @importFrom tidyselect all_of
 #'
 #' @param x a tibble or dm object imported using \code{\link{kobo_data}}
 #'
@@ -1017,7 +1018,7 @@ set_names_from_varlabel.default <- function(x)
 #' @export
 set_names_from_varlabel.data.frame <- function(x) {
   lookup <- lookup_varlabel_(x)
-  rename(x, lookup)
+  rename(x, all_of(lookup))
 }
 
 #' @rdname set_names_from_varlabel

@@ -2,6 +2,7 @@
 #' @importFrom purrr list_rbind
 #' @importFrom dplyr mutate select
 #' @importFrom tidyr unnest
+#' @importFrom data.table fread
 #'
 #' @noRd
 kobo_audit_ <- function(uid) {

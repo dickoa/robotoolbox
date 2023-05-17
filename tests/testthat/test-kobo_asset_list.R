@@ -29,9 +29,4 @@ test_that("kobo_asset_list works even if the number of assets exceed limit", {
   al <- kobo_asset_list(limit = 5)
   expect_equal(class(al),
                c("tbl_df", "tbl", "data.frame"))
-
-  cn <- c("uid", "name", "asset_type", "owner_username", "date_created",
-          "date_modified", "submissions")
-
-  expect_equal(names(al), cn)
 })

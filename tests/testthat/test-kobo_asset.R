@@ -9,7 +9,9 @@ test_that("kobo_asset works", {
   uid <- "aANhxwX9S6BCsiYMgQj9kV"
   asset1 <- kobo_asset(uid)
   asset2 <- kobo_asset(asset1)
+  asset3 <- kobo_asset(asset2)
   expect_equal(asset1, asset2)
+  expect_equal(asset1, asset3)
   expect_is(asset1, class = "kobo_asset")
   expect_error(kobo_asset(1L))
 

@@ -8,8 +8,8 @@ test_that("with kobo_audit you can read your audit log data", {
   kobo_setup(url = url, token = token)
   uid <- "aKQB8xLBd3nsJ7EZQmQhZd"
   asset <- kobo_asset(uid)
-  raw_uid <- kobo_data(uid)
-  raw_asset <- kobo_data(asset)
+  raw_uid <- kobo_audit(uid)
+  raw_asset <- kobo_audit(asset)
   expect_equal(raw_uid, raw_asset)
   expect_equal(class(raw_uid),
                c("tbl_df", "tbl", "data.frame"))
