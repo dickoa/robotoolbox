@@ -10,21 +10,27 @@ kobo_audit_ <- function(uid) {
   headers <- list(Authorization = paste("Token",
                                         Sys.getenv("KOBOTOOLBOX_TOKEN")))
   reqs <- lapply(audit_meta$download_url, function(url) {
-    HttpRequest$new(url,
-                    headers = headers)$get()
+    req <- HttpRequest$new(url,
+                           headers = headers)
+    req$retry("get",
+              times = 3L,
+              retry_only_on = c(500, 503),
+              terminate_on = 404)
   })
   sleep <- 0.01
   res <- AsyncQueue$new(.list = reqs,
                         bucket_size = Inf,
                         sleep = sleep)
   res$request()
-  cond <- any(res$status_code() > 200L)
-  if (cond)
-    abort(c("The request failed!",
-            "i" = "Please check again your asset `uid`, API token and the server url!"),
+  cond <- any(res$status_code() >= 300L)
+  if (any(cond)) {
+    msg <- res$content()[cond]
+    abort(error_msg(msg[[1]]),
           call = NULL)
+  }
   res <- res$parse(encoding = "UTF-8")
-  res <- mutate(audit_meta, data = lapply(res, \(path) dt2tibble(fread(path))))
+  res <- mutate(audit_meta,
+                data = lapply(res, \(path) dt2tibble(fread(path))))
   res <- select(res, -"download_url")
   unnest(res, "data") |>
     mutate(name = basename(.data$node), .before = "start",

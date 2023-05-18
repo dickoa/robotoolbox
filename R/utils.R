@@ -63,27 +63,6 @@ xget <- function(path, args = list(), n_retry = 3L, ...) {
   res$parse("UTF-8")
 }
 
-#' @noRd
-#' @importFrom rlang abort
-xget_csv <- function(path, args = list(), n_retry = 3L, ...) {
-  headers <- list(Authorization = paste("Token",
-                                        Sys.getenv("KOBOTOOLBOX_TOKEN")),
-                  `User-Agent` = user_agent_())
-  cli <- crul::HttpClient$new(Sys.getenv("KOBOTOOLBOX_URL"),
-                              headers = headers, opts = list(...))
-  res <- cli$retry("get",
-                   path = path,
-                   query = args,
-                   times = n_retry,
-                   retry_only_on = c(500, 503),
-                   terminate_on = 404)
-  if (res$status_code >= 300)
-    abort(error_msg(res$content),
-          call = NULL)
-  #res$raise_for_ct("text/comma-separated-values")
-  res$parse("UTF-8")
-}
-
 #' @importFrom tibble as_tibble
 #' @noRd
 dt2tibble <- function(x) {
@@ -924,23 +903,6 @@ empty_tibble_ <- function(cnames) {
   tibble(!!!cnames,
          .rows = 0,
          .name_repair = ~ cnames)
-}
-
-
-#' @importFrom dplyr distinct
-#' @noRd
-kobo_repeat_form_to_list <- function(x, .dm) {
-  types <- c("begin_repeat", "end_repeat",
-             kobo_question_types())
-  x <- filter(x, .data$type %in% types)
-  x <- distinct(x, .data$name, .data$type)
-  rpt_name <- c("main", x$name[x$type %in% "begin_repeat"])
-  idx <- which(x$type %in% "begin_repeat")
-  idx <- c(0, idx, length(x$type))
-  seq_idx <- 1:(length(idx) - 1L)
-  setNames(lapply(seq_idx,
-                  function(i) x$name[seq(idx[i] + 1, idx[i+1] - 1, by = 1)]),
-           rpt_name)
 }
 
 #' @importFrom purrr map map_chr accumulate

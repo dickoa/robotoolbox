@@ -1,4 +1,4 @@
-# kobo_asset_version_list works
+# kobo_setup and kobo_settings are working
 
     <robotoolbox settings> 
        KoboToolbox URL: https://kobo.unhcr.org/

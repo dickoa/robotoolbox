@@ -18,4 +18,7 @@ test_that("with kobo_audit you can read your audit log data", {
   uid_no_audit <- "aYuTZn9vegi3Z49MXwKjep"
   asset_no_audit <- kobo_asset(uid_no_audit)
   expect_error(kobo_audit(uid_no_audit))
+
+  uid_no_audit_no_version <- "aLPEprhNHZCRzSMJiPXxj7"
+  expect_error(kobo_audit(uid_no_audit_no_version))
 })

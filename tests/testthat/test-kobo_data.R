@@ -198,3 +198,18 @@ test_that("with kobo_data you can read form with 0 submission", {
                c("tbl_df", "tbl", "data.frame"))
   expect_equal(nrow(raw), 0)
 })
+
+test_that("with kobo_data you can read data when group names changed", {
+  skip_on_cran()
+  url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
+  token <- Sys.getenv("KOBOTOOLBOX_PROD_TOKEN")
+  skip <-  url == "" & token == ""
+  skip_if(skip,
+          message = "Test server not configured")
+
+  kobo_setup(url = url, token = token)
+  uid <- "aDMHypRASH2EuJdvKMx5Mi"
+  raw <- kobo_data(uid)
+  expect_equal(class(raw),
+               c("tbl_df", "tbl", "data.frame"))
+})
