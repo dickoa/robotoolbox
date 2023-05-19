@@ -14,6 +14,7 @@ test_that("kobo_asset works", {
   expect_equal(asset1, asset3)
   expect_is(asset1, class = "kobo_asset")
   expect_error(kobo_asset(1L))
+  expect_error(kobo_asset("bad_uid"))
 
   testthat::local_edition(3)
   expect_snapshot_output(print.kobo_asset(asset1))

@@ -115,11 +115,12 @@ kobo_form.kobo_asset <- function(x, version = NULL) {
 
 #' @export
 kobo_form.character <- function(x, version = NULL) {
+  if (!assert_uid(x))
+    abort(message = "Invalid asset uid")
   kobo_form(kobo_asset(x), version)
 }
 
 #' @export
 kobo_form.default <- function(x, version) {
-  stop("You need to use a 'kobo_asset' or an asset uid",
-       call. = FALSE)
+  abort("You need to use a 'kobo_asset' or a valid asset uid")
 }

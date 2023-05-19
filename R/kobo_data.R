@@ -1,6 +1,5 @@
 #' @noRd
 kobo_data_ <- function(x, paginate, page_size, size, lang, select_multiple_label) {
-
   if (size >= 10000)
     paginate <- TRUE
 
@@ -12,10 +11,13 @@ kobo_data_ <- function(x, paginate, page_size, size, lang, select_multiple_label
     subs <- get_subs(x$uid)
   }
 
+  form_versions <- kobo_asset_version_list(x$uid)
+  form_versions <- filter(form_versions, .data$asset_deployed)
   cond1 <- sum(grepl("\\_version\\_", names(subs))) == 1
-  cond2 <- nrow(kobo_asset_version_list(x$uid)) > 0
+  cond2 <- nrow(form_versions) > 0
   if (cond1 & cond2) {
-    version <- unique(subs[["__version__"]])
+    version <- intersect(unique(form_versions$uid),
+                         unique(subs[["__version__"]]))
     form <- lapply(version, \(v) kobo_form(x, v))
     form <- list_rbind(form)
   } else {
@@ -142,6 +144,8 @@ kobo_submissions.kobo_asset <- kobo_data.kobo_asset
 kobo_data.character <- function(x, paginate = FALSE,
                                 page_size = NULL, lang = NULL,
                                 select_multiple_label = FALSE) {
+  if (!assert_uid(x))
+    abort(message = "Invalid asset uid")
   kobo_data(kobo_asset(x),
             paginate = paginate,
             page_size = page_size,
@@ -157,8 +161,7 @@ kobo_submissions.character <- kobo_data.character
 kobo_data.default <- function(x, paginate = FALSE,
                               page_size = NULL, lang = NULL,
                               select_multiple_label = FALSE) {
-  stop("You need to use a 'kobo_asset' or an asset uid",
-       call. = FALSE)
+  abort("You need to use a 'kobo_asset' or a valid asset uid")
 }
 
 #' @rdname kobo_data

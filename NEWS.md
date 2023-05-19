@@ -1,5 +1,8 @@
-robotoolbox 1.2.0.9002
+robotoolbox 1.2.0.9005
 ======================
+
+### Bug fix
+- Better version order to use the choice labels of the latest form deployed.
 
 ### Improvement
 - Added a fonction `kobo_audit` to get all the audit logs data from a form with audit enabled. It comes with a vignette showing how to read audit logs.

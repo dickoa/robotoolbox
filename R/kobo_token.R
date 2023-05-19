@@ -25,8 +25,11 @@
 #' @export
 kobo_token <- function(username = NULL, password = NULL,
                        url = NULL, overwrite = FALSE) {
-  if (!is.null(url) & !nzchar(Sys.getenv("KOBOTOOLBOX_URL")))
-     Sys.setenv("KOBOTOOLBOX_URL" = url)
+  if (!is.null(url) & !nzchar(Sys.getenv("KOBOTOOLBOX_URL"))) {
+    if (!assert_url(url))
+    abort(message = "Invalid URL")
+    Sys.setenv("KOBOTOOLBOX_URL" = url)
+  }
 
   if (is.null(url) & nzchar(Sys.getenv("KOBOTOOLBOX_URL")))
     url <- Sys.getenv("KOBOTOOLBOX_URL")

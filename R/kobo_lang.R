@@ -31,11 +31,12 @@ kobo_lang.kobo_asset <- function(x) {
 
 #' @export
 kobo_lang.character <- function(x) {
+  if (!assert_uid(x))
+    abort(message = "Invalid asset uid")
   kobo_lang.kobo_asset(kobo_asset(x))
 }
 
 #' @export
 kobo_lang.default <- function(x) {
-  stop("You need to use a 'kobo_asset' or a valid asset uid",
-       call. = FALSE)
+  abort("You need to use a 'kobo_asset' or a valid asset uid")
 }

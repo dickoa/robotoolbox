@@ -5,6 +5,18 @@ assert_url <- function(x) {
 }
 
 #' @noRd
+assert_uid <- function(x) {
+  uid_pattern <- "^a[A-Za-z0-9]{21}$"
+  grepl(pattern = uid_pattern, x)
+}
+
+#' @noRd
+assert_version_uid <- function(x) {
+  vuid_pattern <- "^v[A-Za-z0-9]{21}$"
+  grepl(pattern = vuid_pattern, x)
+}
+
+#' @noRd
 #' @importFrom utils packageVersion
 user_agent_ <- function() {
   robotoolbox_version <- packageVersion("robotoolbox")
@@ -24,13 +36,13 @@ user_agent_ <- function() {
 #' @noRd
 #' @importFrom RcppSimdJson fparse
 error_msg <- function(x) {
-  check_uid_info <- "Check your uid and try again"
+  check_uid_info <- "Check your uid and/or credentials and try again"
   check_token_info <- "Check again your token in `kobo_setup` is correct or use `kobo_token`"
   check_cred_info <- "Check again your username or password"
   check_default <- "Check that you have the right server and if it's working"
   msg <- fparse(rawToChar(x))$detail
   info <- case_when(grepl("not found",
-                          msg, ignore.case = TRUE) ~ c("uid (project) not found",
+                          msg, ignore.case = TRUE) ~ c("uid (project) not found in this account/server",
                                                        i = check_uid_info),
                     grepl("invalid token",
                           msg, ignore.case = TRUE) ~ c("Invalid API token",

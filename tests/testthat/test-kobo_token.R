@@ -8,6 +8,11 @@ test_that("kobo_token works", {
           message = "Test server not configured")
 
   Sys.setenv("KOBOTOOLBOX_URL" = "")
+  expect_error(kobo_token(username = user,
+                          password = password,
+                          url = "bad_url",
+                          overwrite = TRUE))
+
   Sys.setenv("KOBOTOOLBOX_TOKEN" = "")
   token <- kobo_token(username = user,
                       password = pwd,
@@ -28,9 +33,9 @@ test_that("kobo_token works", {
 
   Sys.setenv("KOBOTOOLBOX_TOKEN" = "")
   expect_error(kobo_token(username = user,
-                      password = "blablah",
-                      url = url,
-                      overwrite = TRUE))
+                          password = "blablah",
+                          url = url,
+                          overwrite = TRUE))
 
   Sys.setenv("KOBOTOOLBOX_URL" =  Sys.getenv("KOBOTOOLBOX_PROD_URL"))
   token3 <- kobo_token(username = user,

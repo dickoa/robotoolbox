@@ -19,6 +19,7 @@ test_that("with kobo_data you can read your submissions", {
   expect_equal(class(raw_uid),
                c("tbl_df", "tbl", "data.frame"))
   expect_error(kobo_data(1L))
+  expect_error(kobo_data("bad_uid"))
 })
 
 test_that("kobo_data with multiple languages", {

@@ -23,6 +23,8 @@ kobo_asset <- function(x)
 
 #' @export
 kobo_asset.character <- function(x) {
+  if (!assert_uid(x))
+    abort(message = "Invalid asset uid")
   path <- paste0("api/v2/assets/", x)
   res <- xget(path = path)
   structure(fparse(res,
@@ -37,8 +39,7 @@ kobo_asset.kobo_asset <- function(x) {
 
 #' @export
 kobo_asset.default <- function(x) {
-  stop("You need to use a 'kobo_asset' or an asset uid",
-       call. = FALSE)
+  abort("You need to use a 'kobo_asset' or a valid asset uid")
 }
 
 #' List all available KoboToolbox API assets
@@ -101,6 +102,12 @@ kobo_asset_version <- function(x, version)
 
 #' @export
 kobo_asset_version.character <- function(x, version) {
+  if (!assert_uid(x))
+    abort(message = "Invalid asset uid")
+
+  if (!assert_version_uid(version))
+    abort(message = "Invalid asset version uid")
+
   path <- paste0("/api/v2/assets/", x,
                  "/versions/", version)
   res <- xget(path = path)
@@ -117,8 +124,7 @@ kobo_asset_version.kobo_asset <- function(x, version) {
 
 #' @export
 kobo_asset_version.default <- function(x, version) {
-  stop("You need to use a 'kobo_asset' or an asset uid",
-       call. = FALSE)
+  abort("You need to use a 'kobo_asset' or a valid asset uid")
 }
 
 #' List all available versions of a KoboToolbox asset
@@ -148,6 +154,8 @@ kobo_asset_version_list <- function(x)
 
 #' @export
 kobo_asset_version_list.character <- function(x) {
+  if (!assert_uid(x))
+    abort(message = "Invalid asset uid")
   res <- xget(path = paste0("/api/v2/assets/",
                             x, "/versions/"))
   res <- fparse(res, max_simplify_lvl = "list")
@@ -166,8 +174,7 @@ kobo_asset_version_list.kobo_asset <- function(x) {
 
 #' @export
 kobo_asset_version_list.default <- function(x) {
-  stop("You need to use a 'kobo_asset' or an asset uid",
-       call. = FALSE)
+  abort("You need to use a 'kobo_asset' or an asset uid")
 }
 
 #' @noRd

@@ -65,12 +65,6 @@ kobo_audit_ <- function(uid) {
 kobo_audit <- function(x)
   UseMethod("kobo_audit")
 
-#' @export
-kobo_audit.default <- function(x)
-  abort("You need to use a 'kobo_asset' or an asset uid",
-        call = NULL)
-
-
 #' @importFrom purrr list_rbind
 #' @importFrom dplyr filter
 #' @importFrom rlang abort
@@ -95,5 +89,13 @@ kobo_audit.kobo_asset <- function(x) {
 }
 
 #' @export
-kobo_audit.character <- function(x)
+kobo_audit.character <- function(x) {
+  if (!assert_uid(x))
+    abort(message = "Invalid asset uid")
   kobo_audit(kobo_asset(x))
+}
+
+#' @export
+kobo_audit.default <- function(x) {
+  abort("You need to use a 'kobo_asset' or an asset uid")
+}

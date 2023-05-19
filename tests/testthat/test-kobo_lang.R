@@ -13,4 +13,5 @@ test_that("kobo_lang works", {
   expect_equal(lng1, lng2)
   expect_type(lng1, "character")
   expect_error(kobo_lang(1L))
+  expect_error(kobo_lang("bad_uid"))
 })

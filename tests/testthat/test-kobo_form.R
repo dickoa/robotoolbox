@@ -14,6 +14,7 @@ test_that("kobo_form works", {
   expect_equal(class(form1),
                c("tbl_df", "tbl", "data.frame"))
   expect_error(kobo_form(1L))
+  expect_error(kobo_form("bad_uid"))
 })
 
 test_that("kobo_form has a version argument", {

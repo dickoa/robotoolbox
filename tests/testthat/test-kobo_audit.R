@@ -14,6 +14,7 @@ test_that("with kobo_audit you can read your audit log data", {
   expect_equal(class(raw_uid),
                c("tbl_df", "tbl", "data.frame"))
   expect_error(kobo_audit(1L))
+  expect_error(kobo_audit("bad_uid"))
 
   uid_no_audit <- "aYuTZn9vegi3Z49MXwKjep"
   asset_no_audit <- kobo_asset(uid_no_audit)

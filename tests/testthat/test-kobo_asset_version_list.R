@@ -13,10 +13,10 @@ test_that("kobo_asset_version_list works", {
 
   expect_equal(al1, al2)
   expect_error(kobo_asset_version_list(1L))
+  expect_error(kobo_asset_version_list("bad_uid"))
   expect_is(al1, class = c("tbl_df", "tbl", "data.frame"))
   expect_is(al2, class = c("tbl_df", "tbl", "data.frame"))
 
   cn <- c("uid", "url", "asset_deployed", "date_modified")
-
   expect_equal(names(al1), cn)
 })
