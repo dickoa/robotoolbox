@@ -1,4 +1,4 @@
-robotoolbox 1.2.0.9005
+robotoolbox 1.2.0.9006
 ======================
 
 ### Bug fix

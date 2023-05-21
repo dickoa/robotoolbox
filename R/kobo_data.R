@@ -14,8 +14,10 @@ kobo_data_ <- function(x, paginate, page_size, size, lang, select_multiple_label
   form_versions <- kobo_asset_version_list(x$uid)
   form_versions <- filter(form_versions, .data$asset_deployed)
   cond1 <- sum(grepl("\\_version\\_", names(subs))) == 1
-  cond2 <- nrow(form_versions) > 0
-  if (cond1 & cond2) {
+  cond2 <- length(unique(subs[["__version__"]])) > 1
+  cond3 <- nrow(form_versions) > 0
+  cond <- cond1 & cond2 & cond3
+  if (cond) {
     version <- intersect(unique(form_versions$uid),
                          unique(subs[["__version__"]]))
     form <- lapply(version, \(v) kobo_form(x, v))

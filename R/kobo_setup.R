@@ -42,6 +42,10 @@ kobo_setup <- function(url = Sys.getenv("KOBOTOOLBOX_URL", ""),
                        token = Sys.getenv("KOBOTOOLBOX_TOKEN", "")) {
   if (!assert_url(url))
     abort(message = "Invalid URL")
+
+  if (!assert_token(token))
+    abort(message = "Invalid token")
+
   Sys.setenv("KOBOTOOLBOX_URL" = url)
   if (token != "")
     Sys.setenv("KOBOTOOLBOX_TOKEN" = token)

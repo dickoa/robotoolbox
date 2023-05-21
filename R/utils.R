@@ -17,6 +17,12 @@ assert_version_uid <- function(x) {
 }
 
 #' @noRd
+assert_token <- function(x) {
+  token_pattern <- "^[0-9a-f]{40}$"
+  grepl(pattern = token_pattern, x)
+}
+
+#' @noRd
 #' @importFrom utils packageVersion
 user_agent_ <- function() {
   robotoolbox_version <- packageVersion("robotoolbox")
@@ -328,10 +334,19 @@ is_null_recursive <- function(x)
   is.null(x) | all(vapply(x, is.null, logical(1)))
 
 #' @noRd
+is_null_recursive <- function(x)
+  is.null(x) | any(vapply(x, is.null, logical(1)))
+
+#' @noRd
 drop_nulls <- function(x) {
-  x <- Filter(Negate(is_null_recursive), x)
-  lapply(x, function(x)
-    if (is.list(x)) drop_nulls(x) else x)
+  x <- lapply(x, function(node) {
+    if (is.list(node))
+      drop_nulls(node)
+    else
+      node
+  })
+  x[vapply(x, is.null, logical(1))] <- NULL
+  x
 }
 
 #' @noRd
