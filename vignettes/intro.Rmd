@@ -21,20 +21,20 @@ knitr::opts_chunk$set(
 
 # robotoolbox
 
-`robotoolbox` is an R client to access data from the [`KoboToolbox`](https://www.kobotoolbox.org).
+`robotoolbox` is an R client for retrieving data from [`KoboToolbox`](https://www.kobotoolbox.org).
 
-`robotoolbox` is built around [`KoboToolbox API v2`](https://support.kobotoolbox.org/api.html) and its main goal is to ease the process by which you access your collected data.
+`robotoolbox` uses [`KoboToolbox API v2`](https://support.kobotoolbox.org/api.html) with the primary aim of simplifying the process of accessing your collected data.
 
-You will need to set your API token and specify your `KoboToolbox` server URL. An API token is a unique identifier, just like a password. It allows the user to authenticate to `Kobotoolbox` APIs to access your data. The easiest way to set up `robotoolbox` is to store the API token and the server url in your `.Renviron`.
+In order to use `robotoolbox`, you need to configure **API token** and specify your `KoboToolbox` **server URL**. An API token is a unique identifier, just like a username and a password. It allows the user to authenticate to `Kobotoolbox` API to access your data. The simplest way to configure `robotoolbox` is to store the API token and the server url in your `.Renviron`.
 
-We are using the following environment variables `KOBOTOOLBOX_URL` and `KOBOTOOLBOX_TOKEN` for the url and the token. You can use the `usethis` package and the `usethis::edit_r_environ()` to add the following variables to your `.Renviron` file.
+We use the environment variables `KOBOTOOLBOX_URL` and `KOBOTOOLBOX_TOKEN` for the url and the token, respectively. You can use the `usethis` package and the `usethis::edit_r_environ()` to add the following variables to your `.Renviron` file.
 
 ```{bash, eval = FALSE, engine = "sh"}
 KOBOTOOLBOX_URL="https://kobo.unhcr.org/"
 KOBOTOOLBOX_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-In an interactive session, you can use directly the `kobo_setup` function.
+In an interactive session, you can directly use the `kobo_setup` function.
 
 ```{r, eval = FALSE}
 library(robotoolbox)
@@ -42,7 +42,7 @@ kobo_setup(url = "https://kobo.unhcr.org",
            token = "xxxxxxxxxxxxxxxxxxxxxxxxxx")
 ```
 
-You can get your `token` manually through the `Kobotoolbox` web interface in your account settings. There is also a `kobo_token` function to do the same thing automagically from `R`.
+You can manually retrieve your `token` through the `Kobotoolbox` account settings in the web interface. There is also a `kobo_token` function to do the same thing automagically from `R`.
 
 ```{r, eval = FALSE}
 token <- kobo_token(username = "cool_user_name",
@@ -50,14 +50,14 @@ token <- kobo_token(username = "cool_user_name",
                     overwrite = TRUE)
 ```
 
-This token can then be used in the setup through `kobo_setup` or in your `.Renviron`.
+You can then use this token in your `.Renviron` or during the setup using `kobo_setup`.
 
 ```{r, eval = FALSE}
 kobo_setup(url = "https://kobo.unhcr.org",
            token = token)
 ```
 
-Settings can be checked using `kobo_settings` function.
+You can verify the settings using the `kobo_settings` function.
 
 ```{r, eval = FALSE}
 kobo_settings()
@@ -70,13 +70,13 @@ kobo_settings()
 
 ## List your projects
 
-All your `Kobotoolbox` projects also named `asset` can be checked and listed through the web interface.
+You can view and list all your `Kobotoolbox` projects, also known as `assets`, through the web interface.
 
 ```{r, echo = FALSE}
 knitr::include_graphics("./img/list_assets.png")
 ```
 
-Using `robotoolbox`, you can do something similar from `R` with the `kobo_asset_list` function.
+With `robotoolbox`, you can achieve a similar outcome in `R` using `kobo_asset_list` function.
 
 ```{r, echo = FALSE}
 library(robotoolbox)
@@ -102,7 +102,7 @@ asset_list |>
 
 ## KoboToolbox asset
 
-You can also manipulate directly each `asset` (project) using `kobo_asset`. In the server, an asset is uniquely identified by a `uid`.
+You can also manipulate directly each `asset` (project) using the `kobo_asset` function. On the server, an asset is uniquely identified by a `uid`.
 
 ```{r, eval = FALSE}
 uid <- "aYuTZn9vegi3Z49MXwKjep"
@@ -115,9 +115,9 @@ asset <- robotoolbox::asset_ml
 asset
 ```
 
-Since `asset_list`, the list of assets, is a `data.frame`, we can subset it, and select the `uid` of interest based on the available metadata.
+As `asset_list` is a `data.frame` containing the list of assets, we can subset it, and select the `uid` of interest based on the available metadata.
 
-As an example, you can get the `uid` associated to the project onamed `Multiple languages`.
+As an example, you can get the `uid` associated to the project named `Multiple languages`.
 
 ```{r, eval = FALSE}
 asset_list |>
@@ -131,8 +131,7 @@ asset_list |>
   pull(uid)
 ```
 
-And it's then possible to get the associated `asset` object, using the `kobo_asset` function.
-
+You can then retrieve the associated `asset` object using the `kobo_asset` function.
 
 ```{r, eval = FALSE}
 asset_list |>
@@ -145,15 +144,15 @@ asset_list |>
 asset
 ```
 
-A `kobo_asset` give you some basic information about your project. You can easily get the name, the number of submissions, when the project was created, and when it was last modified.
+A `kobo_asset` provides basic information about your project. You can easily get the name, the number of submissions, when the project was created, and when it was last modified.
 
 # Kobotoolbox data
 
-The main function on the `robotoolbox` package is `kobo_data` (or `kobo_submissions` its alias), and as the name suggests, it loads your data from the server.
+The `kobo_data` function (or its alias `kobo_submissions`) is the main function in the `robotoolbox`, and it fetches your data from the server, as its name suggests.
 
 We can illustrate its usage by trying to read data from the same project named `Multiple languages`.
 
-We can follow the steps above to get uid, and the asset.
+We can follow the steps mentioned above to get `uid`, and the `asset`.
 
 ```{r, eval = FALSE}
 asset_ml <- asset_list |>
@@ -167,7 +166,7 @@ asset_ml
 asset
 ```
 
-We can then use the `asset_ml` object, which uniquely identify the `Multiple languages` asset to read its data
+Then, we can use the `asset_ml` object, which uniquely identify the `Multiple languages` asset, to read its data
 
 ```{r, echo = FALSE}
 data_ml <- robotoolbox::data_ml_default
@@ -191,7 +190,7 @@ data_ml |>
 
 # Kobotoolbox form
 
-`robotoolbox` allows you to represent and manipulate `Kobotoolbox` forms. You can pull the form from a particular project using the `kobo_form` function
+`robotoolbox` allows you to display and manipulate `Kobotoolbox` forms. You can pull the form from a particular project using the `kobo_form` function
 
 ```{r}
 asset_ml |>
@@ -220,3 +219,9 @@ Which is a representation in `robotoolbox` of the following form
 | yesno     |    1 | Yes                 | Oui                  | نعم                |
 | yesno     |    0 | No                  | Non                  | لا                 |
 |           |      |                     |                      |                    |
+
+
+# Wrapping up
+
+The `robotoolbox` is a powerful R client specifically designed for interfacing with the `KoboToolbox`. Its primary purpose is to simplify and streamline the process of accessing and managing data collected through `KoboToolbox`. With the use of functions like `kobo_setup`, `kobo_asset`, and `kobo_data`, users can effortlessly configure their settings, manipulate their projects (or `assets`), and load their data directly from the server. It also provides capabilities to handle and manipulate `Kobotoolbox` forms directly from R.
+Overall, `robotoolbox` serves as an essential tool for researchers and data analysts who rely on `KoboToolbox` for data collection and seek an efficient way to integrate their work with the R environment.

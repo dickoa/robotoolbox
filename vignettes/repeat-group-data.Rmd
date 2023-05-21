@@ -17,12 +17,12 @@ knitr::opts_chunk$set(
 )
 ```
 
-`Kobotoolbox` supports questions that can be grouped to be answered repeatedly. A typical use case is when implementing a household survey, with some series of questions for each household member.
+`Kobotoolbox` enables grouping of questions, allowing them to be answered multiple times. This feature is particularly useful during household surveys where a set of questions is designed to be answered by each member of the household.
 
 ## Loading data
 
-In `Kobotoolbox`, this feature is implemented by repeating a group of questions. It uses the concept of [`repeat group`](https://support.kobotoolbox.org/group_repeat.html). It works by inserting the questions you want to repeat inside a `begin_repeat`/`end_repeat` loop. `repeat group` can be nested, making it possible to have a group of questions repeated within another `repeat group` instance. It can be illustrated with the following project and associated form.
-
+`Kobotoolbox` implements this feature by incorporating the concept of [`repeat group`](https://support.kobotoolbox.org/group_repeat.html), enabling the repetition of a group of questions.
+This method involves enclosing the questions intended for repetition within a `begin_repeat`/`end_repeat` loop. Furthermore, `repeat group` allows for nesting, thus enabling the repetition of a question group within another `repeat group`. This concept can be demonstrated using the project and associated form below.
 
 ```{r setup, echo = FALSE}
 library(robotoolbox)
@@ -85,7 +85,7 @@ l <- asset_list
 
 ### Loading the project asset
 
-The above form was uploaded to the server, it's named `nested_roster`, and can be loaded from the list of asset `asset_list`.
+The aforementioned form, named `nested_roster`, was uploaded to the server. It can be accessed from the list of asset `asset_list`.
 
 ```{r, eval = FALSE}
 library(robotoolbox)
@@ -104,7 +104,7 @@ asset
 
 ### Extracting the data
 
-We can see that the output is not a standard a `data.frame`. It's a listing of each `repeat group` loop in our form.
+The output here deviates from a standard `data.frame`. It consists of a listing of each `repeat group` loop present in our form.
 
 ```{r, eval = FALSE}
 df <- kobo_data(asset)
@@ -116,7 +116,7 @@ df <- data_rg
 df
 ```
 
-The output is a `dm` object, from the the `dm` package.
+The output is a `dm` object, sourced from the the `dm` package.
 
 ```{r, echo = FALSE}
 class(df)
@@ -124,11 +124,11 @@ class(df)
 
 ## Manipulating `repeat group` as `dm` object
 
-A `dm` object is a list of linked `data.frame`, and it can be manipulated using the `dm` package.
+A `dm` object, which is a list of interconnected `data.frame` instances, can be manipulated using the `dm` package.
 
 ###  Visualizing the relationship between tables
 
-In order to understand how the data is stored, we can visualize the relationships between tables (repeat groups loop) and the schema of the dataset. The schema can be drawn using the the `dm_draw` function.
+To comprehend the data storage structure, we can visualize the relationships among tables (repeat group loops) and the schema of the dataset. This schema can be depicted using the `dm_draw` function.
 
 ```{r draw_data}
 library(dm)
@@ -137,7 +137,7 @@ dm_draw(df)
 
 ### Number of rows of each table
 
-The `dm` package has a lot of helper functions to manipulate `dm` object. For example, we can get the number of rows of each table using `dm_nrow`
+The `dm` package offers numerous helper functions for manipulating `dm` objects. For instance, the `dm_nrow` function can be used to ascertain the number of rows in each table.
 
 ```{r nrow_data}
 dm_nrow(df)
@@ -145,14 +145,14 @@ dm_nrow(df)
 
 ### A `dm` object is a list of `data.frame`
 
-A `dm` object is a `list` of `data.frame`. As in any list of `data.frame`, you can extract each table (`data.frame`), and analyze it separately.
-The principal table, where you have the first `repeat group` is named `main`.
+A `dm` object is a `list` of `data.frame`. Similar to any list of `data.frame`, you can extract each table (`data.frame`), and analyze it separately.
+The principal table, where you have the first `repeat group`, is termede as `main`.
 
 ```{r access_specific1}
 glimpse(df$main)
 ```
 
-The other tables are named after the name of the associated repeat group. The `education` table is named after `education` `repeat group`.
+The other tables are named following the names of their associated `repeat groups`. For instance, the `education` table is named after the `education` `repeat group`.
 
 ```{r access_specific2}
 glimpse(df$education)
@@ -160,8 +160,7 @@ glimpse(df$education)
 
 ## Filtering data
 
-One major advantage of using the `dm` package, is the ability to dynamically filter tables while keeping the links between them.
-In this example, filtering the `main` table will propagate to the `education` and `demo` tables. The `hobbies_list` and `lang_list` tables are linked to the `demo` table, and will be filtered too.
+One key benefit of using the `dm` package is its capability to dynamically filter tables while maintaining their interconnections. For example, filtering the `main` table will automatically extend to the `education` and `demo` tables. As the `hobbies_list` and `lang_list` tables are linked to the `demo` table, they will be filtered as well.
 
 ```{r filter_data}
 df |>
@@ -171,8 +170,7 @@ df |>
 
 ## Joining tables
 
-In some cases, it's simpler to analyze the joined data, `dm_flatten_to_tbl` can be used for safely joining the data keeping its structure and the links between tables.
-We can join the `education` table to the `main` table, by using `dm_flatten_to_tbl` and starting from `education`.
+In certain instances, analyzing joined data may prove simpler. The `dm_flatten_to_tbl` function can be used to join data safely while preserving its structure and the connections between tables. We can merge the `education` table with the `main` table using the `dm_flatten_to_tbl` function, with the operation starting from `education`.
 
 ```{r join_two}
 df |>
@@ -181,8 +179,7 @@ df |>
   glimpse()
 ```
 
-We can push this logic to have the widest table possible through a cascade of joins from a deeper table (`start` argument) to the `main` table. Using `.start = hobbies_list` as an example, it'll perform two joins.
-`hobbies_list` will be joined to the `demo` table, and the `demo` table will be joined to the `main` table.
+This logic can be extended to create the widest possible table through a cascade of joins, commencing from a deeper table (`.start` argument) and ending at the main table. Taking `.start = hobbies_list` as an example, two joins will be performed: `hobbies_list` will be merged with the `demo` table, and subsequently, the `demo` table will be combined with the `main` table.
 
 ```{r join_all}
 df |>
@@ -192,4 +189,4 @@ df |>
   glimpse()
 ```
 
-You can learn a lot about the [`dm`](https://cran.r-project.org/package=dm) package going through its extensive documentation.
+You can gain extensive knowledge about the [`dm`](https://cran.r-project.org/package=dm) package by going through its detailed documentation.

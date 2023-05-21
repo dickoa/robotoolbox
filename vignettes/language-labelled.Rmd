@@ -18,11 +18,11 @@ knitr::opts_chunk$set(
 
 ```
 
-`Kobotoolbox` projects support multi-languages forms. It can be used to label questions and choices values in single or multiple-choice questions.
+Projects in `Kobotoolbox` supports multiple languages. This can be utilized to label questions and choices values in either single or multiple-choice questions.
 
-`robotoolbox` allows you to access labels from languages in your form. It uses the [`labelled`](https://cran.r-project.org/package=labelled/vignettes/intro_labelled.html) package to encode variable labels for question labels and value labels for choice labels.
+`robotoolbox` enables you to access labels in various languages in your form. The [`labelled`](https://cran.r-project.org/package=labelled/vignettes/intro_labelled.html) package is used to encode variable labels for question labels and value labels for choice labels.
 
-To illustrate its use, let's load data from the following project, which uses three languages: English, French, and Arabic.
+To demonstrate its application, data will be loaded from the following project that employs three languages: English, French, and Arabic.
 
 ### Survey questions
 
@@ -46,7 +46,7 @@ To illustrate its use, let's load data from the following project, which uses th
 
 ### Loading the project asset
 
-This project was uploaded on a `Kobotoolbox` server. It can be loaded into your session using its `uid`.
+This project, which was uploaded to a `Kobotoolbox` server, can be loaded into your session using its unique identifier `uid`.
 
 ```{r, eval = FALSE}
 library(robotoolbox)
@@ -63,10 +63,9 @@ asset <- asset_ml
 asset
 ```
 
-
 ### Listing available languages
 
-You can list all available languages in the project using the `kobo_lang` function.
+The `kobo_lang` function can be used to list all languages available in the project.
 
 ```{r list_lang}
 kobo_lang(asset)
@@ -74,7 +73,7 @@ kobo_lang(asset)
 
 ### Reading data in each languages
 
-We can use the `lang` parameter in the `kobo_data` function to specify which language to load. You can use `kobo_lang` to check the spelling of each language first.
+The `kobo_data` function allows the use of the `lang` parameter to specify the language to be loaded. The spelling of each language can be checked first using `kobo_lang`.
 
 ```{r, eval = FALSE}
 df_en <- kobo_data(asset, lang = "English (en)")
@@ -90,8 +89,7 @@ df_ar <- data_ml_ar
 glimpse(df_en)
 ```
 
-When the parameter is not set, it uses the default language. In this project, it's `English (en)`
-
+When the parameter isn't specified, the default language is used, which in this project is `English (en)`.
 
 ```{r, eval = FALSE}
 df_default <- kobo_data(asset)
@@ -105,7 +103,7 @@ all.equal(df_default, df_en)
 
 ### Accessing variable labels
 
-Questions labels can be accessed using `var_label` function from the `labelled` package.
+The `var_label` function from the `labelled` package can be used to access question labels.
 
 ```{r var_label1}
 library(labelled)
@@ -123,7 +121,7 @@ var_label(df_ar$pet_yesno)
 
 ### Accessing `select_one` type question labels
 
-`to_factor` can be used to turn single choice questions values into labels.
+The `to_factor` function can convert the values of single-choice questions into labels.
 
 ```{r val_label}
 table(to_factor(df_en$pet_yesno))
@@ -131,11 +129,10 @@ table(to_factor(df_fr$pet_yesno))
 table(to_factor(df_ar$pet_yesno))
 ```
 
-`to_character` is an alternative to `to_factor`, when you prefer to use `character` instead of `factor`.
-
+When `character` is preferred over `factor`, `to_character` serves as an alternative to `to_factor`.
 
 ```{r val_label_character}
 count(df_ar, pet_yesno_ar = to_character(pet_yesno))
 ```
 
-All these functions are from the `labelled` package, you can learn more about the package through its documentation.
+All of these functions come from the `labelled` package; you can explore this package further through its [documentation](https://larmarange.github.io/labelled/).

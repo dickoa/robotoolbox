@@ -1,8 +1,8 @@
 ---
-title: "Geographic data collection and spatial data"
+title: "Geographic Data Collection and Spatial data"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Geographic data collection and spatial data}
+  %\VignetteIndexEntry{Geographic Data Collection and Spatial data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,23 +17,23 @@ knitr::opts_chunk$set(
 )
 ```
 
-Using `Kobotoolbox`, we can collect spatial data using three question types: **geopoint**, **geotrace** and **geoshape**.
+`Kobotoolbox` allows the collection of spatial data through three questions types: **geopoint**, **geotrace** and **geoshape**.
 
 **Geopoint:**<br>
-A geopoint question type captures a single geographic coordinate (latitude and longitude) along with altitude and accuracy. This is useful for marking locations, such as houses, schools, or water sources.
+The geopoint question type captures a single geographic coordinate (latitude and longitude) including altitude and accuracy. This is useful for marking locations, such as homes, schools, or water sources.
 
 **Geotrace:**<br>
-A geotrace question type collects a series of connected geographic coordinates, forming a line. This can be used to map routes, paths, or boundaries.
+The geotrace question type collects a series of connected geographic coordinates, forming a line. This can be used to map routes, paths, or boundaries.
 
 **Geoshape:**<br>
 A geoshape question type captures a series of geographic coordinates that form a closed polygon. This is useful for defining areas, such as land parcels, agricultural fields, or protected zones.
 
-In order to use these data we need to parse them in a GIS friendly format. `robotoolbox` uses [Well-Known Text (WKT)](https://libgeos.org/specifications/wkt/), a standard markup language for representing vector geometry, to represent points (`geopoint`), lines (`geotrace`) and polygons (`geoshape`).
+To utilize these data types, we need to parse them into a GIS friendly format. `robotoolbox` uses [Well-Known Text (WKT)](https://libgeos.org/specifications/wkt/), a standard markup language for representing vector geometry, to represent points (`geopoint`), lines (`geotrace`) and polygons (`geoshape`).
 
 
 ## Spatial data
 
-The form below is a toy example to showcase how spatial field types are mapped using `robotoolbox`.
+The following form provides a simple demonstration of how `robotoolbox` maps spatial field types.
 
 ```{r setup, echo = FALSE}
 library(robotoolbox)
@@ -66,11 +66,11 @@ l <- asset_list
 |polygon             |geoshape |Record a polygon               |
 |polygon_description |text     |Describe the recorded polygon  |
 
-We have 3 columns of spatial types: `point`, `line` and `polygon`.
+The form includes three spatial type columns: `point`, `line` and `polygon`.
 
 ### Loading the project
 
-The above form was uploaded to the server, it's the only project named `Spatial data`, and can be loaded from the list of assets `asset_list`.
+The aforementioned form, named `Spatial data`, was uploaded to the server. You can load it from the `asset_list` of assets.
 
 ```{r, eval = FALSE}
 library(robotoolbox)
@@ -87,11 +87,11 @@ asset <- asset_spatial
 asset
 ```
 
-We have just one submission, we recorded one location using a `geopoint` question, used a `geotrace` question to map a portion of a road, and stadium was outlined with a `geoshape` question type.
+We have a single submission, where we recorded one location using a `geopoint` question, mapped a portion of a road using a `geotrace` question, and outlined a stadium using a `geoshape`` question.
 
 ### Extracting the data
 
-From the assets, we can now extract the submissions.
+From the assets, we can proceed to extract the submissions.
 
 ```{r, eval = FALSE}
 df <- kobo_data(asset)
@@ -110,37 +110,35 @@ pull(df, point)
 pull(df, point_wkt)
 ```
 
-For `geopoint`, `robotoolbox` also provides the latitude, longitude, altitude and precision columns.
-
+For `geopoint` types, `robotoolbox` also offers columns for latitude, longitude, altitude, and precision.
 
 ```{r}
 df |>
   select(starts_with("point_"))
 ```
 
-The `line` column, from the `geotrace` question, also has an associated `line_wkt` column.
+The `line` column, derived from the `geotrace` question, has a corresponding `line_wkt` column.
 
 ```{r}
 pull(df, line)
 pull(df, line_wkt)
 ```
 
-Finally, `polygon_wkt` is the WKT column parsed from the `geoshape` question named `polygon`.
+Lastly, `polygon_wkt` is the WKT column derived from the `geoshape` question labeled `polygon`.
 
 ```{r}
 pull(df, polygon)
 pull(df, polygon_wkt)
 ```
 
-Now that we know how `robotoolbox` store spatial question types, we can turn these columns to spatial object `R` can use for spatial data analysis.
+Now that we understand how `robotoolbox` stores spatial question types, we can convert these columns into spatial objects suitable for spatial data analysis.
 
 ## Geopoint
 
-The standard way to manipulate spatial vector data in `R` is to use the `sf` package.
-`sf` stands for Simple Features and it extends a `data.frame` by adding a geometry list-column. It's a spatially enabled `data.frame`.
+The standard approach to manipulate spatial vector data in `R` involves using the `sf` package. `sf` stands for Simple Features and it extends a `data.frame` by adding a geometry list-column. It's a spatially enabled `data.frame`.
 It provides an interface to the popular [GDAL](http://www.gdal.org/), [GEOS](https://libgeos.org/), [PRØJ](http://proj.org/) and [S2](https://s2geometry.io/) libraries. It can be used to efficiently manipulate and visualize spatial vector data.
 
-It's easy to create an `sf` object from a text column containing [`WKT`](https://libgeos.org/specifications/wkt/) characters. The `sf::st_as_sf` function can be used to turn the `data.frame` with a `WKT` column into an `sf` object.
+Creating an `sf` object from a text column that contains  [`WKT`](https://libgeos.org/specifications/wkt/) characters is straightforward. The `sf::st_as_sf` function can be used to turn the `data.frame` with a `WKT` column into an `sf` object.
 
 ```{r}
 point_sf <- st_as_sf(data_spatial,
@@ -169,6 +167,6 @@ poly_sf <- st_as_sf(data_spatial,
 mapview(poly_sf)
 ```
 
-`robotoolbox` relies on the `sf` but also other packages from the same ecosystem to make robust spatial data analysis available for `Kobotoolbox` users.
+Not only does `robotoolbox` rely on the `sf` package, but it also leverages other packages from the same ecosystem to provide robust spatial data analysis for `Kobotoolbox` users.
 
 You can learn a lot about the `sf` packages and spatial data analysis with R from the excellent [Geocomputation with R](https://r.geocompx.org/) book and through the extensive `sf` [package documentation](https://r-spatial.github.io/sf/).
