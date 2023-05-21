@@ -214,3 +214,18 @@ test_that("with kobo_data you can read data when group names changed", {
   expect_equal(class(raw),
                c("tbl_df", "tbl", "data.frame"))
 })
+
+test_that("with kobo_data you have access to validation status", {
+  skip_on_cran()
+  url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
+  token <- Sys.getenv("KOBOTOOLBOX_PROD_TOKEN")
+  skip <-  url == "" & token == ""
+  skip_if(skip,
+          message = "Test server not configured")
+
+  kobo_setup(url = url, token = token)
+  uid <- "apBgxt6Nw4Vcjnn7wYpF33"
+  raw <- kobo_data(uid)
+  expect_equal(class(raw[["_validation_status"]]),
+               c("haven_labelled", "vctrs_vctr", "character"))
+})
