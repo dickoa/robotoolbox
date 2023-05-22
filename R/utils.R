@@ -812,6 +812,14 @@ is_zero_length_or_null <- function(x)
   is.null(x) | length(x) == 0
 
 #' @noRd
+is_uid_available <- function(x)
+  length(x) > 0 && !is.null(x$uid)
+
+#' @noRd
+is_label_available <- function(x)
+  length(x) > 0 && !is.null(x$label)
+
+#' @noRd
 #' @importFrom dplyr select
 #' @importFrom labelled labelled
 #' @importFrom tidyselect any_of
@@ -820,9 +828,11 @@ remove_list_cols <- function(x) {
   cond <- all(vapply(val_col, is_zero_length_or_null, logical(1)))
   if (!cond) {
   val_stat <- vapply(val_col,
-                     \(x) if (is.null(x$uid)) NA_character_ else x$uid, character(1))
+                     \(x) if (!is_uid_available(x))
+                       NA_character_ else x$uid, character(1))
   val_lbl <- vapply(val_col,
-                    \(x) if (is.null(x$label)) NA_character_ else x$label, character(1))
+                    \(x) if (!is_label_available(x))
+                      NA_character_ else x$label, character(1))
   b <- is.na(val_stat)
   val_dict <- setNames(val_stat[!b], val_lbl[!b])
   val_dict <- val_dict[unique(names(val_dict))]
