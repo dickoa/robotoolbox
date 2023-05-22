@@ -8,48 +8,61 @@
 \alias{kobo_submissions.default}
 \title{Get all submissions from a KoboToolbox project}
 \usage{
-kobo_data(x, paginate, page_size, lang, select_multiple_label)
+kobo_data(x, lang, select_multiple_label, all_versions, paginate, page_size)
 
-kobo_submissions(x, paginate, page_size, lang, select_multiple_label)
+kobo_submissions(
+  x,
+  lang,
+  select_multiple_label,
+  all_versions,
+  paginate,
+  page_size
+)
 
 \method{kobo_submissions}{kobo_asset}(
   x,
-  paginate = FALSE,
-  page_size = NULL,
   lang = NULL,
-  select_multiple_label = FALSE
+  select_multiple_label = FALSE,
+  all_versions = TRUE,
+  paginate = FALSE,
+  page_size = NULL
 )
 
 \method{kobo_submissions}{character}(
   x,
-  paginate = FALSE,
-  page_size = NULL,
   lang = NULL,
-  select_multiple_label = FALSE
+  select_multiple_label = FALSE,
+  all_versions = TRUE,
+  paginate = FALSE,
+  page_size = NULL
 )
 
 \method{kobo_submissions}{default}(
   x,
-  paginate = FALSE,
-  page_size = NULL,
   lang = NULL,
-  select_multiple_label = FALSE
+  select_multiple_label = FALSE,
+  all_versions = TRUE,
+  paginate = FALSE,
+  page_size = NULL
 )
 }
 \arguments{
-\item{x}{a \code{\link{kobo_asset}} or character, the asset}
-
-\item{paginate}{logical, split submissions by page. Default to FALSE}
-
-\item{page_size}{integer, number of submissions per page.
+\item{x}{a \code{\link{kobo_asset}} or character, the asset
 if missing, default to number of submissions divided by 5}
 
 \item{lang}{character, language for the variable and value labels}
 
 \item{select_multiple_label}{logical, whether or not to replace select_multiple columns values by labels. Default to \code{FALSE}.}
+
+\item{all_versions}{logical, whether or not to include data from all form versions.
+Default to TRUE}
+
+\item{paginate}{logical, split submissions by page_size. Default to FALSE}
+
+\item{page_size}{integer, number of submissions per page.}
 }
 \value{
-A data.frame
+A \code{data.frame} or A \code{dm} object if you have repeat groups
 }
 \description{
 Get all submissions from a KoboToolbox project through a \code{\link{kobo_asset}} or asset uid.

@@ -421,12 +421,13 @@ dummy_from_form_ <- function(x, form) {
 #'
 #' @importFrom dplyr coalesce
 #' @noRd
-dedup_vars_ <- function(x) {
+dedup_vars_ <- function(x, all_versions = TRUE) {
   nm <- names(x)
   base_nm <- basename(nm)
   nm_to_test <- paste0("/", base_nm)
   cond <- duplicated(nm_to_test, fromLast = FALSE)
   if (any(cond)) {
+    if (all_versions) {
     rs <- c(nm[cond],
             nm[duplicated(nm_to_test, fromLast = TRUE)])
     rs <- unique(rs)
@@ -437,6 +438,9 @@ dedup_vars_ <- function(x) {
       old_vars <- rs[[v]]
       x[[v]] <- with(x, coalesce(!!!as.list(x[old_vars])))
       x[old_vars] <- NULL
+    }
+    } else {
+      x <- x[!cond]
     }
   }
   x
@@ -450,7 +454,7 @@ make_unique_names_ <- function(x)
 #' @importFrom tibble tibble rowid_to_column
 #' @importFrom data.table rbindlist
 #' @noRd
-extract_repeat_tbl <- function(x, form) {
+extract_repeat_tbl <- function(x, form, all_versions) {
   res <- list()
   nm <- unique(form$name[form$type %in% "begin_repeat"])
   nm <- intersect(names(x), nm)
@@ -462,7 +466,7 @@ extract_repeat_tbl <- function(x, form) {
                        idcol = "_parent_index",
                        fill = TRUE)
       res <- tibble(res)
-      res <- dedup_vars_(res)
+      res <- dedup_vars_(res, all_versions = all_versions)
       res <- set_names(res, make_unique_names_)
       rowid_to_column(res, "_index")
     }), nm)
@@ -487,10 +491,10 @@ extract_repeat_tbl <- function(x, form) {
 
 #' @importFrom rlang squash
 #' @noRd
-kobo_extract_repeat_tbl <- function(x, form) {
+kobo_extract_repeat_tbl <- function(x, form, all_versions) {
   if (is.null(x))
     return(NULL)
-  x <- extract_repeat_tbl(x, form)
+  x <- extract_repeat_tbl(x, form, all_versions)
   x <- lapply(x, function(df) {
     df$`_parent_table_name` <- "main"
     df
@@ -498,7 +502,7 @@ kobo_extract_repeat_tbl <- function(x, form) {
   res <- lapply(seq_along(x), function(i)
     if (is.data.frame(x[[i]])) {
       c(setNames(list(x[[i]]), names(x[i])),
-        lapply(extract_repeat_tbl(x[[i]], form), function(df) {
+        lapply(extract_repeat_tbl(x[[i]], form, all_versions), function(df) {
                df$`_parent_table_name` <- names(x[i])
                df}))
       } else {

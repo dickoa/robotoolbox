@@ -229,3 +229,18 @@ test_that("with kobo_data you have access to validation status", {
   expect_equal(class(raw[["_validation_status"]]),
                c("haven_labelled", "vctrs_vctr", "character"))
 })
+
+test_that("with kobo_data can restrict the data to the latest form version", {
+  skip_on_cran()
+  url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
+  token <- Sys.getenv("KOBOTOOLBOX_PROD_TOKEN")
+  skip <-  url == "" & token == ""
+  skip_if(skip,
+          message = "Test server not configured")
+
+  kobo_setup(url = url, token = token)
+  uid <- "aDMHypRASH2EuJdvKMx5Mi"
+  raw1 <- kobo_data(uid, all_versions = FALSE)
+  raw2 <- kobo_data(uid, all_versions = TRUE)
+  expect_equal(identical(raw1, raw2), FALSE)
+})
