@@ -1,9 +1,7 @@
 #' @noRd
-kobo_data_ <- function(x, paginate, page_size, size, lang, select_multiple_label, all_versions) {
-  if (x$asset_type != "survey")
-    abort("You can just read data from survey")
+kobo_data_ <- function(x, paginate, page_size, size, lang, select_multiple_label, colnames_label, all_versions) {
 
-  if (size >= 10000)
+  if (size >= 10000 | !is.null(page_size))
     paginate <- TRUE
 
   if (isTRUE(paginate)) {
@@ -14,21 +12,7 @@ kobo_data_ <- function(x, paginate, page_size, size, lang, select_multiple_label
     subs <- get_subs(x$uid)
   }
 
-  form_versions <- kobo_asset_version_list(x$uid)
-  form_versions <- filter(form_versions, .data$asset_deployed)
-  cond1 <- sum(grepl("\\_version\\_", names(subs))) == 1
-  cond2 <- length(unique(subs[["__version__"]])) > 1
-  cond3 <- nrow(form_versions) > 0
-  cond <- cond1 & cond2 & cond3 & all_versions
-  if (cond) {
-    version <- intersect(unique(form_versions$uid),
-                         unique(subs[["__version__"]]))
-    form <- lapply(version, \(v) kobo_form(x, v))
-    form <- list_rbind(form)
-  } else {
-    form <- kobo_form(x)
-  }
-
+  form <- kobo_form_version_(subs, x$uid, all_versions = all_versions)
   cn <- kobo_form_names_(form)
   klang <- kobo_lang(x)
   if (is.null(lang) || !lang %in% klang)
@@ -73,6 +57,8 @@ kobo_data_ <- function(x, paginate, page_size, size, lang, select_multiple_label
                               select_multiple_label =  select_multiple_label,
                               cn = cn)
   }
+  if (isTRUE(colnames_label))
+    subs <- set_names_from_varlabel(subs)
   subs
 }
 
@@ -90,14 +76,18 @@ kobo_data_ <- function(x, paginate, page_size, size, lang, select_multiple_label
 #'
 #' @param x a \code{\link{kobo_asset}} or character, the asset
 #' if missing, default to number of submissions divided by 5
-#' @param select_multiple_label logical, whether or not to replace select_multiple columns values by labels. Default to `FALSE`.
 #' @param all_versions logical, whether or not to include data from all form versions.
-#' Default to TRUE
-#' @param lang character, language for the variable and value labels
-#' @param paginate logical, split submissions by page_size. Default to FALSE
+#' Default to `TRUE`. If `FALSE`, it uses the latest version of the form.
+#' @param colnames_label logical, whether or not to use variable labels in lieu of column names based on form question names. Default to `FALSE`.
+#' @param select_multiple_label logical, whether or not to replace select_multiple columns values by labels. Default to `FALSE`.
+#' @param lang character, language for the variable and value labels.
+#' @param paginate logical, split submissions by page_size. Default to `FALSE`.
 #' @param page_size integer, number of submissions per page.
 #'
-#' @return A `data.frame` or A `dm` object if you have repeat groups
+#' @details \code{\link{kobo_data}} is the main function of \code{robotoolbox}, it is used
+#' pull submissions from your Kobotoolbox survey.
+#'
+#' @return A  \code{data.frame} or A  \code{dm} object if you have repeat groups
 #'
 #' @examples
 #' \dontrun{
@@ -114,31 +104,37 @@ kobo_data_ <- function(x, paginate, page_size, size, lang, select_multiple_label
 #'
 #' @export
 kobo_data <- function(x, lang,
-                      select_multiple_label,
                       all_versions,
+                      colnames_label,
+                      select_multiple_label,
                       paginate, page_size)
   UseMethod("kobo_data")
 
 #' @rdname kobo_data
 #' @export
 kobo_submissions <- function(x, lang,
-                             select_multiple_label,
                              all_versions,
+                             colnames_label,
+                             select_multiple_label,
                              paginate, page_size)
   UseMethod("kobo_submissions")
 
 #' @export
 kobo_data.kobo_asset <- function(x, lang = NULL,
-                                 select_multiple_label = FALSE,
                                  all_versions = TRUE,
+                                 colnames_label = FALSE,
+                                 select_multiple_label = FALSE,
                                  paginate = FALSE,
                                  page_size = NULL) {
+  if (x$asset_type != "survey")
+    abort("You can just read data from survey")
   size <- x$deployment__submission_count
   if (size > 0) {
     res <- kobo_data_(x = x,
                       lang = lang,
-                      select_multiple_label = select_multiple_label,
                       all_versions = all_versions,
+                      colnames_label = colnames_label,
+                      select_multiple_label = select_multiple_label,
                       paginate = paginate,
                       page_size = page_size,
                       size = size)
@@ -156,16 +152,18 @@ kobo_submissions.kobo_asset <- kobo_data.kobo_asset
 
 #' @export
 kobo_data.character <- function(x, lang = NULL,
-                                select_multiple_label = FALSE,
                                 all_versions = TRUE,
+                                colnames_label = FALSE,
+                                select_multiple_label = FALSE,
                                 paginate = FALSE,
                                 page_size = NULL) {
   if (!assert_uid(x))
     abort(message = "Invalid asset uid")
   kobo_data(kobo_asset(x),
             lang = lang,
-            select_multiple_label = select_multiple_label,
             all_versions = all_versions,
+            colnames_label = colnames_label,
+            select_multiple_label = select_multiple_label,
             paginate = paginate,
             page_size = page_size)
 }
@@ -176,8 +174,9 @@ kobo_submissions.character <- kobo_data.character
 
 #' @export
 kobo_data.default <- function(x, lang = NULL,
-                              select_multiple_label = FALSE,
                               all_versions = TRUE,
+                              colnames_label = FALSE,
+                              select_multiple_label = FALSE,
                               paginate = FALSE,
                               page_size = NULL) {
   abort("You need to use a 'kobo_asset' or a valid asset uid")

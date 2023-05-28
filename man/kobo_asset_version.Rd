@@ -7,7 +7,7 @@
 kobo_asset_version(x, version)
 }
 \arguments{
-\item{x}{the unique identifier of a specific asset or an asset object}
+\item{x}{the unique identifier of a specific asset or a \code{kobo_asset} object}
 
 \item{version}{version of the asset}
 }
@@ -16,6 +16,9 @@ a \code{kobo_asset_version} object
 }
 \description{
 Get a specific KoboToolbox Asset version from an asset uid or \code{\link{kobo_asset}}
+}
+\details{
+Get a specific version of your \code{kobo_asset}.
 }
 \examples{
 \dontrun{

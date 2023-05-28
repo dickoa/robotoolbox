@@ -7,13 +7,17 @@
 kobo_audit(x)
 }
 \arguments{
-\item{x}{a \code{\link{kobo_asset}} or character, the asset}
+\item{x}{a \code{kobo_asset} or character, the asset}
 }
 \value{
 A data.frame
 }
 \description{
 Get all audit log data from a KoboToolbox project through a \code{\link{kobo_asset}} or asset uid.
+}
+\details{
+\code{kobo_audit} allows you to access the audit log files and parse them
+into a \code{data.frame} to make audit log data analysis easier.
 }
 \examples{
 \dontrun{

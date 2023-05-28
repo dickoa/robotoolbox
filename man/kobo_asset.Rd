@@ -7,13 +7,17 @@
 kobo_asset(x)
 }
 \arguments{
-\item{x}{the unique identifier of a specific asset or an asset object}
+\item{x}{the unique identifier of a specific asset or a \code{kobo_asset} object.}
 }
 \value{
 a \code{kobo_asset} object
 }
 \description{
 Get a specific KoboToolbox Asset from a uid
+}
+\details{
+\code{\link{kobo_asset}} allows you to access any \code{Kobotoolbox} API asset.
+Assets can include a range of types, such as questions, blocks, surveys, templates, and collections.
 }
 \examples{
 \dontrun{

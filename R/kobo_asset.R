@@ -6,7 +6,10 @@
 #'
 #' @importFrom RcppSimdJson fparse
 #'
-#' @param x the unique identifier of a specific asset or an asset object
+#' @param x the unique identifier of a specific asset or a \code{kobo_asset} object.
+#'
+#' @details \code{\link{kobo_asset}} allows you to access any `Kobotoolbox` API asset.
+#' Assets can include a range of types, such as questions, blocks, surveys, templates, and collections.
 #'
 #' @return a \code{kobo_asset} object
 #'
@@ -44,14 +47,16 @@ kobo_asset.default <- function(x) {
 
 #' List all available KoboToolbox API assets
 #'
-#' List all available KoboToolbox API assets
+#' List all available KoboToolbox API assets and their metadata.
 #'
 #' @importFrom RcppSimdJson fparse
 #' @importFrom tibble tibble
 #'
-#' @param limit integer, the number of project to display per page. Default to 100
+#' @param limit integer, the number of project to display per page. Default to 100.
 #'
-#' @return a list of \code{\link{kobo_asset}}
+#' @details This function list all the assets (projects) in your Kobotoolbox account with metadata such as `uid`, `name`, `asset_type`, `owner_username`, `date_created`, `date_modified` and `submissions`.
+#'
+#' @return a \code{data.frame}
 #'
 #' @examples
 #' \dontrun{
@@ -80,10 +85,12 @@ kobo_asset_list <- function(limit = 100L) {
 #'
 #' @rdname kobo_asset_version
 #'
-#' @param x the unique identifier of a specific asset or an asset object
+#' @param x the unique identifier of a specific asset or a `kobo_asset` object
 #' @param version version of the asset
 #'
 #' @importFrom RcppSimdJson fparse
+#'
+#' @details Get a specific version of your \code{kobo_asset}.
 #'
 #' @return a \code{kobo_asset_version} object
 #'
@@ -129,16 +136,18 @@ kobo_asset_version.default <- function(x, version) {
 
 #' List all available versions of a KoboToolbox asset
 #'
-#' List all available versions of a KoboToolbox asset. Works only if you own
-#' the project.
+#' List all available versions of a KoboToolbox asset and their metadata.
 #'
 #' @rdname kobo_asset_version_list
 #'
-#' @param x the uid or kobo_asset object
+#' @param x the uid or \code{kobo_asset} object.
 #' @importFrom RcppSimdJson fparse
 #' @importFrom tibble tibble
 #'
-#' @return a list of \code{\link{kobo_asset_version}}
+#' @details \code{kobo_asset_version_list} create a table with all the versions of the asset,
+#' and whether or not they're deployed.
+#'
+#' @return a \code{data.frame}
 #'
 #' @examples
 #' \dontrun{

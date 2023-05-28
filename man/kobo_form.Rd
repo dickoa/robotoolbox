@@ -7,15 +7,18 @@
 kobo_form(x, version)
 }
 \arguments{
-\item{x}{the asset uid or the kobo_asset object}
+\item{x}{the asset uid or the \code{kobo_asset} object}
 
 \item{version}{character, uid of the version of the asset}
 }
 \value{
-a data.frame with information on name, label, lang, and list-column representing form choices
+a \code{data.frame}
 }
 \description{
 Get a KoboToolbox project form from a \code{\link{kobo_asset}} or asset uid.
+}
+\details{
+\code{kobo_form} pull the form associated to specific \code{kobo_asset}. The output is table with information such as \code{name}, \code{label}, \code{lang}, and list-column representing form \code{choices}.
 }
 \examples{
 \dontrun{

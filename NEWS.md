@@ -1,4 +1,4 @@
-robotoolbox 1.2.0.9050
+robotoolbox 1.2.0.9070
 ======================
 
 ### Bug fix
@@ -6,9 +6,10 @@ robotoolbox 1.2.0.9050
 
 ### Improvement
 - Added a fonction `kobo_audit` to get all the audit logs data from a form with audit enabled. It comes with a vignette showing how to read audit logs.
-- Added a fonction `set_names_from_varlabel` to have variable labels as variables names and have similar export as the Kobotoolbox Excel export tools.
 - Added a logical parameter `select_multiple_label` to `kobo_data` in order to turn `select_multiple` values to labels. It's useful if you want to work directly with labels in `select_multiple`
 - Added a `all_versions` logical parameter to `kobo_data` to check whether or not you want to include data from all form versions.
+- Added a fonction `set_names_from_varlabel` to have variable labels as variables names and have similar export as the Kobotoolbox Excel export tools.
+- Added a `colnames_label` logical parameter to `kobo_data` to check whether or not you want to include variable labels as column names. This new parameter uses `set_names_from_varlabel`.
 
 robotoolbox 1.1.0.9004
 ======================

@@ -6,11 +6,14 @@
 #' @importFrom crul auth HttpClient
 #' @importFrom RcppSimdJson fparse
 #'
-#' @param username character, KoboToolbox username
-#' @param password character, KoboToolbox password
+#' @param username character, KoboToolbox account username
+#' @param password character, KoboToolbox account password
 #' @param url character, KoboToolbox server url
-#' @param overwrite logical, if TRUE overwrite existing token
+#' @param overwrite logical, if TRUE overwrite existing token.
 #'
+#' @details the url and the token are stored, respectively, as the environment
+#' variable `KOBOTOOLBOX_URL` and `KOBOTOOLBOX_TOKEN`.
+# '
 #' @examples
 #' \dontrun{
 #' if (require(askpass)) {

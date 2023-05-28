@@ -89,14 +89,13 @@ dt2tibble <- function(x) {
   x
 }
 
-
 #' @importFrom RcppSimdJson fparse
 #' @noRd
 get_subs <- function(uid, args = list(), ...) {
   path <- paste0("api/v2/assets/", uid, "/data.json")
   res <- xget(path = path, args = args, ...)
-  res <- fparse(res, max_simplify_lvl = "data_frame")
-  res <- res$result
+  res <- fparse(res, max_simplify_lvl = "data_frame",
+                query = "/results")
   as_tibble(res)
 }
 
@@ -159,9 +158,9 @@ get_subs_async <- function(uid, size, chunk_size = NULL, n_retry = 3L, ...) {
   }
   res <- res$parse(encoding = "UTF-8")
   res <- fparse(res,
-                max_simplify_lvl = "data_frame")
-  res <- rbindlist(lapply(res, function(r) r$results),
-                   fill = TRUE)
+                max_simplify_lvl = "data_frame",
+                query = "/results")
+  res <- rbindlist(res, fill = TRUE)
   res <- dt2tibble(res)
   res
 }
@@ -216,8 +215,9 @@ get_asset_list_async <- function(limit, count, n_retry = 3L, ...) {
   }
   res <- res$parse(encoding = "UTF-8")
   res <- fparse(res,
-                max_simplify_lvl = "list")
-  res <- lapply(res, function(r) asset_list_to_tbl(r$results))
+                max_simplify_lvl = "list",
+                query = "/results")
+  res <- lapply(res, asset_list_to_tbl)
   res <- rbindlist(res, fill = TRUE)
   res <- dt2tibble(res)
   res
@@ -851,41 +851,6 @@ remove_list_cols <- function(x) {
   x
 }
 
-## #' @noRd
-## parse_kobo_datetime <- function(x) {
-##   x <- as.POSIXct(x,
-##                   format = "%Y-%m-%dT%H:%M:%OS",
-##                   tz = "GMT")
-##   x <- round(x, "secs")
-##   as.character(x)
-## }
-
-## #' @noRd
-## parse_date_ <- function(x) {
-##   as.Date(x)
-## }
-
-## #' @noRd
-## parse_datetime_ <- function(x, form) {
-##   x <- as.POSIXct(x,
-##                   format = "%Y-%m-%dT%H:%M:%OS",
-##                   tz = "GMT")
-##   x
-## }
-
-## #' @importFrom tidyselect all_of
-## #' @importFrom parsedate parse_date
-## #' @noRd
-## parse_datetime_ <- function(x, form) {
-##   cond <- form$type %in% c("date", "datetime", "time")
-##   nm <- unique(form$name[cond])
-##   nm <- intersect(names(x), nm)
-##   if (any(cond) && length(nm) > 0) {
-##     x <- mutate(x, across(all_of(nm), parse_date))
-##   }
-##   x
-## }
-
 #' @noRd
 add_missing_cols_ <- function(x, cn) {
   x[setdiff(cn, names(x))] <- NA
@@ -906,14 +871,13 @@ postprocess_data_ <- function(x, form, lang, select_multiple_label = FALSE, cn) 
   x <- extract_geopoint_(x, form)
   x <- extract_geotrace_(x, form)
   x <- extract_geoshape_(x, form)
-  x <- type.convert(x, as.is = TRUE, tryLogical = FALSE)
+  x <- type_convert_(x, form)
   x <- remove_list_cols(x)
   x <- add_missing_cols_(x, cn)
   x <- val_labels_from_form_(x = x, form = form, lang = lang)
   x <- var_labels_from_form_(x = x, form = form, lang = lang)
-  # x <- parse_datetime_(x = x, form = form)
   if (isTRUE(select_multiple_label))
-    x <- val_labels_sm_from_form_(x = x, form = form, lang = lang) ## not working with set_names
+    x <- val_labels_sm_from_form_(x = x, form = form, lang = lang)
   x <- reorder_cols_(x, cn)
 }
 
@@ -1075,4 +1039,57 @@ kobo_form_names_ <- function(form) {
   }
   res <- paste0(res$name, res$value_name)
   na.omit(res)
+}
+
+#' @importFrom readr type_convert
+#' @noRd
+type_convert_ <- function(x, form) {
+  cols <- kobo_type_cols_(x, form)
+  type_convert(x, col_types = cols)
+}
+
+#' @importFrom dplyr case_when coalesce arrange
+#' @noRd
+kobo_type_cols_ <- function(x, form) {
+  time_q <- "time"
+  datetime_q <- c("start", "end", "datetime", "dateTime")
+  date_q <- c("today", "date")
+  char_q <- c("device_id", "phonenumber", "username", "email",
+              "audit", "select_one", "select_multiple",
+              "select_one_from_file", "select_multiple_from_file",
+              "rank", "note", "geopoint", "geotrace", "geoshape",
+              "acknowledge", "barcode", "text")
+  int_q <- "integer"
+  double_q <- "decimal"
+  form$cols <- case_when(form$type %in% datetime_q ~ "T",
+                         form$type %in% date_q ~ "D",
+                         form$type %in% time_q ~ "c",
+                         form$type %in% char_q ~ "c",
+                         form$type %in% int_q ~ "i",
+                         form$type %in% double_q ~ "d",
+                         .default = "?")
+  form <- arrange(form, .data$cols)
+  v <- form$cols[match(names(x), form$name)]
+  paste(coalesce(v, "?"), collapse = "")
+}
+
+#' @noRd
+kobo_form_version_ <- function(x, uid, all_versions) {
+  form_versions <- kobo_asset_version_list(uid)
+  form_versions <- filter(form_versions, .data$asset_deployed)
+  cond1 <- sum(grepl("\\_version\\_", names(x))) == 1
+  subs_version <- unique(x[["__version__"]])
+  cond2 <- length(subs_version) > 1
+  cond3 <- nrow(form_versions) > 0
+  cond <- cond1 & cond2 & cond3 & all_versions
+  if (cond) {
+    version <- intersect(unique(form_versions$uid),
+                         unique(subs_version))
+    form <- lapply(version, \(v) kobo_form(uid, v))
+    form <- list_rbind(form)
+  } else {
+    v <- if (!cond2 & cond3) subs_version else NULL
+    form <- kobo_form(uid, version = v)
+  }
+  form
 }

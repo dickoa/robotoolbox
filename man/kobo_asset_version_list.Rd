@@ -7,14 +7,17 @@
 kobo_asset_version_list(x)
 }
 \arguments{
-\item{x}{the uid or kobo_asset object}
+\item{x}{the uid or \code{kobo_asset} object.}
 }
 \value{
-a list of \code{\link{kobo_asset_version}}
+a \code{data.frame}
 }
 \description{
-List all available versions of a KoboToolbox asset. Works only if you own
-the project.
+List all available versions of a KoboToolbox asset and their metadata.
+}
+\details{
+\code{kobo_asset_version_list} create a table with all the versions of the asset,
+and whether or not they're deployed.
 }
 \examples{
 \dontrun{

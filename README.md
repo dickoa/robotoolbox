@@ -213,33 +213,33 @@ questions with `robotoolbox`. Let’s show this new feature, with the
 following example:
 
 ``` r
-data_sm_label <- kobo_data(uid)
+data_sm <- kobo_data(uid)
 glimpse(data_sm)
 ```
 
     #>  Rows: 5
     #>  Columns: 21
-    #>  $ start                <chr> "2022-05-09T18:31:40.096-00:00", "2022-05-09T18:3…
-    #>  $ end                  <chr> "2022-05-09T18:35:12.810-00:00", "2022-05-09T18:3…
-    #>  $ today                <chr> "2022-05-09", "2022-05-09", "2022-05-09", "2022-0…
-    #>  $ full_name            <chr> "Rufus", "Romulus", "Remus", "Joe", "Moh"
-    #>  $ pet_type             <chr> "3 4", "4", "5", NA, "3 4 5"
-    #>  $ pet_type_1           <int> 0, 0, 0, NA, 0
-    #>  $ pet_type_2           <int> 0, 0, 0, NA, 0
-    #>  $ pet_type_3           <int> 1, 0, 0, NA, 1
-    #>  $ pet_type_4           <int> 1, 1, 0, NA, 1
-    #>  $ pet_type_5           <int> 0, 0, 1, NA, 1
-    #>  $ `_id`                <int> 20939261, 20939265, 20939278, 20939288, 20939301
-    #>  $ instanceID           <chr> "uuid:147d4f30-7459-42f7-818f-b44f47b2cca7", "uui…
-    #>  $ deprecatedID         <chr> "uuid:6840ad57-d9f7-4557-b1f2-11af21e5b0cd", "uui…
-    #>  $ uuid                 <chr> "5c0d08e4deda4a7fbc9634f5e8aba62f", "5c0d08e4deda…
-    #>  $ `__version__`        <chr> "vjPe5qiVxTmyviYSrQE3x4", "vjPe5qiVxTmyviYSrQE3x4…
-    #>  $ `_xform_id_string`   <chr> "atbUaNGu5PWR2u4tNDsYaH", "atbUaNGu5PWR2u4tNDsYaH…
-    #>  $ `_uuid`              <chr> "147d4f30-7459-42f7-818f-b44f47b2cca7", "6f67ede0…
-    #>  $ `_status`            <chr> "submitted_via_web", "submitted_via_web", "submit…
-    #>  $ `_submission_time`   <chr> "2022-05-09T18:32:03", "2022-05-09T18:32:10", "20…
-    #>  $ `_validation_status` <int> NA, NA, NA, NA, NA
-    #>  $ `_submitted_by`      <int> NA, NA, NA, NA, NA
+    #>  $ start                [3m[90m<chr>[39m[23m "2022-05-09T18:31:40.096-00:00", "2022-05-09T18:31:53.670-00:00", "…
+    #>  $ end                  [3m[90m<chr>[39m[23m "2022-05-09T18:35:12.810-00:00", "2022-05-09T18:34:59.061-00:00", "…
+    #>  $ today                [3m[90m<chr>[39m[23m "2022-05-09", "2022-05-09", "2022-05-09", "2022-05-09", "2022-05-09"
+    #>  $ full_name            [3m[90m<chr>[39m[23m "Rufus", "Romulus", "Remus", "Joe", "Moh"
+    #>  $ pet_type             [3m[90m<chr>[39m[23m "3 4", "4", "5", NA, "3 4 5"
+    #>  $ pet_type_1           [3m[90m<int>[39m[23m 0, 0, 0, NA, 0
+    #>  $ pet_type_2           [3m[90m<int>[39m[23m 0, 0, 0, NA, 0
+    #>  $ pet_type_3           [3m[90m<int>[39m[23m 1, 0, 0, NA, 1
+    #>  $ pet_type_4           [3m[90m<int>[39m[23m 1, 1, 0, NA, 1
+    #>  $ pet_type_5           [3m[90m<int>[39m[23m 0, 0, 1, NA, 1
+    #>  $ `_id`                [3m[90m<int>[39m[23m 20939261, 20939265, 20939278, 20939288, 20939301
+    #>  $ instanceID           [3m[90m<chr>[39m[23m "uuid:147d4f30-7459-42f7-818f-b44f47b2cca7", "uuid:6f67ede0-c594-4a…
+    #>  $ deprecatedID         [3m[90m<chr>[39m[23m "uuid:6840ad57-d9f7-4557-b1f2-11af21e5b0cd", "uuid:3cbdc3ec-bd0a-4a…
+    #>  $ uuid                 [3m[90m<chr>[39m[23m "5c0d08e4deda4a7fbc9634f5e8aba62f", "5c0d08e4deda4a7fbc9634f5e8aba6…
+    #>  $ `__version__`        [3m[90m<chr>[39m[23m "vjPe5qiVxTmyviYSrQE3x4", "vjPe5qiVxTmyviYSrQE3x4", "vjPe5qiVxTmyvi…
+    #>  $ `_xform_id_string`   [3m[90m<chr>[39m[23m "atbUaNGu5PWR2u4tNDsYaH", "atbUaNGu5PWR2u4tNDsYaH", "atbUaNGu5PWR2u…
+    #>  $ `_uuid`              [3m[90m<chr>[39m[23m "147d4f30-7459-42f7-818f-b44f47b2cca7", "6f67ede0-c594-4a28-bf7b-c4…
+    #>  $ `_status`            [3m[90m<chr>[39m[23m "submitted_via_web", "submitted_via_web", "submitted_via_web", "sub…
+    #>  $ `_submission_time`   [3m[90m<chr>[39m[23m "2022-05-09T18:32:03", "2022-05-09T18:32:10", "2022-05-09T18:32:44"…
+    #>  $ `_validation_status` [3m[90m<chr>[39m[23m NA, NA, NA, NA, NA
+    #>  $ `_submitted_by`      [3m[90m<int>[39m[23m NA, NA, NA, NA, NA
 
 We noticed that the column `pet_type` contains values (`1` to `5`). Now
 let’s set the new `select_multiple_label` to `TRUE` and read again the
@@ -253,27 +253,27 @@ glimpse(data_sm_label)
 
     #>  Rows: 5
     #>  Columns: 21
-    #>  $ start                <chr> "2022-05-09T18:31:40.096-00:00", "2022-05-09T18:3…
-    #>  $ end                  <chr> "2022-05-09T18:35:12.810-00:00", "2022-05-09T18:3…
-    #>  $ today                <chr> "2022-05-09", "2022-05-09", "2022-05-09", "2022-0…
-    #>  $ full_name            <chr> "Rufus", "Romulus", "Remus", "Joe", "Moh"
-    #>  $ pet_type             <chr> "dog cat", "cat", "turtle", NA, "dog cat turtle"
-    #>  $ pet_type_1           <int> 0, 0, 0, NA, 0
-    #>  $ pet_type_2           <int> 0, 0, 0, NA, 0
-    #>  $ pet_type_3           <int> 1, 0, 0, NA, 1
-    #>  $ pet_type_4           <int> 1, 1, 0, NA, 1
-    #>  $ pet_type_5           <int> 0, 0, 1, NA, 1
-    #>  $ `_id`                <int> 20939261, 20939265, 20939278, 20939288, 20939301
-    #>  $ instanceID           <chr> "uuid:147d4f30-7459-42f7-818f-b44f47b2cca7", "uui…
-    #>  $ deprecatedID         <chr> "uuid:6840ad57-d9f7-4557-b1f2-11af21e5b0cd", "uui…
-    #>  $ uuid                 <chr> "5c0d08e4deda4a7fbc9634f5e8aba62f", "5c0d08e4deda…
-    #>  $ `__version__`        <chr> "vjPe5qiVxTmyviYSrQE3x4", "vjPe5qiVxTmyviYSrQE3x4…
-    #>  $ `_xform_id_string`   <chr> "atbUaNGu5PWR2u4tNDsYaH", "atbUaNGu5PWR2u4tNDsYaH…
-    #>  $ `_uuid`              <chr> "147d4f30-7459-42f7-818f-b44f47b2cca7", "6f67ede0…
-    #>  $ `_status`            <chr> "submitted_via_web", "submitted_via_web", "submit…
-    #>  $ `_submission_time`   <chr> "2022-05-09T18:32:03", "2022-05-09T18:32:10", "20…
-    #>  $ `_validation_status` <int> NA, NA, NA, NA, NA
-    #>  $ `_submitted_by`      <int> NA, NA, NA, NA, NA
+    #>  $ start                [3m[90m<chr>[39m[23m "2022-05-09T18:31:40.096-00:00", "2022-05-09T18:31:53.670-00:00", "…
+    #>  $ end                  [3m[90m<chr>[39m[23m "2022-05-09T18:35:12.810-00:00", "2022-05-09T18:34:59.061-00:00", "…
+    #>  $ today                [3m[90m<chr>[39m[23m "2022-05-09", "2022-05-09", "2022-05-09", "2022-05-09", "2022-05-09"
+    #>  $ full_name            [3m[90m<chr>[39m[23m "Rufus", "Romulus", "Remus", "Joe", "Moh"
+    #>  $ pet_type             [3m[90m<chr>[39m[23m "dog cat", "cat", "turtle", NA, "dog cat turtle"
+    #>  $ pet_type_1           [3m[90m<int>[39m[23m 0, 0, 0, NA, 0
+    #>  $ pet_type_2           [3m[90m<int>[39m[23m 0, 0, 0, NA, 0
+    #>  $ pet_type_3           [3m[90m<int>[39m[23m 1, 0, 0, NA, 1
+    #>  $ pet_type_4           [3m[90m<int>[39m[23m 1, 1, 0, NA, 1
+    #>  $ pet_type_5           [3m[90m<int>[39m[23m 0, 0, 1, NA, 1
+    #>  $ `_id`                [3m[90m<int>[39m[23m 20939261, 20939265, 20939278, 20939288, 20939301
+    #>  $ instanceID           [3m[90m<chr>[39m[23m "uuid:147d4f30-7459-42f7-818f-b44f47b2cca7", "uuid:6f67ede0-c594-4a…
+    #>  $ deprecatedID         [3m[90m<chr>[39m[23m "uuid:6840ad57-d9f7-4557-b1f2-11af21e5b0cd", "uuid:3cbdc3ec-bd0a-4a…
+    #>  $ uuid                 [3m[90m<chr>[39m[23m "5c0d08e4deda4a7fbc9634f5e8aba62f", "5c0d08e4deda4a7fbc9634f5e8aba6…
+    #>  $ `__version__`        [3m[90m<chr>[39m[23m "vjPe5qiVxTmyviYSrQE3x4", "vjPe5qiVxTmyviYSrQE3x4", "vjPe5qiVxTmyvi…
+    #>  $ `_xform_id_string`   [3m[90m<chr>[39m[23m "atbUaNGu5PWR2u4tNDsYaH", "atbUaNGu5PWR2u4tNDsYaH", "atbUaNGu5PWR2u…
+    #>  $ `_uuid`              [3m[90m<chr>[39m[23m "147d4f30-7459-42f7-818f-b44f47b2cca7", "6f67ede0-c594-4a28-bf7b-c4…
+    #>  $ `_status`            [3m[90m<chr>[39m[23m "submitted_via_web", "submitted_via_web", "submitted_via_web", "sub…
+    #>  $ `_submission_time`   [3m[90m<chr>[39m[23m "2022-05-09T18:32:03", "2022-05-09T18:32:10", "2022-05-09T18:32:44"…
+    #>  $ `_validation_status` [3m[90m<chr>[39m[23m NA, NA, NA, NA, NA
+    #>  $ `_submitted_by`      [3m[90m<int>[39m[23m NA, NA, NA, NA, NA
 
 We can now see the `labels` instead of the `values` (`dog`, `cat`, etc.)
 for the column `pet_type`.
@@ -358,27 +358,27 @@ data_sm_label |>
   glimpse()
 #>  Rows: 5
 #>  Columns: 21
-#>  $ start                                    <chr> "2022-05-09T18:31:40.096-00:0…
-#>  $ end                                      <chr> "2022-05-09T18:35:12.810-00:0…
-#>  $ today                                    <chr> "2022-05-09", "2022-05-09", "…
-#>  $ `What is your name?`                     <chr> "Rufus", "Romulus", "Remus", …
-#>  $ `What type of pet do you own ?`          <chr> "dog cat", "cat", "turtle", N…
-#>  $ `What type of pet do you own ?::rabbit`  <int> 0, 0, 0, NA, 0
-#>  $ `What type of pet do you own ?::chicken` <int> 0, 0, 0, NA, 0
-#>  $ `What type of pet do you own ?::dog`     <int> 1, 0, 0, NA, 1
-#>  $ `What type of pet do you own ?::cat`     <int> 1, 1, 0, NA, 1
-#>  $ `What type of pet do you own ?::turtle`  <int> 0, 0, 1, NA, 1
-#>  $ `_id`                                    <int> 20939261, 20939265, 20939278,…
-#>  $ instanceID                               <chr> "uuid:147d4f30-7459-42f7-818f…
-#>  $ deprecatedID                             <chr> "uuid:6840ad57-d9f7-4557-b1f2…
-#>  $ uuid                                     <chr> "5c0d08e4deda4a7fbc9634f5e8ab…
-#>  $ `__version__`                            <chr> "vjPe5qiVxTmyviYSrQE3x4", "vj…
-#>  $ `_xform_id_string`                       <chr> "atbUaNGu5PWR2u4tNDsYaH", "at…
-#>  $ `_uuid`                                  <chr> "147d4f30-7459-42f7-818f-b44f…
-#>  $ `_status`                                <chr> "submitted_via_web", "submitt…
-#>  $ `_submission_time`                       <chr> "2022-05-09T18:32:03", "2022-…
-#>  $ `_validation_status`                     <int> NA, NA, NA, NA, NA
-#>  $ `_submitted_by`                          <int> NA, NA, NA, NA, NA
+#>  $ start                                    [3m[90m<chr>[39m[23m "2022-05-09T18:31:40.096-00:00", "2022-05-09T18…
+#>  $ end                                      [3m[90m<chr>[39m[23m "2022-05-09T18:35:12.810-00:00", "2022-05-09T18…
+#>  $ today                                    [3m[90m<chr>[39m[23m "2022-05-09", "2022-05-09", "2022-05-09", "2022…
+#>  $ `What is your name?`                     [3m[90m<chr>[39m[23m "Rufus", "Romulus", "Remus", "Joe", "Moh"
+#>  $ `What type of pet do you own ?`          [3m[90m<chr>[39m[23m "dog cat", "cat", "turtle", NA, "dog cat turtle"
+#>  $ `What type of pet do you own ?::rabbit`  [3m[90m<int>[39m[23m 0, 0, 0, NA, 0
+#>  $ `What type of pet do you own ?::chicken` [3m[90m<int>[39m[23m 0, 0, 0, NA, 0
+#>  $ `What type of pet do you own ?::dog`     [3m[90m<int>[39m[23m 1, 0, 0, NA, 1
+#>  $ `What type of pet do you own ?::cat`     [3m[90m<int>[39m[23m 1, 1, 0, NA, 1
+#>  $ `What type of pet do you own ?::turtle`  [3m[90m<int>[39m[23m 0, 0, 1, NA, 1
+#>  $ `_id`                                    [3m[90m<int>[39m[23m 20939261, 20939265, 20939278, 20939288, 20939301
+#>  $ instanceID                               [3m[90m<chr>[39m[23m "uuid:147d4f30-7459-42f7-818f-b44f47b2cca7", "u…
+#>  $ deprecatedID                             [3m[90m<chr>[39m[23m "uuid:6840ad57-d9f7-4557-b1f2-11af21e5b0cd", "u…
+#>  $ uuid                                     [3m[90m<chr>[39m[23m "5c0d08e4deda4a7fbc9634f5e8aba62f", "5c0d08e4de…
+#>  $ `__version__`                            [3m[90m<chr>[39m[23m "vjPe5qiVxTmyviYSrQE3x4", "vjPe5qiVxTmyviYSrQE3…
+#>  $ `_xform_id_string`                       [3m[90m<chr>[39m[23m "atbUaNGu5PWR2u4tNDsYaH", "atbUaNGu5PWR2u4tNDsY…
+#>  $ `_uuid`                                  [3m[90m<chr>[39m[23m "147d4f30-7459-42f7-818f-b44f47b2cca7", "6f67ed…
+#>  $ `_status`                                [3m[90m<chr>[39m[23m "submitted_via_web", "submitted_via_web", "subm…
+#>  $ `_submission_time`                       [3m[90m<chr>[39m[23m "2022-05-09T18:32:03", "2022-05-09T18:32:10", "…
+#>  $ `_validation_status`                     [3m[90m<chr>[39m[23m NA, NA, NA, NA, NA
+#>  $ `_submitted_by`                          [3m[90m<int>[39m[23m NA, NA, NA, NA, NA
 ```
 
 ## Meta

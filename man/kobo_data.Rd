@@ -8,13 +8,22 @@
 \alias{kobo_submissions.default}
 \title{Get all submissions from a KoboToolbox project}
 \usage{
-kobo_data(x, lang, select_multiple_label, all_versions, paginate, page_size)
+kobo_data(
+  x,
+  lang,
+  all_versions,
+  colnames_label,
+  select_multiple_label,
+  paginate,
+  page_size
+)
 
 kobo_submissions(
   x,
   lang,
-  select_multiple_label,
   all_versions,
+  colnames_label,
+  select_multiple_label,
   paginate,
   page_size
 )
@@ -22,8 +31,9 @@ kobo_submissions(
 \method{kobo_submissions}{kobo_asset}(
   x,
   lang = NULL,
-  select_multiple_label = FALSE,
   all_versions = TRUE,
+  colnames_label = FALSE,
+  select_multiple_label = FALSE,
   paginate = FALSE,
   page_size = NULL
 )
@@ -31,8 +41,9 @@ kobo_submissions(
 \method{kobo_submissions}{character}(
   x,
   lang = NULL,
-  select_multiple_label = FALSE,
   all_versions = TRUE,
+  colnames_label = FALSE,
+  select_multiple_label = FALSE,
   paginate = FALSE,
   page_size = NULL
 )
@@ -40,8 +51,9 @@ kobo_submissions(
 \method{kobo_submissions}{default}(
   x,
   lang = NULL,
-  select_multiple_label = FALSE,
   all_versions = TRUE,
+  colnames_label = FALSE,
+  select_multiple_label = FALSE,
   paginate = FALSE,
   page_size = NULL
 )
@@ -50,22 +62,28 @@ kobo_submissions(
 \item{x}{a \code{\link{kobo_asset}} or character, the asset
 if missing, default to number of submissions divided by 5}
 
-\item{lang}{character, language for the variable and value labels}
+\item{lang}{character, language for the variable and value labels.}
+
+\item{all_versions}{logical, whether or not to include data from all form versions.
+Default to \code{TRUE}. If \code{FALSE}, it uses the latest version of the form.}
+
+\item{colnames_label}{logical, whether or not to use variable labels in lieu of column names based on form question names. Default to \code{FALSE}.}
 
 \item{select_multiple_label}{logical, whether or not to replace select_multiple columns values by labels. Default to \code{FALSE}.}
 
-\item{all_versions}{logical, whether or not to include data from all form versions.
-Default to TRUE}
-
-\item{paginate}{logical, split submissions by page_size. Default to FALSE}
+\item{paginate}{logical, split submissions by page_size. Default to \code{FALSE}.}
 
 \item{page_size}{integer, number of submissions per page.}
 }
 \value{
-A \code{data.frame} or A \code{dm} object if you have repeat groups
+A  \code{data.frame} or A  \code{dm} object if you have repeat groups
 }
 \description{
 Get all submissions from a KoboToolbox project through a \code{\link{kobo_asset}} or asset uid.
+}
+\details{
+\code{\link{kobo_data}} is the main function of \code{robotoolbox}, it is used
+pull submissions from your Kobotoolbox survey.
 }
 \examples{
 \dontrun{

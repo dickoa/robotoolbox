@@ -195,7 +195,7 @@ We can now get `labels` instead of values for `select_multiple` questions with `
 Let's show this new feature, with the following example:
 
 ```{r}
-data_sm_label <- kobo_data(uid)
+data_sm <- kobo_data(uid)
 glimpse(data_sm)
 ```
 

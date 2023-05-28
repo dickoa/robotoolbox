@@ -44,7 +44,10 @@ kobo_audit_ <- function(uid) {
 #'
 #' @rdname kobo_audit
 #'
-#' @param x a \code{\link{kobo_asset}} or character, the asset
+#' @param x a \code{kobo_asset} or character, the asset
+#'
+#' @details \code{kobo_audit} allows you to access the audit log files and parse them
+#' into a \code{data.frame} to make audit log data analysis easier.
 #'
 #' @return A data.frame
 #'

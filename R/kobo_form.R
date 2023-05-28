@@ -2,7 +2,7 @@
 #'
 #' Get a KoboToolbox project form from a \code{\link{kobo_asset}} or asset uid.
 #'
-#' @param x the asset uid or the kobo_asset object
+#' @param x the asset uid or the \code{kobo_asset} object
 #' @param version character, uid of the version of the asset
 #'
 #' @rdname kobo_form
@@ -16,7 +16,9 @@
 #' @importFrom tidyselect contains everything all_of
 #' @importFrom rlang .data set_names
 #'
-#' @return a data.frame with information on name, label, lang, and list-column representing form choices
+#' @details \code{kobo_form} pull the form associated to specific \code{kobo_asset}. The output is table with information such as `name`, `label`, `lang`, and list-column representing form `choices`.
+#'
+#' @return a \code{data.frame}
 #'
 #' @examples
 #' \dontrun{

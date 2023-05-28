@@ -7,19 +7,23 @@
 kobo_token(username = NULL, password = NULL, url = NULL, overwrite = FALSE)
 }
 \arguments{
-\item{username}{character, KoboToolbox username}
+\item{username}{character, KoboToolbox account username}
 
-\item{password}{character, KoboToolbox password}
+\item{password}{character, KoboToolbox account password}
 
 \item{url}{character, KoboToolbox server url}
 
-\item{overwrite}{logical, if TRUE overwrite existing token}
+\item{overwrite}{logical, if TRUE overwrite existing token.}
 }
 \value{
 character, the KoboToolbox API token
 }
 \description{
 Get your KoboToolbox API token from your username and password.
+}
+\details{
+the url and the token are stored, respectively, as the environment
+variable \code{KOBOTOOLBOX_URL} and \code{KOBOTOOLBOX_TOKEN}.
 }
 \examples{
 \dontrun{

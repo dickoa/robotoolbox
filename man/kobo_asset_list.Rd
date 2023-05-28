@@ -7,13 +7,16 @@
 kobo_asset_list(limit = 100L)
 }
 \arguments{
-\item{limit}{integer, the number of project to display per page. Default to 100}
+\item{limit}{integer, the number of project to display per page. Default to 100.}
 }
 \value{
-a list of \code{\link{kobo_asset}}
+a \code{data.frame}
 }
 \description{
-List all available KoboToolbox API assets
+List all available KoboToolbox API assets and their metadata.
+}
+\details{
+This function list all the assets (projects) in your Kobotoolbox account with metadata such as \code{uid}, \code{name}, \code{asset_type}, \code{owner_username}, \code{date_created}, \code{date_modified} and \code{submissions}.
 }
 \examples{
 \dontrun{
