@@ -1057,38 +1057,39 @@ kobo_type_cols_ <- function(x, form) {
   char_q <- c("device_id", "phonenumber", "username", "email",
               "audit", "select_one", "select_multiple",
               "select_one_from_file", "select_multiple_from_file",
-              "rank", "note", "geopoint", "geotrace", "geoshape",
-              "acknowledge", "barcode", "text")
-  int_q <- "integer"
-  double_q <- "decimal"
+              "rank")
   form$cols <- case_when(form$type %in% datetime_q ~ "T",
                          form$type %in% date_q ~ "D",
                          form$type %in% time_q ~ "c",
                          form$type %in% char_q ~ "c",
-                         form$type %in% int_q ~ "i",
-                         form$type %in% double_q ~ "d",
                          .default = "?")
-  form <- arrange(form, .data$cols)
   v <- form$cols[match(names(x), form$name)]
   paste(coalesce(v, "?"), collapse = "")
 }
 
 #' @noRd
-kobo_form_version_ <- function(x, uid, all_versions) {
+kobo_form_version_ <- function(x, asset, all_versions) {
+  uid <- asset$uid
+  default_version <- asset$deployed_version_id
+  if (is.null(default_version))
+    default_version <- asset$version_id
   form_versions <- kobo_asset_version_list(uid)
   form_versions <- filter(form_versions, .data$asset_deployed)
-  cond1 <- sum(grepl("\\_version\\_", names(x))) == 1
-  subs_version <- unique(x[["__version__"]])
-  cond2 <- length(subs_version) > 1
   cond3 <- nrow(form_versions) > 0
+  form_versions <- unique(form_versions$uid)
+  cond1 <- sum(grepl("\\_version\\_", names(x))) == 1
+  subs_versions <- unique(x[["__version__"]])
+  cond2 <- length(subs_versions) > 1
+  versions <- intersect(unique(form_versions),
+                        unique(subs_versions))
+  if (length(versions) == 0)
+    versions <- default_version
   cond <- cond1 & cond2 & cond3 & all_versions
   if (cond) {
-    version <- intersect(unique(form_versions$uid),
-                         unique(subs_version))
-    form <- lapply(version, \(v) kobo_form(uid, v))
+    form <- lapply(versions, \(v) kobo_form(uid, v))
     form <- list_rbind(form)
   } else {
-    v <- if (!cond2 & cond3) subs_version else NULL
+    v <- if (!cond2 & cond3) versions else NULL
     form <- kobo_form(uid, version = v)
   }
   form

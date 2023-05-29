@@ -12,7 +12,7 @@ kobo_data_ <- function(x, paginate, page_size, size, lang, select_multiple_label
     subs <- get_subs(x$uid)
   }
 
-  form <- kobo_form_version_(subs, x$uid, all_versions = all_versions)
+  form <- kobo_form_version_(subs, x, all_versions = all_versions)
   cn <- kobo_form_names_(form)
   klang <- kobo_lang(x)
   if (is.null(lang) || !lang %in% klang)

@@ -112,7 +112,7 @@ kobo_asset_version.character <- function(x, version) {
   if (!assert_uid(x))
     abort(message = "Invalid asset uid")
 
-  if (!assert_version_uid(version))
+  if (!is_zero_length_or_null(version) && !assert_version_uid(version))
     abort(message = "Invalid asset version uid")
 
   path <- paste0("/api/v2/assets/", x,

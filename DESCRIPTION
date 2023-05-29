@@ -1,17 +1,20 @@
 Package: robotoolbox
 Title: An R Client for the KoboToolbox API
-Version: 1.2.0.9070
+Version: 1.2.0.9075
 Authors@R: c(person(given = "Ahmadou",
                     family = "Dicko",
 		    email = "mail@ahmadoudicko.com",
-		    role = c("aut", "cre")),
+		    role = c("aut", "cre", "cph")),
 	     person(given = "Hisham",
                     family = "Galal",
 	   	    email = "galal@unhcr.org",
-		    role = "ctb"),
-	     person("Kobotoolbox",
-		    role = "cph"))
-Description: Utilities to access data from the KoboToolbox API v2.
+		    role = "ctb"))
+Description: A suite of utilities for accessing and manipulating
+    data from the 'KoboToolbox' API. 'KoboToolbox' is a robust
+    platform designed for field data collection in various disciplines.
+    This package aims to simplify the process of fetching and handling
+    data from the API, making it more accessible for R users. Detailed
+    documentation for the 'KoboToolbox' API can be found at
     <https://support.kobotoolbox.org/api.html>.
 Depends: R (>= 4.1)
 License: MIT + file LICENSE
@@ -50,4 +53,4 @@ RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)
 LazyData: true
 X-schema.org-applicationCategory: Data Access
-X-schema.org-keywords: database, open-data, kobotoolbox, odk, kpi, api, data, dataset
+X-schema.org-keywords: open-data, kobotoolbox, odk, kpi, api, data, dataset
