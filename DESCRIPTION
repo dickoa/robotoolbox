@@ -36,7 +36,8 @@ Imports:
     glue (>= 1.6.0),
     dm (>= 1.0.5),
     labelled (>= 2.11.0),
-    readr (>= 2.1.0)
+    readr (>= 2.1.0),
+    cli (>= 3.6.1)
 Suggests:
     roxygen2 (>= 7.2.3),
     devtools (>= 2.4.3),

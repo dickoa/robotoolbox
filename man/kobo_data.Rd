@@ -14,6 +14,7 @@ kobo_data(
   all_versions,
   colnames_label,
   select_multiple_label,
+  progress,
   paginate,
   page_size
 )
@@ -24,6 +25,7 @@ kobo_submissions(
   all_versions,
   colnames_label,
   select_multiple_label,
+  progress,
   paginate,
   page_size
 )
@@ -34,6 +36,7 @@ kobo_submissions(
   all_versions = TRUE,
   colnames_label = FALSE,
   select_multiple_label = FALSE,
+  progress = FALSE,
   paginate = FALSE,
   page_size = NULL
 )
@@ -44,6 +47,7 @@ kobo_submissions(
   all_versions = TRUE,
   colnames_label = FALSE,
   select_multiple_label = FALSE,
+  progress = FALSE,
   paginate = FALSE,
   page_size = NULL
 )
@@ -54,6 +58,7 @@ kobo_submissions(
   all_versions = TRUE,
   colnames_label = FALSE,
   select_multiple_label = FALSE,
+  progress = FALSE,
   paginate = FALSE,
   page_size = NULL
 )
@@ -70,6 +75,8 @@ Default to \code{TRUE}. If \code{FALSE}, it uses the latest version of the form.
 \item{colnames_label}{logical, whether or not to use variable labels in lieu of column names based on form question names. Default to \code{FALSE}.}
 
 \item{select_multiple_label}{logical, whether or not to replace select_multiple columns values by labels. Default to \code{FALSE}.}
+
+\item{progress}{logical, whether or not you want to see the progess via message. Default to \code{FALSE}.}
 
 \item{paginate}{logical, split submissions by page_size. Default to \code{FALSE}.}
 

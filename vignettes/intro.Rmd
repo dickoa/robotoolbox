@@ -28,6 +28,8 @@ In order to use `robotoolbox`, you need to configure **API token** and specify y
 
 We use the environment variables `KOBOTOOLBOX_URL` and `KOBOTOOLBOX_TOKEN` for the url and the token, respectively. You can use the `usethis` package and the `usethis::edit_r_environ()` to add the following variables to your `.Renviron` file.
 
+The following examples will utilize UNHCR `Kobotoolbox` server url (https://kobo.unhcr.org). You can replace this URL by https://kf.kobotoolbox.org, https://kobo.humanitarianresponse.info/ or any other `Kobotoolbox` server URL you typically use.
+
 ```{bash, eval = FALSE, engine = "sh"}
 KOBOTOOLBOX_URL="https://kobo.unhcr.org/"
 KOBOTOOLBOX_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxx

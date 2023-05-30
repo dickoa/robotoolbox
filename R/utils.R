@@ -1071,8 +1071,6 @@ kobo_type_cols_ <- function(x, form) {
 kobo_form_version_ <- function(x, asset, all_versions) {
   uid <- asset$uid
   default_version <- asset$deployed_version_id
-  if (is.null(default_version))
-    default_version <- asset$version_id
   form_versions <- kobo_asset_version_list(uid)
   form_versions <- filter(form_versions, .data$asset_deployed)
   cond3 <- nrow(form_versions) > 0

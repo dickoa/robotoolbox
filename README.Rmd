@@ -48,6 +48,8 @@ You can retrieve your `API token` following the instruction in the official API 
 
 You can also get your token directly from `R` using the `kobo_token` function.
 
+The following examples will utilize UNHCR `Kobotoolbox` server url (https://kobo.unhcr.org). You can replace this URL by https://kf.kobotoolbox.org, https://kobo.humanitarianresponse.info/ or any other `Kobotoolbox` server URL you typically use.
+
 ```{r}
 kobo_token(username = "xxxxxxxxx",
            password = "xxxxxxxxx",
