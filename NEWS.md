@@ -1,3 +1,10 @@
+robotoolbox 1.3.0
+======================
+
+### NEW FEATURES
+
+  * released to CRAN
+
 robotoolbox 1.2.0.9075
 ======================
 
