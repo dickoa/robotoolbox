@@ -1,3 +1,8 @@
+## Resubmission
+This is a resubmission. In this version:
+
+* I fixed the following NOTE: Wrong URI (CODE_OF_CONDUCT.md) on the README.md file
+
 ## Test environments
 
 - Arch Linux x86_64 GNU/Linux, kernel 6.3.5-arch1-1
