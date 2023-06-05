@@ -17,3 +17,4 @@
 ^\_pkgdown\.yml$
 ^codecov\.yml$
 ^data\-raw$
+^reference$

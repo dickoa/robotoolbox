@@ -1,8 +1,10 @@
-#' Get \code{robotoolbox} settings
+#' Get robotoolbox settings
 #'
-#' Print the current token and server url used.
+#' Print the KoboToolbox server URL and API token currently in use.
 #'
-#' @return a list, prints your server url and token
+#' @name kobo_settings
+#'
+#' @returns A list with information about your KoboToolbox server URL and token.
 #'
 #' @examples
 #' \dontrun{
@@ -18,24 +20,27 @@ kobo_settings <- function() {
   structure(ops, class = "kobo_settings")
 }
 
-#' Set the \code{robotoolbox} settings
+#' Set robotoolbox settings
 #'
-#' Set the KoboToolbox server url and the API token.
+#' Set the KoboToolbox server URL and the API token and return invisibly
+#' a \code{kobo_settings} object.
 #'
 #' @importFrom rlang abort
 #'
-#' @param url character, the base url of the KoboToolbox server
-#' @param token character, the API token
+#' @name kobo_setup
 #'
-#' @return a \code{\link{kobo_settings}} object
+#' @param url character, the base url of the KoboToolbox server.
+#' @param token character, the API token.
+#'
+#' @returns A \code{kobo_settings} object pritting the server URL and the API token.
 #'
 #' @examples
 #' \dontrun{
+#'  # use your own URL and token
 #'  kobo_setup(url = "https://kf.kobotoolbox.org/",
 #'             token = "9et1814c285w094f6v9bd629df47a1a0e81x53a0")
 #'  kobo_settings()
 #' }
-#'
 #'
 #' @export
 kobo_setup <- function(url = Sys.getenv("KOBOTOOLBOX_URL", ""),

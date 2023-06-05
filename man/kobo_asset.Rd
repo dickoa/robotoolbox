@@ -2,18 +2,20 @@
 % Please edit documentation in R/kobo_asset.R
 \name{kobo_asset}
 \alias{kobo_asset}
-\title{Get a specific KoboToolbox Asset from a uid}
+\title{Get a specific KoboToolbox API asset from a unique identifier}
 \usage{
 kobo_asset(x)
 }
 \arguments{
-\item{x}{the unique identifier of a specific asset or a \code{kobo_asset} object.}
+\item{x}{the unique identifier of a specific asset (\code{character}) or
+a \code{kobo_asset} object.}
 }
 \value{
-a \code{kobo_asset} object
+A \code{kobo_asset} object. It contains all the information about the
+KoboToolbox project associated to the supplied unique identifier.
 }
 \description{
-Get a specific KoboToolbox Asset from a uid
+Get a specific KoboToolbox API asset from a unique identifier
 }
 \details{
 \code{\link{kobo_asset}} allows you to access any \code{Kobotoolbox} API asset.
@@ -21,8 +23,10 @@ Assets can include a range of types, such as questions, blocks, surveys, templat
 }
 \examples{
 \dontrun{
-kobo_setup() # setup using your url and token
-uid <- "a9cwEQcbWqWzA5hzkjRUWi" # pick a valid uid
+# replace by your own url and token
+kobo_setup(url = "https://kf.kobotoolbox.org", token = "abcde")
+# use a valid uid
+uid <- "a9cwEQcbWqWzA5hzkjRUWi"
 asset <- kobo_asset(uid)
 asset
 }

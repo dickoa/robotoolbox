@@ -1,9 +1,3 @@
-#' @importFrom RcppSimdJson fparse
-#' @importFrom purrr list_rbind
-#' @importFrom dplyr mutate select
-#' @importFrom tidyr unnest
-#' @importFrom data.table fread
-#'
 #' @noRd
 kobo_audit_ <- function(uid) {
   audit_meta <- get_audit_url_(uid)
@@ -38,23 +32,29 @@ kobo_audit_ <- function(uid) {
            end = as.POSIXct(.data$end / 1000, origin = "1970-01-01"))
 }
 
-#' Get all audit log data from a KoboToolbox project
+#' Get all audit logs data from a KoboToolbox survey
 #'
-#' Get all audit log data from a KoboToolbox project through a \code{\link{kobo_asset}} or asset uid.
+#' Get all audit logs data from a KoboToolbox survey through a \code{kobo_asset} or
+#' asset unique identifier.
 #'
-#' @rdname kobo_audit
+#' @name kobo_audit
 #'
-#' @param x a \code{kobo_asset} or character, the asset
+#' @importFrom RcppSimdJson fparse
+#' @importFrom purrr list_rbind
+#' @importFrom dplyr mutate select
+#' @importFrom tidyr unnest
+#' @importFrom data.table fread
 #'
-#' @details \code{kobo_audit} allows you to access the audit log files and parse them
-#' into a \code{data.frame} to make audit log data analysis easier.
+#' @param x the unique identifier of a specific asset (`character`) or
+#' a \code{kobo_asset} object.
 #'
-#' @return A data.frame
+#' @returns A \code{data.frame}. It contains survey paradata from audit logs. It is useful
+#' for data quality control, troubleshooting or workflow management.
 #'
 #' @examples
 #' \dontrun{
-#' kobo_setup() # setup using your url and token
-#' uid <- "a9cwEQcbWqWzdA5eqkjRUWi" # pick a valid uid
+#' kobo_setup()
+#' uid <- "a9cwEQcbWqWzdA5eqkjRUWi"
 #' asset <- kobo_asset(uid)
 #' audit <- kobo_audit(asset)
 #'
@@ -65,8 +65,9 @@ kobo_audit_ <- function(uid) {
 #' }
 #'
 #' @export
-kobo_audit <- function(x)
+kobo_audit <- function(x) {
   UseMethod("kobo_audit")
+}
 
 #' @importFrom purrr list_rbind
 #' @importFrom dplyr filter

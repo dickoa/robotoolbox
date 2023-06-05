@@ -2,31 +2,32 @@
 % Please edit documentation in R/kobo_form.R
 \name{kobo_form}
 \alias{kobo_form}
-\title{Get a KoboToolbox project form}
+\title{Get a KoboToolbox survey form}
 \usage{
 kobo_form(x, version)
 }
 \arguments{
-\item{x}{the asset uid or the \code{kobo_asset} object}
+\item{x}{the unique identifier of a specific asset (\code{character}) or
+a \code{kobo_asset} object.}
 
-\item{version}{character, uid of the version of the asset}
+\item{version}{character, the unique identifier of the version of the asset.}
 }
 \value{
-a \code{data.frame}
+A \code{data.frame} with the following columns \code{name}, \code{label}, \code{lang},
+and list-column representing form \code{choices} values and labels.
 }
 \description{
-Get a KoboToolbox project form from a \code{\link{kobo_asset}} or asset uid.
-}
-\details{
-\code{kobo_form} pull the form associated to specific \code{kobo_asset}. The output is table with information such as \code{name}, \code{label}, \code{lang}, and list-column representing form \code{choices}.
+Get a KoboToolbox survey form from a \code{kobo_asset} or an asset unique identifier.
 }
 \examples{
 \dontrun{
-#' kobo_setup()
-asset_list <- kobo_asset_list()
-uid <- asset_list$uid[1]
+# Use your own URL and token
+kobo_setup(url = "https://kf.kobotoolbox.org/",
+           token = "9et1814c285w094f6v9bd629df47a1a0e81x53a0")
+# Use your own API asset identifier
+uid <- "a9cwEQcbWqWzA5hzkjRUWi"
 asset <- kobo_asset(uid)
-form <- kobo_form(uid)
+form <- kobo_form(asset)
 }
 
 }

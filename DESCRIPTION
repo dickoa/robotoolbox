@@ -1,6 +1,6 @@
 Package: robotoolbox
-Title: An R Client for the KoboToolbox API
-Version: 1.3.1
+Title: Client for the 'KoboToolbox' API
+Version: 1.3.1.9000
 Authors@R: c(person(given = "Ahmadou",
                     family = "Dicko",
 		    email = "mail@ahmadoudicko.com",
@@ -9,18 +9,17 @@ Authors@R: c(person(given = "Ahmadou",
                     family = "Galal",
 	   	    email = "galal@unhcr.org",
 		    role = "ctb"))
-Description: A suite of utilities for accessing and manipulating
+Description: Suite of utilities for accessing and manipulating
     data from the 'KoboToolbox' API. 'KoboToolbox' is a robust
     platform designed for field data collection in various disciplines.
     This package aims to simplify the process of fetching and handling
-    data from the API, making it more accessible for R users. Detailed
-    documentation for the 'KoboToolbox' API can be found at
-    <https://support.kobotoolbox.org/api.html>.
+    data from the API. Detailed documentation for the 'KoboToolbox' API
+    can be found at <https://support.kobotoolbox.org/api.html>.
 Depends: R (>= 4.1)
 License: MIT + file LICENSE
 Encoding: UTF-8
 Language: en_US
-URL: https://gitlab.com/dickoa/robotoolbox
+URL: https://dickoa.gitlab.io/robotoolbox, https://gitlab.com/dickoa/robotoolbox
 BugReports: https://gitlab.com/dickoa/robotoolbox/-/issues
 Imports:
     crul (>= 1.4.0),
@@ -47,11 +46,13 @@ Suggests:
     covr (>= 3.6.2),
     rmarkdown (>= 2.21),
     DiagrammeR (>= 1.0.9),
+    DiagrammeRsvg (>= 0.1),
     sf (>= 1.0.9),
     mapview (>= 2.11.0)
 VignetteBuilder: knitr
 RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)
 LazyData: true
+Config/Needs/website: vidonne/unhcrtemplate
 X-schema.org-applicationCategory: Data Access
 X-schema.org-keywords: open-data, kobotoolbox, odk, kpi, api, data, dataset

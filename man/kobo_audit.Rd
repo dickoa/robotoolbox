@@ -2,27 +2,26 @@
 % Please edit documentation in R/kobo_audit.R
 \name{kobo_audit}
 \alias{kobo_audit}
-\title{Get all audit log data from a KoboToolbox project}
+\title{Get all audit logs data from a KoboToolbox survey}
 \usage{
 kobo_audit(x)
 }
 \arguments{
-\item{x}{a \code{kobo_asset} or character, the asset}
+\item{x}{the unique identifier of a specific asset (\code{character}) or
+a \code{kobo_asset} object.}
 }
 \value{
-A data.frame
+A \code{data.frame}. It contains survey paradata from audit logs. It is useful
+for data quality control, troubleshooting or workflow management.
 }
 \description{
-Get all audit log data from a KoboToolbox project through a \code{\link{kobo_asset}} or asset uid.
-}
-\details{
-\code{kobo_audit} allows you to access the audit log files and parse them
-into a \code{data.frame} to make audit log data analysis easier.
+Get all audit logs data from a KoboToolbox survey through a \code{kobo_asset} or
+asset unique identifier.
 }
 \examples{
 \dontrun{
-kobo_setup() # setup using your url and token
-uid <- "a9cwEQcbWqWzdA5eqkjRUWi" # pick a valid uid
+kobo_setup()
+uid <- "a9cwEQcbWqWzdA5eqkjRUWi"
 asset <- kobo_asset(uid)
 audit <- kobo_audit(asset)
 

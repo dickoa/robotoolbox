@@ -6,7 +6,7 @@
 \alias{kobo_submissions.kobo_asset}
 \alias{kobo_submissions.character}
 \alias{kobo_submissions.default}
-\title{Get all submissions from a KoboToolbox project}
+\title{Get all submissions from a KoboToolbox API asset}
 \usage{
 kobo_data(
   x,
@@ -64,40 +64,47 @@ kobo_submissions(
 )
 }
 \arguments{
-\item{x}{a \code{\link{kobo_asset}} or character, the asset
-if missing, default to number of submissions divided by 5}
+\item{x}{the asset uid or the \code{kobo_asset} object.}
 
-\item{lang}{character, language for the variable and value labels.}
+\item{lang}{character, form language used for the variable and value labels.}
 
-\item{all_versions}{logical, whether or not to include data from all form versions.
-Default to \code{TRUE}. If \code{FALSE}, it uses the latest version of the form.}
+\item{all_versions}{logical, whether or not to include submissions from all form versions.
+Default to \code{TRUE}. If \code{FALSE}, it uses the data from the latest version of the form.}
 
-\item{colnames_label}{logical, whether or not to use variable labels in lieu of column names based on form question names. Default to \code{FALSE}.}
+\item{colnames_label}{logical, whether or not to use variable labels
+in lieu of column names based on form question names. Default to \code{FALSE}.}
 
 \item{select_multiple_label}{logical, whether or not to replace select_multiple columns values by labels. Default to \code{FALSE}.}
 
-\item{progress}{logical, whether or not you want to see the progess via message. Default to \code{FALSE}.}
+\item{progress}{logical, whether or not you want to see the progess via message.
+Default to \code{FALSE}.}
 
 \item{paginate}{logical, split submissions by page_size. Default to \code{FALSE}.}
 
 \item{page_size}{integer, number of submissions per page.}
 }
 \value{
-A  \code{data.frame} or A  \code{dm} object if you have repeat groups
+A \code{data.frame} or A \code{dm} object if you have a repeating
+group of questions. It contains the responses from the Kobotoolbox survey.
 }
 \description{
-Get all submissions from a KoboToolbox project through a \code{\link{kobo_asset}} or asset uid.
+Get all submissions from a KoboToolbox API asset through a \code{kobo_asset} or
+asset unique identifier.
 }
 \details{
 \code{\link{kobo_data}} is the main function of \code{robotoolbox}, it is used
-pull submissions from your Kobotoolbox survey.
+pull submissions from your Kobotoolbox survey. The main result is a \code{data.frame}
+for regular form and you have a \code{dm} for a form with repeating groups of questions.
 }
 \examples{
 \dontrun{
-kobo_setup() # setup using your url and token
-uid <- "a9cwEQcbWqWzA5hzkjRUWi" # pick a valid uid
+# Use your own URL and token
+kobo_setup(url = "https://kf.kobotoolbox.org/",
+           token = "9et1814c285w094f6v9bd629df47a1a0e81x53a0")
+# Use your own unique identifier
+uid <- "a9cwEQcbWqWzA5hzkjRUWi"
 asset <- kobo_asset(uid)
-subs <- kobo_data(asset) ## kobo_submissions(asset)
+subs <- kobo_data(asset)
 
 if (require(dplyr)) {
  library(dplyr)

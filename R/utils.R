@@ -66,8 +66,8 @@ xget <- function(path, args = list(), n_retry = 3L, ...) {
   headers <- list(Authorization = paste("Token",
                                         Sys.getenv("KOBOTOOLBOX_TOKEN")),
                   `User-Agent` = user_agent_())
-  cli <- crul::HttpClient$new(Sys.getenv("KOBOTOOLBOX_URL"),
-                              headers = headers, opts = list(...))
+  cli <- HttpClient$new(Sys.getenv("KOBOTOOLBOX_URL"),
+                        headers = headers, opts = list(...))
   res <- cli$retry("get",
                    path = path,
                    query = args,
@@ -235,36 +235,6 @@ asset_list_to_tbl <- function(x) {
          submissions = map_int2(x, "deployment__submission_count"))
 }
 
-## #' @importFrom RcppSimdJson fparse
-## #' @noRd
-## get_form_media <- function(uid) {
-##   headers <- list(Authorization = paste("Token",
-##                                         Sys.getenv("KOBOTOOLBOX_TOKEN")))
-##   path <- paste0("api/v2/assets/", uid, "/files/?file_type=form_media")
-##   cli <- crul::HttpClient$new(Sys.getenv("KOBOTOOLBOX_URL"),
-##                               headers = headers)
-##   res <- cli$get(path = path)
-##   res$raise_for_status()
-##   res$raise_for_ct_json()
-##   res <- fparse(res$parse("UTF-8"),
-##                 max_simplify_lvl = "data_frame")
-##   fname <- map_chr2(res$results$metadata, "filename")
-##   mtype <- map_chr2(res$results$metadata, "mimetype")
-##   uid <- res$results$uid
-##   url <- res$results$content
-##   tibble(uid = uid, url = url, filename = fname, mimetype = mtype)
-## }
-
-## #' @noRd
-## download_form_media <- function(url, filename) {
-##   headers <- list(Authorization = paste("Token",
-##                                         Sys.getenv("KOBOTOOLBOX_TOKEN")))
-##   cli <- crul::HttpClient$new(url, headers = headers)
-##   out <- cli$get(disk = filename)
-##   out$raise_for_status()
-##   invisible(filename)
-## }
-
 #' @importFrom RcppSimdJson fparse
 #' @importFrom purrr list_rbind
 #' @importFrom dplyr select
@@ -278,35 +248,15 @@ get_audit_url_ <- function(uid) {
     select(`_id` = "instance", "download_url")
 }
 
-## #' @importFrom data.table fread
-## #' @noRd
-## form_media_one_csv_tbl <- function(url) {
-##   headers <- list(Authorization = paste("Token",
-##                                         Sys.getenv("KOBOTOOLBOX_TOKEN")))
-##   cli <- crul::HttpClient$new(url, headers = headers)
-##   out <- cli$get()
-##   out$raise_for_status()
-##   out <- fread(out$parse(encoding = "UTF-8"))
-##   out <- dt2tibble(out)
-##   out
-## }
-
-## ## Find a clever to label it, update example
-## #' @noRd
-## form_media_csv_tbl <- function(uid) {
-##   meta <- get_form_media(uid)
-##   df <- lapply(meta$url,
-##                function(x) form_media_one_csv_tbl(x))
-##   df
-## }
-
 #' @noRd
-map_chr2 <- function(x, key)
+map_chr2 <- function(x, key) {
   vapply(x, function(l) as.character(l[[key]]), character(1))
+}
 
 #' @noRd
-map_int2 <- function(x, key)
+map_int2 <- function(x, key) {
   vapply(x, function(l) as.integer(l[[key]]), integer(1))
+}
 
 #' @noRd
 parse_kobo_datetime <- function(x) {
@@ -318,24 +268,29 @@ parse_kobo_datetime <- function(x) {
 }
 
 #' @noRd
-parse_kobo_datetime_simple <- function(x)
+parse_kobo_datetime_simple <- function(x) {
   as.character(round(as.POSIXct(x), "secs"))
+}
 
 #' @noRd
-is_list_cols <- function(x)
+is_list_cols <- function(x) {
   which(vapply(x, is.list, logical(1)))
+}
 
 #' @noRd
-is_list_cols_names <- function(x)
+is_list_cols_names <- function(x) {
   names(is_list_cols(x))
+}
 
 #' @noRd
-is_null_recursive <- function(x)
+is_null_recursive <- function(x) {
   is.null(x) | all(vapply(x, is.null, logical(1)))
+}
 
 #' @noRd
-is_null_recursive <- function(x)
+is_null_recursive <- function(x) {
   is.null(x) | any(vapply(x, is.null, logical(1)))
+}
 
 #' @noRd
 drop_nulls <- function(x) {
@@ -447,8 +402,9 @@ dedup_vars_ <- function(x, all_versions = TRUE) {
 }
 
 #' @noRd
-make_unique_names_ <- function(x)
+make_unique_names_ <- function(x) {
   make.unique(basename(x), sep = "_")
+}
 
 #' @importFrom purrr modify_if
 #' @importFrom tibble tibble rowid_to_column
@@ -473,21 +429,6 @@ extract_repeat_tbl <- function(x, form, all_versions) {
   }
   res
 }
-
-## #' @noRd
-## duplicated_all <- function(x)
-##   duplicated(x) | duplicated(x, fromLast = TRUE)
-
-## #' @noRd
-## #' @importFrom purrr list_rbind
-## rbind_duplicate_list <- function(x) {
-##   bool <- duplicated_all(names(x))
-##   key <- unique(names(x)[bool])
-##   a <- x[!bool]
-##   b <- x[bool]
-##   res <- c(a, setNames(list(list_rbind(b)), key))
-##   res[unique(names(x))]
-## }
 
 #' @importFrom rlang squash
 #' @noRd
@@ -601,39 +542,6 @@ val_labels_sm_from_form_ <- function(x, form, lang) {
   }
   x
 }
-
-## #' @importFrom dplyr mutate across filter
-## #' @importFrom tidyselect all_of
-## #' @importFrom stats setNames
-## #' @importFrom labelled set_value_labels
-## #' @importFrom rlang .data
-## #' @noRd
-## val_labels_from_form_external_ <- function(x, form, lang) {
-##   form <- filter(form,
-##                  .data$lang %in% !!lang,
-##                  grepl(".+from\\_file$", .data$type))
-##   nm <- unique(form$name)
-##   nm <- intersect(names(x), nm)
-##   if (length(nm) > 0) {
-##     form <- form[match(nm, form$name), ]
-##     choices <- form$choices
-##     choices <- lapply(choices, function(ch) {
-##       ch <- filter(ch,
-##                    .data$value_lang %in% !!lang)
-##       ch$value_label <- make.unique(ch$value_label, sep = "_")
-##       ch <- setNames(ch$value_name, ch$value_label)
-##       ch[!duplicated(ch)]
-##     })
-##     names(choices) <- nm
-##     labels <- choices[nm]
-##     x <- set_value_labels(mutate(x, across(all_of(nm), as.character)),
-##                           .labels = labels,
-##                           .strict = FALSE)
-##   } else {
-##     x
-##   }
-##   x
-## }
 
 #' @noRd
 replace_na_list_ <- function(x) {
@@ -812,16 +720,19 @@ extract_geoshape_ <- function(x, form) {
 }
 
 #' @noRd
-is_zero_length_or_null <- function(x)
+is_zero_length_or_null <- function(x) {
   is.null(x) | length(x) == 0
+}
 
 #' @noRd
-is_uid_available <- function(x)
+is_uid_available <- function(x) {
   length(x) > 0 && !is.null(x$uid)
+}
 
 #' @noRd
-is_label_available <- function(x)
+is_label_available <- function(x) {
   length(x) > 0 && !is.null(x$label)
+}
 
 #' @noRd
 #' @importFrom dplyr select
@@ -947,54 +858,16 @@ lookup_varlabel_ <- function(x) {
            make.unique(unlist(v), sep = "_"))
 }
 
-#' Use variable labels as variable names
-#'
-#' This function can be used alongside labelled::to_factor or labelled::to_character
-#' to match the output you get from Kobotoolbox XLSX export with labels.
-#'
-#' @rdname set_names_from_varlabel
-#'
-#' @importFrom labelled var_label
-#' @importFrom dm dm_rename
 #' @importFrom dplyr rename
-#' @importFrom rlang set_names
-#' @importFrom tidyselect all_of
-#'
-#' @param x a tibble or dm object imported using \code{\link{kobo_data}}
-#'
-#' @examples
-#' \dontrun{
-#' kobo_setup() # setup using your url and token
-#' uid <- "a9cwEQcbWqWzA5hzkjRUWi" # pick a valid uid
-#' asset <- kobo_asset(uid)
-#' subs <- kobo_data(asset) ## kobo_submissions(asset)
-#' if (require(dplyr)) {
-#'  library(dplyr)
-#'  glimpse(subs)
-#'  glimpse(set_names_from_varlabel(subs))
-#'  }
-#' }
-#'
-#' @export
-set_names_from_varlabel <- function(x)
-  UseMethod("set_names_from_varlabel")
-
-#' @rdname set_names_from_varlabel
-#' @export
-set_names_from_varlabel.default <- function(x)
-    stop("It is only working with labelled dm or data.frame objects",
-         call. = TRUE)
-
-#' @rdname set_names_from_varlabel
-#' @export
-set_names_from_varlabel.data.frame <- function(x) {
+#' @noRd
+set_names_from_varlabel_ <- function(x) {
   lookup <- lookup_varlabel_(x)
   rename(x, all_of(lookup))
 }
 
-#' @rdname set_names_from_varlabel
-#' @export
-set_names_from_varlabel.dm <- function(x) {
+#' @importFrom dm dm_rename
+#' @noRd
+set_names_from_varlabel_dm_ <- function(x) {
   tbl_nm <- names(x)
   for (nm in tbl_nm) {
     x <- dm_rename(x,
@@ -1003,6 +876,7 @@ set_names_from_varlabel.dm <- function(x) {
   }
   x
 }
+
 
 #' @importFrom dplyr mutate case_when
 #' @importFrom stats na.omit

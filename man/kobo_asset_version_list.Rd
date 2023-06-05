@@ -2,7 +2,7 @@
 % Please edit documentation in R/kobo_asset.R
 \name{kobo_asset_version_list}
 \alias{kobo_asset_version_list}
-\title{List all available versions of a KoboToolbox asset}
+\title{List all available versions of a KoboToolbox API asset}
 \usage{
 kobo_asset_version_list(x)
 }
@@ -13,7 +13,7 @@ kobo_asset_version_list(x)
 a \code{data.frame}
 }
 \description{
-List all available versions of a KoboToolbox asset and their metadata.
+List all available versions of a KoboToolbox API asset and their metadata.
 }
 \details{
 \code{kobo_asset_version_list} create a table with all the versions of the asset,

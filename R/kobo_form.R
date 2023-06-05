@@ -1,11 +1,12 @@
-#' Get a KoboToolbox project form
+#' Get a KoboToolbox survey form
 #'
-#' Get a KoboToolbox project form from a \code{\link{kobo_asset}} or asset uid.
+#' Get a KoboToolbox survey form from a \code{kobo_asset} or an asset unique identifier.
 #'
-#' @param x the asset uid or the \code{kobo_asset} object
-#' @param version character, uid of the version of the asset
+#' @param x the unique identifier of a specific asset (`character`) or
+#' a \code{kobo_asset} object.
+#' @param version character, the unique identifier of the version of the asset.
 #'
-#' @rdname kobo_form
+#' @name kobo_form
 #'
 #' @importFrom data.table rbindlist
 #' @importFrom dplyr select nest_join
@@ -16,22 +17,24 @@
 #' @importFrom tidyselect contains everything all_of
 #' @importFrom rlang .data set_names
 #'
-#' @details \code{kobo_form} pull the form associated to specific \code{kobo_asset}. The output is table with information such as `name`, `label`, `lang`, and list-column representing form `choices`.
-#'
-#' @return a \code{data.frame}
+#' @returns A \code{data.frame} with the following columns `name`, `label`, `lang`,
+#' and list-column representing form `choices` values and labels.
 #'
 #' @examples
 #' \dontrun{
-#' #' kobo_setup()
-#' asset_list <- kobo_asset_list()
-#' uid <- asset_list$uid[1]
+#' # Use your own URL and token
+#' kobo_setup(url = "https://kf.kobotoolbox.org/",
+#'            token = "9et1814c285w094f6v9bd629df47a1a0e81x53a0")
+#' # Use your own API asset identifier
+#' uid <- "a9cwEQcbWqWzA5hzkjRUWi"
 #' asset <- kobo_asset(uid)
-#' form <- kobo_form(uid)
+#' form <- kobo_form(asset)
 #' }
 #'
 #' @export
-kobo_form <- function(x, version)
+kobo_form <- function(x, version) {
   UseMethod("kobo_form")
+}
 
 #' @export
 kobo_form.kobo_asset <- function(x, version = NULL) {

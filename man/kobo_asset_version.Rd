@@ -2,28 +2,27 @@
 % Please edit documentation in R/kobo_asset.R
 \name{kobo_asset_version}
 \alias{kobo_asset_version}
-\title{Get a specific KoboToolbox Asset version from an asset uid or \code{\link{kobo_asset}}}
+\title{Get a specific KoboToolbox API asset version from an asset unique identifier}
 \usage{
 kobo_asset_version(x, version)
 }
 \arguments{
-\item{x}{the unique identifier of a specific asset or a \code{kobo_asset} object}
+\item{x}{the unique identifier of a specific asset (\code{character}) or
+a \code{kobo_asset} object.}
 
-\item{version}{version of the asset}
+\item{version}{character, the unique identifier of the version of the asset}
 }
 \value{
-a \code{kobo_asset_version} object
+A \code{kobo_asset_version} object
 }
 \description{
-Get a specific KoboToolbox Asset version from an asset uid or \code{\link{kobo_asset}}
-}
-\details{
-Get a specific version of your \code{kobo_asset}.
+Get a specific KoboToolbox Asset version from an asset unique identifier
+or \code{kobo_asset} object
 }
 \examples{
 \dontrun{
-kobo_setup() # setup using your url and token
-uid <- "a9cwEQcbWqWzA5hzkjRUWi" # pick a valid uid
+kobo_setup()
+uid <- "a9cwEQcbWqWzA5hzkjRUWi"
 asset <- kobo_asset(uid)
 asset_version_list <- kobo_asset_version_list(asset)
 kobo_asset_version(asset, asset_version_list$uid[1])

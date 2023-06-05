@@ -18,11 +18,12 @@ knitr::opts_chunk$set(
 
 ```
 
-Projects in `Kobotoolbox` supports multiple languages. This can be utilized to label questions and choices values in either single or multiple-choice questions.
+Surveys in `KoboToolbox` supports multiple languages. This can be utilized to label questions and choices values in either single or multiple-choice questions.
 
-`robotoolbox` enables you to access labels in various languages in your form. The [`labelled`](https://cran.r-project.org/package=labelled/vignettes/intro_labelled.html) package is used to encode variable labels for question labels and value labels for choice labels.
+`robotoolbox` enables you to access these labels used in the form. The [`labelled`](https://cran.r-project.org/package=labelled/vignettes/intro_labelled.html) package is used to encode variable labels for question labels and value labels for choice labels.
 
-To demonstrate its application, data will be loaded from the following project that employs three languages: English, French, and Arabic.
+Data from the following project that employs three languages: English, French, and Arabic. `robotoolbox`
+
 
 ### Survey questions
 
@@ -46,7 +47,7 @@ To demonstrate its application, data will be loaded from the following project t
 
 ### Loading the project asset
 
-This project, which was uploaded to a `Kobotoolbox` server, can be loaded into your session using its unique identifier `uid`.
+This survey from your `KoboToolbox` server, can be loaded into your `R` session using its unique identifier (`uid = aYuTZn9vegi3Z49MXwKjep`) and the `kobo_asset` function.
 
 ```{r, eval = FALSE}
 library(robotoolbox)
@@ -65,7 +66,7 @@ asset
 
 ### Listing available languages
 
-The `kobo_lang` function can be used to list all languages available in the project.
+The `kobo_lang` function can be used to list all available languages from this survey.
 
 ```{r list_lang}
 kobo_lang(asset)
@@ -73,7 +74,7 @@ kobo_lang(asset)
 
 ### Reading data in each languages
 
-The `kobo_data` function allows the use of the `lang` parameter to specify the language to be loaded. The spelling of each language can be checked first using `kobo_lang`.
+The `kobo_data` comes with a `lang` parameter to specify the language to be loaded. The spelling of each language can be checked first using `kobo_lang`.
 
 ```{r, eval = FALSE}
 df_en <- kobo_data(asset, lang = "English (en)")
@@ -119,7 +120,17 @@ var_label(df_fr$pet_yesno)
 var_label(df_ar$pet_yesno)
 ```
 
-### Accessing `select_one` type question labels
+### Variable labels as column names
+
+`kobo_data` has an extra parameter `colnames_label` (default to `FALSE`) to allow you to use the variable labels as column names. It's not recommended for data analysis, but it can be useful to export your `data.frame` to a spreadsheet. It also provides a feature already available in the traditional `KoboToolbox` export tools.
+
+```{r colvar1, eval = TRUE}
+kobo_data(asset_ml,
+          colnames_label = TRUE, lang = "Arabic (ar)") |>
+  names()
+```
+
+### Accessing labels from `select_one` question type
 
 The `to_factor` function can convert the values of single-choice questions into labels.
 
@@ -129,10 +140,67 @@ table(to_factor(df_fr$pet_yesno))
 table(to_factor(df_ar$pet_yesno))
 ```
 
-When `character` is preferred over `factor`, `to_character` serves as an alternative to `to_factor`.
+When `character` is preferred over `factor`, you can use `to_character` to have the labels in `character` instead of `factor`.
 
 ```{r val_label_character}
 count(df_ar, pet_yesno_ar = to_character(pet_yesno))
 ```
 
-All of these functions come from the `labelled` package; you can explore this package further through its [documentation](https://larmarange.github.io/labelled/).
+### Accessing labels for `select_multiple` question type
+
+Labels from `select_multiple` is also accessible using the `kobo_data` parameter `select_multiple_label`. Let's show this new feature, with the following form:
+
+#### Survey questions
+
+| type                | name      | label::English (en)         |
+|---------------------|-----------|-----------------------------|
+| start               | start     |                             |
+| end                 | end       |                             |
+| today               | today     |                             |
+| text                | full_name | What is your name?          |
+| select_multiple pet | pet_type  | What type of pet do you own |
+
+
+#### Choices
+
+| list_name | name | label::English (en) |
+|-----------|------|---------------------|
+| pet       | 1    | rabbit              |
+| pet       | 2    | chicken             |
+| pet       | 3    | dog                 |
+| pet       | 4    | cat                 |
+| pet       | 5    | turtle              |
+
+
+```{r, echo = TRUE, eval = FALSE}
+data_sm <- kobo_data(uid)
+glimpse(data_sm)
+```
+
+```{r, echo = FALSE, eval = TRUE}
+library(dplyr)
+library(robotoolbox)
+glimpse(kobo_data(asset_sm_label))
+```
+
+The column `pet_type` contains values (`1` to `5`) and the labels . These are not the labels. Now let's set the new `select_multiple_label` to `TRUE` and read again the data.
+
+```{r, echo = TRUE, eval = FALSE}
+data_sm_label <- kobo_data(uid,
+                           select_multiple_label = TRUE)
+glimpse(data_sm_label)
+```
+
+```{r, echo = FALSE, eval = TRUE}
+glimpse(data_sm_label)
+```
+
+We can now see the `labels` instead of the `values` (`dog`, `cat`, etc.) for the column `pet_type`.
+
+Variable labels has been improved for all the dummy variables related to the `select_multiple` question (whether or not you use `select_multiple_label`).
+
+```{r, eval = TRUE}
+var_label(data_sm_label)
+```
+
+Most of these functions come from the `labelled` package, you can explore this package further through its [documentation](https://larmarange.github.io/labelled/).

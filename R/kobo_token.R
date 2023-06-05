@@ -2,29 +2,35 @@
 #'
 #' Get your KoboToolbox API token from your username and password.
 #'
-#'
 #' @importFrom crul auth HttpClient
 #' @importFrom RcppSimdJson fparse
 #'
-#' @param username character, KoboToolbox account username
-#' @param password character, KoboToolbox account password
-#' @param url character, KoboToolbox server url
-#' @param overwrite logical, if TRUE overwrite existing token.
+#' @name kobo_token
+#'
+#' @param username character, KoboToolbox account username.
+#' @param password character, KoboToolbox account password.
+#' @param url character, KoboToolbox server url.
+#' @param overwrite logical, if `TRUE`, it overwrites the existing token.
+#' Default to `FALSE`.
 #'
 #' @details the url and the token are stored, respectively, as the environment
-#' variable `KOBOTOOLBOX_URL` and `KOBOTOOLBOX_TOKEN`.
-# '
+#' variable \code{KOBOTOOLBOX_URL} and \code{KOBOTOOLBOX_TOKEN}.
+#'
+#' @returns A \code{character}, the KoboToolbox API token. It also stores, as a side effect,
+#' the URL and token as the environment variables \code{KOBOTOOLBOX_URL} and
+#' \code{KOBOTOOLBOX_TOKEN} respectively.
+#'
 #' @examples
 #' \dontrun{
+#' # use your own KoboToolbox URL, username and password
 #' if (require(askpass)) {
 #'  token <- kobo_setup(username = "cool_user_name",
 #'                      password = askpass::askpass(),
 #'                      url = "https://kf.kobotoolbox.org/")
-#' }
-#' token
+#'  token
+#'  }
 #' }
 #'
-#' @return character, the KoboToolbox API token
 #' @export
 kobo_token <- function(username = NULL, password = NULL,
                        url = NULL, overwrite = FALSE) {
@@ -41,9 +47,9 @@ kobo_token <- function(username = NULL, password = NULL,
     token <- Sys.getenv("KOBOTOOLBOX_TOKEN")
   } else {
     url_path <- file.path(url, "token/?format=json")
-    cli <- crul::HttpClient$new(url = url_path,
-                                auth = auth(user = username,
-                                            pwd = password))
+    cli <- HttpClient$new(url = url_path,
+                          auth = auth(user = username,
+                                      pwd = password))
     res <- cli$retry("get",
                      times = 3L,
                      retry_only_on = c(500, 503),

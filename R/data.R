@@ -1,61 +1,66 @@
-#' KoboToolbox asset, assets list and submissions data
+#' Examples of KoboToolbox assets, list of assets
 #'
-#' KoboToolbox asset, assets list and submissions data
+#' Examples of KoboToolbox assets, list of assets.
 #'
-#' Examples of KoboToolbox asset, assets list and submissions data
-#'
-#' @rdname dummy_data
-#' @format asset_list: a data.frame of 28 rows and 7 columns with a list of projects
+#' @rdname dummy_asset
+#' @format asset_list: a \code{data.frame} of 28 rows and 7 columns with a list of projects
 "asset_list"
 
-#' @rdname dummy_data
-#' @format asset_ml: A kobo_asset object on a project using multiple languages.
+#' @rdname dummy_asset
+#' @format asset_ml: A \code{kobo_asset} object on a project using multiple languages.
 "asset_ml"
 
-#' @rdname dummy_data
-#' @format asset_rg: A kobo_asset object on a project using repeat groups.
+#' @rdname dummy_asset
+#' @format asset_rg: A \code{kobo_asset} object on a project using repeat groups.
 "asset_rg"
 
-#' @rdname dummy_data
-#' @format asset_spatial: A kobo_asset object on a project showcasing gps questions.
+#' @rdname dummy_asset
+#' @format asset_spatial: A \code{kobo_asset} object on a project showcasing gps questions.
 "asset_spatial"
 
-#' @rdname dummy_data
-#' @format asset_spatial: A kobo_asset object to showcase select multiple label.
+#' @rdname dummy_asset
+#' @format asset_spatial: A \code{kobo_asset} object to showcase select multiple label.
 "asset_sm_label"
 
-#' @rdname dummy_data
-#' @format asset_audit: A kobo_asset object on a project with audit log enabled.
+#' @rdname dummy_asset
+#' @format asset_audit: A \code{kobo_asset} object on a project with audit log enabled.
 "asset_audit"
 
+
+#' Examples of KoboToolbox submissions data
+#'
+#' Examples of KoboToolbox submissions data.
+#'
 #' @rdname dummy_data
-#' @format data_ml: A data.frame with submissions from the \code{asset_ml} in English.
+#' @format data_ml: A \code{data.frame} with submissions from the \code{asset_ml} in English.
 "data_ml_en"
 
 #' @rdname dummy_data
-#' @format data_ml: A data.frame with submissions from the \code{asset_ml} in French.
+#' @format data_ml: A \code{data.frame} with submissions from the \code{asset_ml} in French.
 "data_ml_fr"
 
 #' @rdname dummy_data
-#' @format data_ml: A data.frame with submissions from the \code{asset_ml} in Arabic
+#' @format data_ml: A \code{data.frame} with submissions from the \code{asset_ml} in Arabic
 "data_ml_ar"
 
 #' @rdname dummy_data
-#' @format data_ml: A data.frame with submissions from the \code{asset_ml} with default language.
+#' @format data_ml: A \code{data.frame} with submissions from the \code{asset_ml} with default language.
 "data_ml_default"
 
 #' @rdname dummy_data
-#' @format data_rg: A dm object (list of data.frame) with submissions from the \code{asset_rg}
+#' @format data_rg: A \code{dm} object (list of \code{data.frame}) with submissions from the \code{asset_rg}
 "data_rg"
 
 #' @rdname dummy_data
-#' @format data_spatial: A data.frame with submissions from the \code{asset_spatial}.
+#' @format data_spatial: A \code{data.frame} with submissions from
+#' the \code{asset_spatial} KoboToolbox project.
 "data_spatial"
 
 #' @rdname dummy_data
-#' @format data_sm_label: A data.frame with submissions from the \code{asset_sm_label}.
+#' @format data_sm_label: A \code{data.frame} with submissions from
+#' the \code{asset_sm_label}.
 "data_sm_label"
 
 #' @rdname dummy_data
-#' @format data_audit: A data.frame with submissions from the \code{asset_audit}.
+#' @format data_audit: A \code{data.frame} with submissions from the \code{asset_audit}.
 "data_audit"

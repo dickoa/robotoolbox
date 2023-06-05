@@ -48,7 +48,7 @@ You can retrieve your `API token` following the instruction in the official API 
 
 You can also get your token directly from `R` using the `kobo_token` function.
 
-The following examples will utilize UNHCR `Kobotoolbox` server url (https://kobo.unhcr.org). You can replace this URL by https://kf.kobotoolbox.org, https://kobo.humanitarianresponse.info/ or any other `Kobotoolbox` server URL you typically use.
+The following examples will utilize UNHCR `KoboToolbox` server url (https://kobo.unhcr.org/). You can replace this URL by https://kf.kobotoolbox.org/, https://kobo.humanitarianresponse.info/ or any other `KoboToolbox` server URL you typically use.
 
 ```{r}
 kobo_token(username = "xxxxxxxxx",
@@ -178,65 +178,18 @@ https://dickoa.gitlab.io/robotoolbox/articles/repeat-group-data.html
 
 ### Spatial data
 
-`Kobotoolbox` provides three types of question to record spatial data: `geopoint` for points, `geotrace` for lines and `geoshape` to map close polygons. `robotoolbox` associates to each spatial column a [`WKT`](https://libgeos.org/specifications/wkt/) column. It provides a simple way to use it with various GIS software and `R` package for spatial data analysis. The `sf` package is the standard for spatial vector data handling and visualization.
+`KoboToolbox` provides three types of question to record spatial data: `geopoint` for points, `geotrace` for lines and `geoshape` to map close polygons. `robotoolbox` associates to each spatial column a [`WKT`](https://libgeos.org/specifications/wkt/) column. It provides a simple way to use it with various GIS software and `R` package for spatial data analysis. The `sf` package is the standard for spatial vector data handling and visualization.
 
 https://dickoa.gitlab.io/robotoolbox/articles/spatial-data.html
 
 
 ### Audit logging data
 
-`Kobotoolbox` comes with a feature that records all activities related to a form submission in a log file. The audit logging metadata is useful for data quality control, security and workflow management. The `kobo_audit` function allow you to read `Kobotoolbox` audit logs file.
+`KoboToolbox` comes with a feature that records all activities related to a form submission in a log file. The audit logging metadata is useful for data quality control, security and workflow management. The `kobo_audit` function allow you to read `KoboToolbox` audit logs file.
 
 You can learn more in the following vignette:
 
 https://dickoa.gitlab.io/robotoolbox/articles/audit-data.html
-
-### Labels for `select_multiple` columns and variable labels as column names
-
-We can now get `labels` instead of values for `select_multiple` questions with `robotoolbox`.
-Let's show this new feature, with the following example:
-
-```{r}
-data_sm <- kobo_data(uid)
-glimpse(data_sm)
-```
-
-```{r, echo = FALSE, eval = TRUE}
-library(dplyr)
-library(robotoolbox)
-glimpse(kobo_data(asset_sm_label))
-```
-
-We noticed that the column `pet_type` contains values (`1` to `5`).
-Now let's set the new `select_multiple_label` to `TRUE` and read again the data.
-
-```{r}
-data_sm_label <- kobo_data(uid,
-                           select_multiple_label = TRUE)
-glimpse(data_sm_label)
-```
-
-```{r, echo = FALSE, eval = TRUE}
-glimpse(data_sm_label)
-```
-
-We can now see the `labels` instead of the `values` (`dog`, `cat`, etc.) for the column `pet_type`.
-
-Variable labels has been improved for all the dummy variables related to the `select_multiple` question (whether or not you use `select_multiple_label`).
-
-```{r, eval = TRUE}
-library(labelled)
-var_label(data_sm_label)
-```
-
-Finally, with the function `set_names_from_varlabel` you can replace all the columns (not just `select_multiple`) by their label
-
-
-```{r, eval = TRUE}
-data_sm_label |>
-  set_names_from_varlabel() |>
-  glimpse()
-```
 
 ## Meta
 

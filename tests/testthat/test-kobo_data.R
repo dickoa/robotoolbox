@@ -161,33 +161,6 @@ test_that("kobo_data parse geodata columns", {
   }
 })
 
-test_that("with kobo_data and set_names_from_varlabel you can use labels as names", {
-  skip_on_cran()
-  url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
-  token <- Sys.getenv("KOBOTOOLBOX_PROD_TOKEN")
-  skip <-  url == "" & token == ""
-  skip_if(skip,
-          message = "Test server not configured")
-
-  kobo_setup(url = url, token = token)
-  uid_simple <- "aYuTZn9vegi3Z49MXwKjep"
-  uid_dm <- "aANhxwX9S6BCsiYMgQj9kV"
-  raw_simple <- kobo_data(uid_simple)
-  raw_dm <- kobo_data(uid_dm)
-
-  df_simple <- set_names_from_varlabel(raw_simple)
-  df_dm <- set_names_from_varlabel(raw_dm)
-
-  expect_equal(class(df_simple),
-               c("tbl_df", "tbl", "data.frame"))
-  expect_equal(class(df_dm), "dm")
-  expect_error(set_names_from_varlabel(1L))
-
-  expect_equal(df_simple,
-               kobo_data(uid_simple,
-                         colnames_label = TRUE))
-})
-
 test_that("with kobo_data you can read form with 0 submission", {
   skip_on_cran()
   url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")

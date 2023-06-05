@@ -1,10 +1,6 @@
-##' robotoolbox
-##'
-##' R Client for KoboToolbox API v2
-##'
-##' @name robotoolbox
-##' @aliases robotoolbox-package
-##' @docType package
-##' @author \email{mail@ahmadoudicko.com}
-##' @keywords package
-NULL
+#' @description \code{\link{robotoolbox}} is a Client for the 'KoboToolbox' API.
+#'
+#'
+#'
+#' @keywords internal
+"_PACKAGE"

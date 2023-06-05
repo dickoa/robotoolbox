@@ -2,15 +2,15 @@
 % Please edit documentation in R/kobo_setup.R
 \name{kobo_settings}
 \alias{kobo_settings}
-\title{Get \code{robotoolbox} settings}
+\title{Get robotoolbox settings}
 \usage{
 kobo_settings()
 }
 \value{
-a list, prints your server url and token
+A list with information about your KoboToolbox server URL and token.
 }
 \description{
-Print the current token and server url used.
+Print the KoboToolbox server URL and API token currently in use.
 }
 \examples{
 \dontrun{

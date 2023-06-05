@@ -3,3 +3,45 @@ url: https://dickoa.gitlab.io/robotoolbox/
 template:
   package: unhcrtemplate
   bootstrap: 5
+
+reference:
+  - title: Examples of KoboToolbox assets and data
+    contents:
+      - asset_list
+      - asset_ml
+      - asset_rg
+      - asset_spatial
+      - asset_sm_label
+      - asset_audit
+      - data_ml_en
+      - data_ml_fr
+      - data_ml_ar
+      - data_ml_default
+      - data_rg
+      - data_spatial
+      - data_sm_label
+      - data_audit
+
+  - title: robotoolbox settings
+    contents:
+      - kobo_setup
+      - kobo_settings
+      - kobo_token
+      - kobo_lang
+
+  - title: KoboToolbox asset
+    contents:
+      - kobo_asset
+      - kobo_asset_list
+      - kobo_asset_version
+      - kobo_asset_version_list
+
+  - title: KoboToolbox form
+    contents:
+      - kobo_form
+
+  - title: KoboToolbox submissions and audit data
+    contents:
+      - kobo_data
+      - kobo_submissions
+      - kobo_audit

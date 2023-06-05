@@ -17,11 +17,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-`Kobotoolbox` enables grouping of questions, allowing them to be answered multiple times. This feature is particularly useful during household surveys where a set of questions is designed to be answered by each member of the household.
+`KoboToolbox` enables grouping of questions, allowing them to be answered multiple times. This feature is particularly useful during household surveys where a set of questions is designed to be answered by each member of the household.
 
 ## Loading data
 
-`Kobotoolbox` implements this feature by incorporating the concept of [`repeat group`](https://support.kobotoolbox.org/group_repeat.html), enabling the repetition of a group of questions.
+`KoboToolbox` implements this feature by incorporating the concept of [`repeat group`](https://support.kobotoolbox.org/group_repeat.html), enabling the repetition of a group of questions.
 This method involves enclosing the questions intended for repetition within a `begin_repeat`/`end_repeat` loop. Furthermore, `repeat group` allows for nesting, thus enabling the repetition of a question group within another `repeat group`. This concept can be demonstrated using the project and associated form below.
 
 ```{r setup, echo = FALSE}

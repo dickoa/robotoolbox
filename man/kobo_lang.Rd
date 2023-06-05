@@ -2,25 +2,28 @@
 % Please edit documentation in R/kobo_lang.R
 \name{kobo_lang}
 \alias{kobo_lang}
-\title{Languages used in the KoboToolbox project}
+\title{Get the languages used in a KoboToolbox survey form}
 \usage{
 kobo_lang(x)
 }
 \arguments{
-\item{x}{kobo_asset or asset uid, the asset}
+\item{x}{the unique identifier of a specific asset (\code{character}) or
+a \code{kobo_asset} object.}
 }
 \value{
-a vector of languages used in the form. It returns "Labels" when no language is set
+A vector of \code{character}.The languages used in the form, it returns "Labels"
+when no language is set.
 }
 \description{
-Languages used in the KoboToolbox project from a \code{\link{kobo_asset}} or asset uid.
+Get the languages used in a KoboToolbox survey form from a \code{kobo_asset}
+or asset unique identifier.
 }
 \examples{
 \dontrun{
-kobo_setup() # setup using your url and token
-uid <- "a9cwEQcbWqWzA5hzkjRUWi" # pick a valid uid
+kobo_setup()
+uid <- "a9cwEQcbWqWzA5hzkjRUWi"
 asset <- kobo_asset(uid)
-lang <- kobo_lang(asset) ## or kobo_lang(uid)
+lang <- kobo_lang(asset)
 lang
 }
 

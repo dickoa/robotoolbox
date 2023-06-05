@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-The `KoboToolbox` audit logging feature records alll activities related to a specific form submission in a log file. This log file can include things like when the form was opened, when individual questions were answered, when the form was saved, and when it was finally submitted. This feature provides a detailed record of the timing and sequence of events associated with each form submission.
+`KoboToolbox` audit logging feature records all activities related to a specific form submission in a log file. This log file can include things like when the form was opened, when individual questions were answered, when the form was saved, and when it was finally submitted. This feature provides a detailed record of the timing and sequence of events associated with each form submission.
 
 This feature can be especially beneficial for several reasons:
 
@@ -119,7 +119,7 @@ You have the following columns:
 
 The structure of the output depends on the parameters of the audit logging you set in your form. For instance, if you set the parameter `track-changes=true`, the columns `old-value` and `new-value` become available. `latitude`, `longitude` and `accuracy` are associated to the parameter `location-priority`. The `user` column is available when you use the `identify-user=true` parameter.
 Using the parameter `track-changes-reasons=on-form-edit` prevent you to edit a filled out forms without giving a reason. These reasons are recored in the column `change-reason`.
-You can learn how to use audit logging in the documentation of `Kobotoolbox` and `ODK`.
+You can learn how to use audit logging in the documentation of `KoboToolbox` and `ODK`.
 
 - ODK's guide on audit logging: https://docs.getodk.org/form-audit-log/
 - KoboToolbox's guide on audit logging: https://support.kobotoolbox.org/audit_logging.html

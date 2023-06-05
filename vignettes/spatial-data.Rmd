@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-`Kobotoolbox` allows the collection of spatial data through three questions types: **geopoint**, **geotrace** and **geoshape**.
+`KoboToolbox` allows the collection of spatial data through three questions types: **geopoint**, **geotrace** and **geoshape**.
 
 **Geopoint:**<br>
 The geopoint question type captures a single geographic coordinate (latitude and longitude) including altitude and accuracy. This is useful for marking locations, such as homes, schools, or water sources.
@@ -167,6 +167,6 @@ poly_sf <- st_as_sf(data_spatial,
 mapview(poly_sf)
 ```
 
-Not only does `robotoolbox` rely on the `sf` package, but it also leverages other packages from the same ecosystem to provide robust spatial data analysis for `Kobotoolbox` users.
+Not only does `robotoolbox` rely on the `sf` package, but it also leverages other packages from the same ecosystem to provide robust spatial data analysis for `KoboToolbox` users.
 
 You can learn a lot about the `sf` packages and spatial data analysis with R from the excellent [Geocomputation with R](https://r.geocompx.org/) book and through the extensive `sf` [package documentation](https://r-spatial.github.io/sf/).

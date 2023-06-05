@@ -1,28 +1,33 @@
-#' Get a specific KoboToolbox Asset from a uid
+#' Get a specific KoboToolbox API asset from a unique identifier
 #'
-#' Get a specific KoboToolbox Asset from a uid
+#' Get a specific KoboToolbox API asset from a unique identifier
 #'
-#' @rdname kobo_asset
+#' @name kobo_asset
 #'
 #' @importFrom RcppSimdJson fparse
 #'
-#' @param x the unique identifier of a specific asset or a \code{kobo_asset} object.
+#' @param x the unique identifier of a specific asset (`character`) or
+#' a \code{kobo_asset} object.
 #'
 #' @details \code{\link{kobo_asset}} allows you to access any `Kobotoolbox` API asset.
 #' Assets can include a range of types, such as questions, blocks, surveys, templates, and collections.
 #'
-#' @return a \code{kobo_asset} object
+#' @returns A \code{kobo_asset} object. It contains all the information about the
+#' KoboToolbox project associated to the supplied unique identifier.
 #'
 #' @examples
 #' \dontrun{
-#' kobo_setup() # setup using your url and token
-#' uid <- "a9cwEQcbWqWzA5hzkjRUWi" # pick a valid uid
+#' # replace by your own url and token
+#' kobo_setup(url = "https://kf.kobotoolbox.org", token = "abcde")
+#' # use a valid uid
+#' uid <- "a9cwEQcbWqWzA5hzkjRUWi"
 #' asset <- kobo_asset(uid)
 #' asset
 #' }
 #' @export
-kobo_asset <- function(x)
+kobo_asset <- function(x) {
   UseMethod("kobo_asset")
+}
 
 #' @export
 kobo_asset.character <- function(x) {
@@ -52,11 +57,16 @@ kobo_asset.default <- function(x) {
 #' @importFrom RcppSimdJson fparse
 #' @importFrom tibble tibble
 #'
+#' @name kobo_asset_list
+#'
 #' @param limit integer, the number of project to display per page. Default to 100.
 #'
-#' @details This function list all the assets (projects) in your Kobotoolbox account with metadata such as `uid`, `name`, `asset_type`, `owner_username`, `date_created`, `date_modified` and `submissions`.
+#' @details This function list all the assets (projects) in your Kobotoolbox account
+#' with metadata such as `uid`, `name`, `asset_type`, `owner_username`, `date_created`,
+#' `date_modified` and `submissions`.
 #'
-#' @return a \code{data.frame}
+#' @returns A \code{data.frame} containing the list of all your KoboToolbox projects and some
+#' associated metadata.
 #'
 #' @examples
 #' \dontrun{
@@ -79,33 +89,34 @@ kobo_asset_list <- function(limit = 100L) {
   res
 }
 
-#' Get a specific KoboToolbox Asset version from an asset uid or \code{\link{kobo_asset}}
+#' Get a specific KoboToolbox API asset version from an asset unique identifier
 #'
-#' Get a specific KoboToolbox Asset version from an asset uid or \code{\link{kobo_asset}}
+#' Get a specific KoboToolbox Asset version from an asset unique identifier
+#' or \code{kobo_asset} object
 #'
-#' @rdname kobo_asset_version
+#' @name kobo_asset_version
 #'
-#' @param x the unique identifier of a specific asset or a `kobo_asset` object
-#' @param version version of the asset
+#' @param x the unique identifier of a specific asset (`character`) or
+#' a \code{kobo_asset} object.
+#' @param version character, the unique identifier of the version of the asset
 #'
 #' @importFrom RcppSimdJson fparse
 #'
-#' @details Get a specific version of your \code{kobo_asset}.
-#'
-#' @return a \code{kobo_asset_version} object
+#' @returns A \code{kobo_asset_version} object
 #'
 #' @examples
 #' \dontrun{
-#' kobo_setup() # setup using your url and token
-#' uid <- "a9cwEQcbWqWzA5hzkjRUWi" # pick a valid uid
+#' kobo_setup()
+#' uid <- "a9cwEQcbWqWzA5hzkjRUWi"
 #' asset <- kobo_asset(uid)
 #' asset_version_list <- kobo_asset_version_list(asset)
 #' kobo_asset_version(asset, asset_version_list$uid[1])
 #' }
 #'
 #' @export
-kobo_asset_version <- function(x, version)
+kobo_asset_version <- function(x, version) {
   UseMethod("kobo_asset_version")
+}
 
 #' @export
 kobo_asset_version.character <- function(x, version) {
@@ -134,11 +145,11 @@ kobo_asset_version.default <- function(x, version) {
   abort("You need to use a 'kobo_asset' or a valid asset uid")
 }
 
-#' List all available versions of a KoboToolbox asset
+#' List all available versions of a KoboToolbox API asset
 #'
-#' List all available versions of a KoboToolbox asset and their metadata.
+#' List all available versions of a KoboToolbox API asset and their metadata.
 #'
-#' @rdname kobo_asset_version_list
+#' @name kobo_asset_version_list
 #'
 #' @param x the uid or \code{kobo_asset} object.
 #' @importFrom RcppSimdJson fparse
@@ -158,8 +169,9 @@ kobo_asset_version.default <- function(x, version) {
 #' }
 #'
 #' @export
-kobo_asset_version_list <- function(x)
+kobo_asset_version_list <- function(x) {
   UseMethod("kobo_asset_version_list")
+}
 
 #' @export
 kobo_asset_version_list.character <- function(x) {

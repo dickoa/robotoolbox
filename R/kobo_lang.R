@@ -1,25 +1,29 @@
-#' Languages used in the KoboToolbox project
+#' Get the languages used in a KoboToolbox survey form
 #'
-#' Languages used in the KoboToolbox project from a \code{\link{kobo_asset}} or asset uid.
+#' Get the languages used in a KoboToolbox survey form from a \code{kobo_asset}
+#' or asset unique identifier.
 #'
-#' @rdname kobo_lang
+#' @name kobo_lang
 #'
-#' @param x kobo_asset or asset uid, the asset
+#' @param x the unique identifier of a specific asset (`character`) or
+#' a \code{kobo_asset} object.
 #'
-#' @return a vector of languages used in the form. It returns "Labels" when no language is set
+#' @returns A vector of \code{character}.The languages used in the form, it returns "Labels"
+#' when no language is set.
 #'
 #' @examples
 #' \dontrun{
-#' kobo_setup() # setup using your url and token
-#' uid <- "a9cwEQcbWqWzA5hzkjRUWi" # pick a valid uid
+#' kobo_setup()
+#' uid <- "a9cwEQcbWqWzA5hzkjRUWi"
 #' asset <- kobo_asset(uid)
-#' lang <- kobo_lang(asset) ## or kobo_lang(uid)
+#' lang <- kobo_lang(asset)
 #' lang
 #' }
 #'
 #' @export
-kobo_lang <- function(x)
+kobo_lang <- function(x) {
   UseMethod("kobo_lang")
+}
 
 #' @export
 kobo_lang.kobo_asset <- function(x) {
