@@ -163,7 +163,7 @@ glimpse(df)
 
 ### Multi-Languages Survey forms
 
-`robotoolbox` uses the R package [`labelled`](https://larmarange.github.io/labelled/) to provide tools to manipulate variable labels and value labels. You can learn more about this here. You can learn more about this [here](https://dickoa.gitlab.io/robotoolbox/articles/multi-lang-forms.html)
+`robotoolbox` uses the R package [`labelled`](https://larmarange.github.io/labelled/) to provide tools to manipulate variable labels and value labels. You can learn more about this here. You can learn more about this [here](https://dickoa.gitlab.io/robotoolbox/articles/multilang-forms.html)
 
 ### Repeating groups
 
@@ -180,7 +180,7 @@ The package [`dm`](https://dm.cynkra.com) is used to model such relationship and
 
 ### I'm collecting data using `ODK`
 
-[OpenDataKit (`ODK`)](docs.getodk.org) is an open-source tool for collecting data. Similar to `KoboToolbox`, `ODK` utilizes the [XLSForm standard](https://xlsform.org/en/) for form creation. Both tools offer similar features and functionality, and data collected using `KoboToolbox` can be collected using [`ODK Collect`](https://docs.getodk.org/collect-intro/) as well.
+[OpenDataKit (`ODK`)](https://getodk.org/) is an open-source tool for collecting data. Similar to `KoboToolbox`, `ODK` utilizes the [XLSForm standard](https://xlsform.org/en/) for form creation. Both tools offer similar features and functionality, and data collected using `KoboToolbox` can be collected using [`ODK Collect`](https://docs.getodk.org/collect-intro/) as well.
 
 If you are using `ODK` in conjunction with R, the `ruODK` package is an excellent resource. The [ruODK R package](https://docs.ropensci.org/ruODK/index.html) served as the primary inspiration for `robotoolbox` and provides similar functionality for interacting with ODK data.
 

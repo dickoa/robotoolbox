@@ -39,7 +39,6 @@ The following example showcases a project in `KoboToolbox` that employs three la
 |:----------|-----:|:--------------------|:---------------------|:-------------------|
 | yesno     |    1 | Yes                 | Oui                  | نعم                |
 | yesno     |    0 | No                  | Non                  | لا                 |
-|           |      |                     |                      |                    |
 
 
 ### Loading the survey

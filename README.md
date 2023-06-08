@@ -177,7 +177,7 @@ glimpse(df)
 [`labelled`](https://larmarange.github.io/labelled/) to provide tools to
 manipulate variable labels and value labels. You can learn more about
 this here. You can learn more about this
-[here](https://dickoa.gitlab.io/robotoolbox/articles/multi-lang-forms.html)
+[here](https://dickoa.gitlab.io/robotoolbox/articles/multilang-forms.html)
 
 ### Repeating groups
 
@@ -210,7 +210,7 @@ Data](https://dickoa.gitlab.io/robotoolbox/articles/audit-data.html)
 
 ### I’m collecting data using `ODK`
 
-[OpenDataKit (`ODK`)](docs.getodk.org) is an open-source tool for
+[OpenDataKit (`ODK`)](https://getodk.org/) is an open-source tool for
 collecting data. Similar to `KoboToolbox`, `ODK` utilizes the [XLSForm
 standard](https://xlsform.org/en/) for form creation. Both tools offer
 similar features and functionality, and data collected using
