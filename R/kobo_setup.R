@@ -22,14 +22,14 @@ kobo_settings <- function() {
 
 #' Set robotoolbox settings
 #'
-#' Set the KoboToolbox server URL and the API token and return invisibly
+#' Set the KoboToolbox server URL, API token and return invisibly
 #' a \code{kobo_settings} object.
 #'
 #' @importFrom rlang abort
 #'
 #' @name kobo_setup
 #'
-#' @param url character, the base url of the KoboToolbox server.
+#' @param url character, the base URL of the KoboToolbox server.
 #' @param token character, the API token.
 #'
 #' @returns A \code{kobo_settings} object pritting the server URL and the API token.

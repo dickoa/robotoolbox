@@ -9,12 +9,9 @@
 #'
 #' @param username character, KoboToolbox account username.
 #' @param password character, KoboToolbox account password.
-#' @param url character, KoboToolbox server url.
+#' @param url character, KoboToolbox server URL.
 #' @param overwrite logical, if `TRUE`, it overwrites the existing token.
 #' Default to `FALSE`.
-#'
-#' @details the url and the token are stored, respectively, as the environment
-#' variable \code{KOBOTOOLBOX_URL} and \code{KOBOTOOLBOX_TOKEN}.
 #'
 #' @returns A \code{character}, the KoboToolbox API token. It also stores, as a side effect,
 #' the URL and token as the environment variables \code{KOBOTOOLBOX_URL} and

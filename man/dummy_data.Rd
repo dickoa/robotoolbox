@@ -12,23 +12,23 @@
 \alias{data_audit}
 \title{Examples of KoboToolbox submissions data}
 \format{
-data_ml: A \code{data.frame} with submissions from the \code{asset_ml} in English.
+data_ml: A \code{data.frame} with submissions from \code{asset_ml} in English.
 
-data_ml: A \code{data.frame} with submissions from the \code{asset_ml} in French.
+data_ml: A \code{data.frame} with submissions from \code{asset_ml} in French.
 
-data_ml: A \code{data.frame} with submissions from the \code{asset_ml} in Arabic
+data_ml: A \code{data.frame} with submissions from \code{asset_ml} in Arabic
 
-data_ml: A \code{data.frame} with submissions from the \code{asset_ml} with default language.
+data_ml: A \code{data.frame} with submissions from \code{asset_ml} with the default language.
 
-data_rg: A \code{dm} object (list of \code{data.frame}) with submissions from the \code{asset_rg}
+data_rg: A \code{dm} object with submissions from \code{asset_rg}
 
 data_spatial: A \code{data.frame} with submissions from
-the \code{asset_spatial} KoboToolbox project.
+the \code{asset_spatial} KoboToolbox API asset.
 
 data_sm_label: A \code{data.frame} with submissions from
-the \code{asset_sm_label}.
+\code{asset_sm_label}.
 
-data_audit: A \code{data.frame} with submissions from the \code{asset_audit}.
+data_audit: A \code{data.frame} with submissions from \code{asset_audit}.
 }
 \usage{
 data_ml_en

@@ -10,14 +10,19 @@ kobo_asset_version_list(x)
 \item{x}{the uid or \code{kobo_asset} object.}
 }
 \value{
+A \code{data.frame} containing the list of all the versions
+of a given KoboToolbox API asset with the following metadata:
+\itemize{
+\item \code{uid} the asset version unique identifier.
+\item \code{url} the URL of the asset version.
+\item \code{deployed} whether or not the asset version is deployed
+\item \code{date_modified} when the asset version was last modified
+}
+
 a \code{data.frame}
 }
 \description{
 List all available versions of a KoboToolbox API asset and their metadata.
-}
-\details{
-\code{kobo_asset_version_list} create a table with all the versions of the asset,
-and whether or not they're deployed.
 }
 \examples{
 \dontrun{

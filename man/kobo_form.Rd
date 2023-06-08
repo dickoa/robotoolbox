@@ -13,8 +13,21 @@ a \code{kobo_asset} object.}
 \item{version}{character, the unique identifier of the version of the asset.}
 }
 \value{
-A \code{data.frame} with the following columns \code{name}, \code{label}, \code{lang},
-and list-column representing form \code{choices} values and labels.
+A \code{data.frame} with the following columns:
+\itemize{
+\item \code{name} the name of the survey questions
+\item \code{list_name} the name of list of code used for values and labels
+\item \code{type} the type of KoboToolbox survey questions
+\item \code{label} the label of the questions
+\item \code{lang} the languages used in the survey
+\item \code{version} the survey version unique identifier
+\item \code{choices} a list column with the choices values and labels
+\item \code{kuid} the unique identifier of the question
+\item \code{qpath} and \code{xpath} the path of the question in JSON/XML
+}
+
+You can also have other columns such as \code{relevant}, \code{calculation}, etc. depending on how
+you structure for survey form.
 }
 \description{
 Get a KoboToolbox survey form from a \code{kobo_asset} or an asset unique identifier.

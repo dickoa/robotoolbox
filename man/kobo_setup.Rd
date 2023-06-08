@@ -10,7 +10,7 @@ kobo_setup(
 )
 }
 \arguments{
-\item{url}{character, the base url of the KoboToolbox server.}
+\item{url}{character, the base URL of the KoboToolbox server.}
 
 \item{token}{character, the API token.}
 }
@@ -18,7 +18,7 @@ kobo_setup(
 A \code{kobo_settings} object pritting the server URL and the API token.
 }
 \description{
-Set the KoboToolbox server URL and the API token and return invisibly
+Set the KoboToolbox server URL, API token and return invisibly
 a \code{kobo_settings} object.
 }
 \examples{

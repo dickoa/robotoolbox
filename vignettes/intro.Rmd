@@ -1,8 +1,8 @@
 ---
-title: "robotoolbox: an R client for KoboToolbox"
+title: "A quick introduction to robotoolbox"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{robotoolbox: an R client for KoboToolbox}
+  %\VignetteIndexEntry{A quick introduction to robotoolbox}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,11 +18,11 @@ knitr::opts_chunk$set(
 
 ```
 
-# robotoolbox
-
 `robotoolbox` is an R client for retrieving data from [`KoboToolbox`](https://www.kobotoolbox.org).
 
 `robotoolbox` uses [`KoboToolbox API v2`](https://support.kobotoolbox.org/api.html) with the primary aim of simplifying the process of accessing your collected data.
+
+# Configure robotoolbox
 
 In order to use `robotoolbox`, you need to configure and specify your **API token** and your `KoboToolbox` **server URL**. An API token is a unique identifier, just like a username and a password. It allows the user to authenticate to `KoboToolbox` API to access your data. The simplest way to configure `robotoolbox` is to store your API token and server URL in your `.Renviron` file.
 
@@ -67,7 +67,7 @@ kobo_settings()
 ##    KoboToolbox API Token: xxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-# KoboToolbox projects
+# KoboToolbox API assets
 
 ## List your projects
 
@@ -118,7 +118,7 @@ asset
 
 As `asset_list` is a `data.frame` containing the list of assets, we can subset it, and select the `uid` of interest based on the available metadata.
 
-As an example, you can get the `uid` associated to the project named `Multiple languages`.
+As an example, you can get the `uid` associated to the asset (survey) named `Multiple languages`.
 
 ```{r, eval = FALSE}
 asset_list |>
@@ -145,15 +145,15 @@ asset_list |>
 asset
 ```
 
-A `kobo_asset` provides basic information about your project. You can easily get the name, the number of submissions, when the project was created, and when it was last modified.
+A `kobo_asset` provides basic information about your project. You can easily get the name, its type (survey), the number of submissions, when the project was created, and when it was last modified.
 
 # KoboToolbox data
 
-The `kobo_data` function (or its alias `kobo_submissions`) is the main function in the `robotoolbox`, and it fetches your data from the server, as its name suggests.
+The `kobo_data` function (or its alias `kobo_submissions`) is the main function in `robotoolbox`, and it fetches your data from the server, as its name suggests.
 
-We can illustrate its usage by trying to read data from the same project named `Multiple languages`.
+We can illustrate its usage by trying to read data from the same survey named `Multiple languages`.
 
-We can follow the steps mentioned above to get `uid`, and the `asset`.
+We can follow the steps mentioned above to get the `uid`, and the `asset`.
 
 ```{r, eval = FALSE}
 asset_ml <- asset_list |>
@@ -191,7 +191,7 @@ data_ml |>
 
 # KoboToolbox form
 
-`robotoolbox` allows you to display and manipulate `KoboToolbox` forms. You can pull the form from a particular project using the `kobo_form` function
+`robotoolbox` allows you to display and manipulate `KoboToolbox` survey forms. You can pull the form from a particular survey using the `kobo_form` function
 
 ```{r}
 asset_ml |>
@@ -202,9 +202,9 @@ asset_ml |>
 Which is a representation in `robotoolbox` of the following form
 
 
-### Survey questions
+- **Survey questions**
 
-| type             | name      | label::English (en)  | label::Francais (fr)               | label::Arabic (ar) |
+| type             | name      | label::English (en)  | label::Francais (fr)               | label::Arabic (ar** |
 |:-----------------|:----------|:---------------------|:-----------------------------------|:-------------------|
 | start            | start     |                      |                                    |                    |
 | end              | end       |                      |                                    |                    |
@@ -213,7 +213,7 @@ Which is a representation in `robotoolbox` of the following form
 | select_one yesno | pet_yesno | Do you have any pet? | Avez-vous un animal de compagnie ? | هل تمتلك حيوانا أليفا ؟ |
 
 
-### Choices
+- **Choices**
 
 | list_name | name | label::English (en) | label::Francais (fr) | label::Arabic (ar) |
 |:----------|-----:|:--------------------|:---------------------|:-------------------|
@@ -224,6 +224,6 @@ Which is a representation in `robotoolbox` of the following form
 
 # Wrapping up
 
-`robotoolbox` is a powerful R client for interfacing with the `KoboToolbox`. Its primary purpose is to simplify and streamline the process of accessing and managing data collected through `KoboToolbox`. With the use of functions like `kobo_setup`, `kobo_asset`, and `kobo_data`, users can effortlessly configure their settings, manipulate their projects (or `assets`), and load their data directly from the server. It also comes with utilities (`kobo_audit`) to manipulate audit logs data for automatic survey data quality control.
+`robotoolbox` is a powerful R client for interfacing with the `KoboToolbox`. Its primary purpose is to simplify and streamline the process of accessing and managing data collected through `KoboToolbox`. With the use of functions like `kobo_setup`, `kobo_asset`, and `kobo_data`, users can effortlessly configure their settings, manipulate their projects (or `assets`), and load their data directly from the server. It also comes with utilities (`kobo_audit`) to manipulate audit log data for automatic survey data quality control.
 
 Overall, `robotoolbox` serves as an essential tool for researchers and data analysts who rely on `KoboToolbox` for data collection and seek an efficient way to integrate their work with the R environment.

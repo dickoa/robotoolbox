@@ -17,8 +17,19 @@
 #' @importFrom tidyselect contains everything all_of
 #' @importFrom rlang .data set_names
 #'
-#' @returns A \code{data.frame} with the following columns `name`, `label`, `lang`,
-#' and list-column representing form `choices` values and labels.
+#' @returns A \code{data.frame} with the following columns:
+#' - `name` the name of the survey questions
+#' - `list_name` the name of list of code used for values and labels
+#' - `type` the type of KoboToolbox survey questions
+#' - `label` the label of the questions
+#' - `lang` the languages used in the survey
+#' - `version` the survey version unique identifier
+#' - `choices` a list column with the choices values and labels
+#' - `kuid` the unique identifier of the question
+#' - `qpath` and `xpath` the path of the question in JSON/XML
+#'
+#' You can also have other columns such as `relevant`, `calculation`, etc. depending on how
+#' you structure for survey form.
 #'
 #' @examples
 #' \dontrun{

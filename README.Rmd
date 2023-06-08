@@ -40,15 +40,15 @@ remotes::install_gitlab("dickoa/robotoolbox")
 
 ## robotoolbox: A quick tutorial
 
-The `robotoolbox` package is a client to [`KoboToolbox API v2`](https://support.kobotoolbox.org/api.html). You will need to set your API token and specify the `KoboToolbox` server URL. The easiest way to set up `robotoolbox` is to store the token and the url in your `.Renviron`  which is automatically read by `R` on startup.
+The `robotoolbox` package is a client to [`KoboToolbox API v2`](https://support.kobotoolbox.org/api.html). You will need to set your API token and specify the `KoboToolbox` server URL. The easiest way to set up `robotoolbox` is to store the token and the URL in your `.Renviron` file, which is automatically read by `R` on startup.
 
 ### Getting the API token
 
-You can retrieve your `API token` following the instruction in the official API documentation: https://support.kobotoolbox.org/api.html.
+You can retrieve your `API token` by following the instruction in the official API documentation: https://support.kobotoolbox.org/api.html.
 
 You can also get your token directly from `R` using the `kobo_token` function.
 
-The following examples will utilize UNHCR `KoboToolbox` server url (https://kobo.unhcr.org/). You can replace this URL by https://kf.kobotoolbox.org/, https://kobo.humanitarianresponse.info/ or any other `KoboToolbox` server URL you typically use.
+The following examples will utilize UNHCR `KoboToolbox` server url (https://kobo.unhcr.org/). You can replace this URL with https://kf.kobotoolbox.org/, https://kobo.humanitarianresponse.info/ or any other `KoboToolbox` server URL you typically use.
 
 ```{r}
 kobo_token(username = "xxxxxxxxx",
@@ -56,7 +56,7 @@ kobo_token(username = "xxxxxxxxx",
            url = "https://kobo.unhcr.org")
 ```
 
-### Setup your session
+### Setting up Your Session
 
 You can either edit directly the `.Renviron` file or access it by calling `usethis::edit_r_environ()` (assuming you have the `usethis` package installed) and entering the following two lines:
 
@@ -72,7 +72,7 @@ kobo_setup(url = "https://kobo.unhcr.org",
            token = "xxxxxxxxxxxxxxxxxxxxxxxxxx")
 ```
 
-Settings can be checked using `kobo_settings` function.
+You can check the settings using the `kobo_settings` function.
 
 ```{r}
 library("robotoolbox")
@@ -82,9 +82,9 @@ kobo_settings()
 ##    KoboToolbox API Token: xxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-With the settings done, it is possible to list all `assets` (e.g form, project, etc) for the account associated to the token and url supplied.
+With the settings done, it is possible to list all `assets` (e.g surveys, questions, etc) for the account associated to the token and URL.
 
-### Access data
+### Accessing data
 
 ```{r}
 library("dplyr")
@@ -115,7 +115,7 @@ $ date_modified  <dttm> 2021-06-17 01:52:57, 2021-06-17 01:52:5…
 $ submissions    <int> 2951, 2679, 2, 1, 0, 0, 287, 73, 0, 274,…
 ```
 
-The list of `assets` is a `tibble`, you can filter it to select the form `uuid` that uniquely identify the project you want to open. The function `kobo_asset` can then be used to get the `asset` from the `uuid`.
+The list of `assets` is a `tibble`, you can filter it to select the form unique identifier `uid` that uniquely identify the API asset you want to open. The function `kobo_asset` can then be used to get the `asset` from the `uid`.
 
 ```{r}
 uid <- l |>
@@ -135,7 +135,7 @@ asset
 ##   Submissions: 941
 ```
 
-Now with the selected `asset`, we can extract the `submissions` using the `kobo_submissions` function. The `kobo_data` can also be used instead, it's an alias of `kobo_submissions`.
+Now with the selected `asset`, we can extract the `submissions` using the `kobo_submissions` function. The `kobo_data` can also be used, it's an alias of `kobo_submissions`.
 
 ```{r}
 df <- kobo_submissions(asset) ## or df <-  kobo_data(asset)
@@ -161,35 +161,28 @@ glimpse(df)
 ## $ admin_level_3                                              <chr+lbl> …
 ```
 
-### Languages
+### Multi-Languages Survey forms
 
-`robotoolbox` uses the R package [`labelled`](https://larmarange.github.io/labelled/) to provide tools to manipulate variable labels and value labels. You can learn more about this here:
-
-https://dickoa.gitlab.io/robotoolbox/articles/language-labelled.html
-
+`robotoolbox` uses the R package [`labelled`](https://larmarange.github.io/labelled/) to provide tools to manipulate variable labels and value labels. You can learn more about this here. You can learn more about this [here](https://dickoa.gitlab.io/robotoolbox/articles/multi-lang-forms.html)
 
 ### Repeating groups
 
 Repeating groups associate multiple records to a single record in the `main` table. It's used to group questions that need to be answered repeatedly.
-The package [`dm`](https://dm.cynkra.com) is used to model such relationship and allow you to safely query and join such linked data for your analysis.
-
-https://dickoa.gitlab.io/robotoolbox/articles/repeat-group-data.html
-
+The package [`dm`](https://dm.cynkra.com) is used to model such relationship and allow you to safely query and join such linked data for your analysis. Learn more about it [here](https://dickoa.gitlab.io/robotoolbox/articles/repeat-group-data.html)
 
 ### Spatial data
 
-`KoboToolbox` provides three types of question to record spatial data: `geopoint` for points, `geotrace` for lines and `geoshape` to map close polygons. `robotoolbox` associates to each spatial column a [`WKT`](https://libgeos.org/specifications/wkt/) column. It provides a simple way to use it with various GIS software and `R` package for spatial data analysis. The `sf` package is the standard for spatial vector data handling and visualization.
-
-https://dickoa.gitlab.io/robotoolbox/articles/spatial-data.html
-
+`KoboToolbox` provides three types of question to record spatial data: `geopoint` for points, `geotrace` for lines and `geoshape` to map close polygons. `robotoolbox` associates to each spatial column a [`WKT`](https://libgeos.org/specifications/wkt/) column. It provides a simple way to use it with various GIS software and `R` package for spatial data analysis. The `sf` package is the standard for spatial vector data handling and visualization. Learn more about it [here](https://dickoa.gitlab.io/robotoolbox/articles/spatial-data.html)
 
 ### Audit logging data
 
-`KoboToolbox` comes with a feature that records all activities related to a form submission in a log file. The audit logging metadata is useful for data quality control, security and workflow management. The `kobo_audit` function allow you to read `KoboToolbox` audit logs file.
+`KoboToolbox` comes with a feature that records all activities related to a form submission in a log file. The audit logging metadata is useful for data quality control, security and workflow management. The `kobo_audit` function allow you to read `KoboToolbox` audit logs file. Learn more in the following vignette: [Audit Data](https://dickoa.gitlab.io/robotoolbox/articles/audit-data.html)
 
-You can learn more in the following vignette:
+### I'm collecting data using `ODK`
 
-https://dickoa.gitlab.io/robotoolbox/articles/audit-data.html
+[OpenDataKit (`ODK`)](docs.getodk.org) is an open-source tool for collecting data. Similar to `KoboToolbox`, `ODK` utilizes the [XLSForm standard](https://xlsform.org/en/) for form creation. Both tools offer similar features and functionality, and data collected using `KoboToolbox` can be collected using [`ODK Collect`](https://docs.getodk.org/collect-intro/) as well.
+
+If you are using `ODK` in conjunction with R, the `ruODK` package is an excellent resource. The [ruODK R package](https://docs.ropensci.org/ruODK/index.html) served as the primary inspiration for `robotoolbox` and provides similar functionality for interacting with ODK data.
 
 ## Meta
 

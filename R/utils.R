@@ -81,6 +81,57 @@ xget <- function(path, args = list(), n_retry = 3L, ...) {
   res$parse("UTF-8")
 }
 
+#' @importFrom purrr list_rbind
+#' @importFrom tibble as_tibble
+#' @importFrom dplyr transmute
+#' @importFrom crul Paginator
+#' @importFrom rlang abort
+#' @noRd
+get_asset_list_paginate <- function(limit = 100L,
+                                    chunk = min(limit, 100L), n_retry = 3L) {
+  headers <- list(Authorization = paste("Token",
+                                        Sys.getenv("KOBOTOOLBOX_TOKEN")),
+                  `User-Agent` = user_agent_())
+  cli <- HttpClient$new(Sys.getenv("KOBOTOOLBOX_URL"),
+                        headers = headers)
+
+  cc <- Paginator$new(cli,
+                      by = "limit_offset",
+                      limit_param = "limit",
+                      offset_param = "offset",
+                      limit = limit,
+                      chunk = chunk)
+
+  cc$get(path = "/api/v2/assets",
+         args = list(metadata = "on"),
+         times = n_retry,
+         retry_only_on = c(500, 503),
+         terminate_on = 404)
+
+  cond <- cc$status_code() >= 300L
+  if (any(cond)) {
+    msg <- cc$content()[cond]
+    abort(error_msg(msg[[1]]),
+          call = NULL)
+  }
+
+  resp <- cc$parse("UTF-8")
+  res <- fparse(resp,
+                max_simplify_lvl = "data_frame",
+                query = "/results")
+
+  if (length(resp) >= 2)
+    res <- list_rbind(res)
+
+  transmute(as_tibble(res),
+            .data$uid, .data$name, .data$asset_type,
+            owner_username = .data$owner__username,
+            date_created = parse_kobo_datetime(.data$date_created),
+            date_modified = parse_kobo_datetime(.data$date_modified),
+            deployed = .data$deployment__active,
+            submissions = .data$deployment__submission_count)
+}
+
 #' @importFrom tibble as_tibble
 #' @noRd
 dt2tibble <- function(x) {
@@ -163,76 +214,6 @@ get_subs_async <- function(uid, size, chunk_size = NULL, n_retry = 3L, ...) {
   res <- rbindlist(res, fill = TRUE)
   res <- dt2tibble(res)
   res
-}
-
-#' @importFrom glue glue glue_data
-#' @importFrom tibble tibble
-#' @noRd
-build_assets_urls <- function(limit, count) {
-  if (limit >= count) {
-    urls <- "api/v2/assets/?format=json&metadata=on"
-  } else {
-    idx <- seq.int(limit, count, by = limit)
-    df <- tibble(limit = limit, offset = idx[idx < count])
-    template <- "api/v2/assets/?format=json&limit={limit}&metadata=on&offset={offset}"
-    urls <- glue_data(df, template)
-    urls <- c(glue_data(tibble(limit = limit),
-                        "api/v2/assets/?format=json&limit={limit}&metadata=on"),
-              urls)
-  }
-  file.path(Sys.getenv("KOBOTOOLBOX_URL"), urls)
-}
-
-#' @importFrom crul AsyncQueue HttpRequest
-#' @importFrom RcppSimdJson fparse
-#' @importFrom data.table rbindlist setattr
-#' @importFrom tibble as_tibble
-#' @importFrom dplyr case_when
-#' @noRd
-get_asset_list_async <- function(limit, count, n_retry = 3L, ...) {
-  headers <- list(Authorization = paste("Token",
-                                        Sys.getenv("KOBOTOOLBOX_TOKEN")))
-  urls <- build_assets_urls(limit, count)
-  reqs <- lapply(urls, function(url) {
-    req <- HttpRequest$new(url,
-                           headers = headers,
-                           opts = list(...))
-    req$retry("get",
-              times = n_retry,
-              retry_only_on = c(500, 503),
-              terminate_on = 404)
-  })
-  sleep <- 0.05
-  res <- AsyncQueue$new(.list = reqs,
-                        bucket_size = Inf,
-                        sleep = sleep)
-  res$request()
-  cond <- res$status_code() >= 300L
-  if (any(cond)) {
-    msg <- res$content()[cond]
-    abort(error_msg(msg[[1]]),
-          call = NULL)
-  }
-  res <- res$parse(encoding = "UTF-8")
-  res <- fparse(res,
-                max_simplify_lvl = "list",
-                query = "/results")
-  res <- lapply(res, asset_list_to_tbl)
-  res <- rbindlist(res, fill = TRUE)
-  res <- dt2tibble(res)
-  res
-}
-
-#' @importFrom tibble tibble
-#' @noRd
-asset_list_to_tbl <- function(x) {
-  tibble(uid = map_chr2(x, "uid"),
-         name = map_chr2(x, "name"),
-         asset_type = map_chr2(x, "asset_type"),
-         owner_username = map_chr2(x, "owner__username"),
-         date_created = parse_kobo_datetime(map_chr2(x, "date_created")),
-         date_modified = parse_kobo_datetime(map_chr2(x, "date_modified")),
-         submissions = map_int2(x, "deployment__submission_count"))
 }
 
 #' @importFrom RcppSimdJson fparse
@@ -946,7 +927,7 @@ kobo_form_version_ <- function(x, asset, all_versions) {
   uid <- asset$uid
   default_version <- asset$deployed_version_id
   form_versions <- kobo_asset_version_list(uid)
-  form_versions <- filter(form_versions, .data$asset_deployed)
+  form_versions <- filter(form_versions, .data$deployed)
   cond3 <- nrow(form_versions) > 0
   form_versions <- unique(form_versions$uid)
   cond1 <- sum(grepl("\\_version\\_", names(x))) == 1

@@ -7,24 +7,29 @@
 kobo_asset_list(limit = 100L)
 }
 \arguments{
-\item{limit}{integer, the number of project to display per page. Default to 100.}
+\item{limit}{integer, the number of API assets to display per page. Default to 100.}
 }
 \value{
-A \code{data.frame} containing the list of all your KoboToolbox projects and some
-associated metadata.
+A \code{data.frame} containing the list of all your KoboToolbox API assets
+and the following metadata:
+\itemize{
+\item \code{uid} the asset unique identifier
+\item \code{name} the name of the asset
+\item \code{asset_type} the type of asset (\code{block}, \code{survey}, \code{question}, or \code{template})
+\item \code{owner_userame} the user account of the owner of the asset
+\item \code{date_create} when the asset was created
+\item \code{date_modified} when the asset was last modified
+\item \code{deployed} whether or not the asset is currently deployed
+\item \code{submissions} the number of submissions for the asset (\code{survey})
+}
 }
 \description{
 List all available KoboToolbox API assets and their metadata.
 }
-\details{
-This function list all the assets (projects) in your Kobotoolbox account
-with metadata such as \code{uid}, \code{name}, \code{asset_type}, \code{owner_username}, \code{date_created},
-\code{date_modified} and \code{submissions}.
-}
 \examples{
 \dontrun{
 kobo_setup()
-asset_list <- kobo_asset_list()
+asset_list <- kobo_asset_list(limit = 10L)
 asset_list
 }
 

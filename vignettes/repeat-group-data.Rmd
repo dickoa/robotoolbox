@@ -35,7 +35,7 @@ library(dm)
 l <- asset_list
 ```
 
-### Survey questions
+- **Survey questions**
 
 | type                 | name              | label::English (en)                              | label::Francais (fr)                                  | repeat_count    | calculation                                    |
 |:---------------------|:------------------|:-------------------------------------------------|:------------------------------------------------------|:----------------|:-----------------------------------------------|
@@ -64,8 +64,7 @@ l <- asset_list
 | **end_repeat**           |                   |                                                  |                                                       |                 |                                                |
 
 
-
-### Choices
+- **Choices**
 
 |list_name | name|label::English (en)      |label::Francais (fr) |
 |:---------|----:|:------------------------|:--------------------|
@@ -83,9 +82,9 @@ l <- asset_list
 |lang      |   99|Other                    |Autre                |
 
 
-### Loading the project asset
+### Loading the survey
 
-The aforementioned form, named `nested_roster`, was uploaded to the server. It can be accessed from the list of asset `asset_list`.
+The aforementioned survey, named `nested_roster`, was uploaded to the server. It can be accessed from the list of asset `asset_list`.
 
 ```{r, eval = FALSE}
 library(robotoolbox)

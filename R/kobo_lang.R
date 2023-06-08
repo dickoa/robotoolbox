@@ -8,7 +8,7 @@
 #' @param x the unique identifier of a specific asset (`character`) or
 #' a \code{kobo_asset} object.
 #'
-#' @returns A vector of \code{character}.The languages used in the form, it returns "Labels"
+#' @returns A vector of \code{character}. The languages used in the form, it returns "Labels"
 #' when no language is set.
 #'
 #' @examples

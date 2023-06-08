@@ -12,14 +12,10 @@ a \code{kobo_asset} object.}
 }
 \value{
 A \code{kobo_asset} object. It contains all the information about the
-KoboToolbox project associated to the supplied unique identifier.
+KoboToolbox API asset associated to the unique identifier.
 }
 \description{
 Get a specific KoboToolbox API asset from a unique identifier
-}
-\details{
-\code{\link{kobo_asset}} allows you to access any \code{Kobotoolbox} API asset.
-Assets can include a range of types, such as questions, blocks, surveys, templates, and collections.
 }
 \examples{
 \dontrun{

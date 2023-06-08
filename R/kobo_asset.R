@@ -9,11 +9,8 @@
 #' @param x the unique identifier of a specific asset (`character`) or
 #' a \code{kobo_asset} object.
 #'
-#' @details \code{\link{kobo_asset}} allows you to access any `Kobotoolbox` API asset.
-#' Assets can include a range of types, such as questions, blocks, surveys, templates, and collections.
-#'
 #' @returns A \code{kobo_asset} object. It contains all the information about the
-#' KoboToolbox project associated to the supplied unique identifier.
+#' KoboToolbox API asset associated to the unique identifier.
 #'
 #' @examples
 #' \dontrun{
@@ -54,39 +51,31 @@ kobo_asset.default <- function(x) {
 #'
 #' List all available KoboToolbox API assets and their metadata.
 #'
-#' @importFrom RcppSimdJson fparse
-#' @importFrom tibble tibble
-#'
 #' @name kobo_asset_list
 #'
-#' @param limit integer, the number of project to display per page. Default to 100.
+#' @param limit integer, the number of API assets to display per page. Default to 100.
 #'
-#' @details This function list all the assets (projects) in your Kobotoolbox account
-#' with metadata such as `uid`, `name`, `asset_type`, `owner_username`, `date_created`,
-#' `date_modified` and `submissions`.
-#'
-#' @returns A \code{data.frame} containing the list of all your KoboToolbox projects and some
-#' associated metadata.
+#' @returns A \code{data.frame} containing the list of all your KoboToolbox API assets
+#' and the following metadata:
+#' - `uid` the asset unique identifier
+#' - `name` the name of the asset
+#' - `asset_type` the type of asset (`block`, `survey`, `question`, or `template`)
+#' - `owner_userame` the user account of the owner of the asset
+#' - `date_create` when the asset was created
+#' - `date_modified` when the asset was last modified
+#' - `deployed` whether or not the asset is currently deployed
+#' - `submissions` the number of submissions for the asset (`survey`)
 #'
 #' @examples
 #' \dontrun{
 #' kobo_setup()
-#' asset_list <- kobo_asset_list()
+#' asset_list <- kobo_asset_list(limit = 10L)
 #' asset_list
 #' }
 #'
 #' @export
 kobo_asset_list <- function(limit = 100L) {
-  res <- xget(path = "/api/v2/assets",
-              args = list(metadata = "on", limit = limit))
-  res <- fparse(res, max_simplify_lvl = "list")
-  cnt <- res$count
-  if (cnt > limit) {
-    res <- get_asset_list_async(limit, cnt)
-  } else {
-    res <- asset_list_to_tbl(res$results)
-  }
-  res
+  get_asset_list_paginate(limit = limit)
 }
 
 #' Get a specific KoboToolbox API asset version from an asset unique identifier
@@ -155,10 +144,14 @@ kobo_asset_version.default <- function(x, version) {
 #' @importFrom RcppSimdJson fparse
 #' @importFrom tibble tibble
 #'
-#' @details \code{kobo_asset_version_list} create a table with all the versions of the asset,
-#' and whether or not they're deployed.
-#'
-#' @return a \code{data.frame}
+#' @returns A \code{data.frame} containing the list of all the versions
+#' of a given KoboToolbox API asset with the following metadata:
+#' - `uid` the asset version unique identifier.
+#' - `url` the URL of the asset version.
+#' - `deployed` whether or not the asset version is deployed
+#' - `date_modified` when the asset version was last modified
+
+#' @returns a \code{data.frame}
 #'
 #' @examples
 #' \dontrun{
@@ -183,8 +176,8 @@ kobo_asset_version_list.character <- function(x) {
   res <- res$results
   tibble(uid = map_chr2(res, "uid"),
          url = map_chr2(res, "url"),
-         asset_deployed = is.na(as.logical(map_chr2(res,
-                                                    "date_deployed"))),
+         deployed = is.na(as.logical(map_chr2(res,
+                                              "date_deployed"))),
          date_modified = as.POSIXct(map_chr2(res, "date_modified")))
 }
 

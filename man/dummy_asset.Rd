@@ -8,19 +8,19 @@
 \alias{asset_spatial}
 \alias{asset_sm_label}
 \alias{asset_audit}
-\title{Examples of KoboToolbox assets, list of assets}
+\title{Examples of KoboToolbox assets and list of assets}
 \format{
-asset_list: a \code{data.frame} of 28 rows and 7 columns with a list of projects
+asset_list: a \code{data.frame} of 28 rows and 7 columns with a list of API assets
 
-asset_ml: A \code{kobo_asset} object on a project using multiple languages.
+asset_ml: A \code{kobo_asset} object on a survey using multiple languages.
 
-asset_rg: A \code{kobo_asset} object on a project using repeat groups.
+asset_rg: A \code{kobo_asset} object on a survey using repeat groups.
 
-asset_spatial: A \code{kobo_asset} object on a project showcasing gps questions.
+asset_spatial: A \code{kobo_asset} object on a survey showcasing gps questions.
 
-asset_spatial: A \code{kobo_asset} object to showcase select multiple label.
+asset_spatial: A \code{kobo_asset} object to showcase select multiple labels.
 
-asset_audit: A \code{kobo_asset} object on a project with audit log enabled.
+asset_audit: A \code{kobo_asset} object on a survey with audit logging enabled.
 }
 \usage{
 asset_list
@@ -36,6 +36,6 @@ asset_sm_label
 asset_audit
 }
 \description{
-Examples of KoboToolbox assets, list of assets.
+Examples of KoboToolbox assets and list of assets.
 }
 \keyword{datasets}

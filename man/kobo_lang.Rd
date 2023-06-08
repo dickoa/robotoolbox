@@ -11,7 +11,7 @@ kobo_lang(x)
 a \code{kobo_asset} object.}
 }
 \value{
-A vector of \code{character}.The languages used in the form, it returns "Labels"
+A vector of \code{character}. The languages used in the form, it returns "Labels"
 when no language is set.
 }
 \description{
