@@ -31,6 +31,8 @@ data_ml_en <- kobo_data(asset_ml, lang = "English (en)")
 data_ml_fr <- kobo_data(asset_ml, lang = "Francais (fr)")
 data_ml_ar <- kobo_data(asset_ml, lang = "Arabic (ar)")
 data_ml_default <- kobo_data(asset_ml)
+data_ml_vlabel <- kobo_data(asset_ml,
+                            colnames_label = TRUE, lang = "Arabic (ar)")
 
 ###
 data_rg <- kobo_data(asset_rg)
@@ -43,6 +45,7 @@ data_spatial <- kobo_data(uid_spatial)
 ###
 uid_sm_label <- "atbUaNGu5PWR2u4tNDsYaH"
 asset_sm_label <- kobo_asset(uid_sm_label)
+data_sm <- kobo_data(uid_sm_label)
 data_sm_label <- kobo_data(uid_sm_label,
                            select_multiple_label = TRUE)
 
@@ -64,7 +67,9 @@ usethis::use_data(data_ml_en, overwrite = TRUE)
 usethis::use_data(data_ml_fr, overwrite = TRUE)
 usethis::use_data(data_ml_ar, overwrite = TRUE)
 usethis::use_data(data_ml_default, overwrite = TRUE)
+usethis::use_data(data_ml_vlabel, overwrite = TRUE)
 usethis::use_data(data_rg, overwrite = TRUE)
 usethis::use_data(data_spatial, overwrite = TRUE)
+usethis::use_data(data_sm, overwrite = TRUE)
 usethis::use_data(data_sm_label, overwrite = TRUE)
 usethis::use_data(data_audit, overwrite = TRUE)

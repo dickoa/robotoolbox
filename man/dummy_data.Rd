@@ -6,27 +6,34 @@
 \alias{data_ml_fr}
 \alias{data_ml_ar}
 \alias{data_ml_default}
+\alias{data_ml_vlabel}
 \alias{data_rg}
 \alias{data_spatial}
+\alias{data_sm}
 \alias{data_sm_label}
 \alias{data_audit}
 \title{Examples of KoboToolbox submissions data}
 \format{
 data_ml: A \code{data.frame} with submissions from \code{asset_ml} in English.
 
-data_ml: A \code{data.frame} with submissions from \code{asset_ml} in French.
+data_ml_fr: A \code{data.frame} with submissions from \code{asset_ml} in French.
 
-data_ml: A \code{data.frame} with submissions from \code{asset_ml} in Arabic
+data_ml_ar: A \code{data.frame} with submissions from \code{asset_ml} in Arabic
 
-data_ml: A \code{data.frame} with submissions from \code{asset_ml} with the default language.
+data_ml_default: A \code{data.frame} with submissions from \code{asset_ml} with the default language.
+
+data_ml_vlabel: A \code{data.frame} with submissions from \code{asset_ml} using variable labels as column names.
 
 data_rg: A \code{dm} object with submissions from \code{asset_rg}
 
 data_spatial: A \code{data.frame} with submissions from
 the \code{asset_spatial} KoboToolbox API asset.
 
+data_sm: A \code{data.frame} with submissions from
+\code{asset_sm_label} with no labels for the \code{select_multiple} question.
+
 data_sm_label: A \code{data.frame} with submissions from
-\code{asset_sm_label}.
+\code{asset_sm_label} with labels for the \code{select_multiple} question.
 
 data_audit: A \code{data.frame} with submissions from \code{asset_audit}.
 }
@@ -39,9 +46,13 @@ data_ml_ar
 
 data_ml_default
 
+data_ml_vlabel
+
 data_rg
 
 data_spatial
+
+data_sm
 
 data_sm_label
 

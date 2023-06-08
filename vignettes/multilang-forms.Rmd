@@ -120,10 +120,14 @@ var_label(df_ar$pet_yesno)
 
 The `kobo_data` function has an additional parameter `colnames_label` (default is `FALSE`) that allows you to use the variable labels as column names. While it is not recommended for data analysis, it can be useful when exporting your `data.frame` to a spreadsheet. This feature is already available in the traditional `KoboToolbox` export tools.
 
-```{r colvar1, eval = TRUE}
+```{r colvar1, eval = FALSE, echo = TRUE}
 kobo_data(asset_ml,
           colnames_label = TRUE, lang = "Arabic (ar)") |>
-  names()
+names()
+```
+
+```{r colvar2, eval = TRUE, echo = FALSE}
+names(data_ml_vlabel)
 ```
 
 ### Accessing labels from `select_one` question type
@@ -176,7 +180,7 @@ glimpse(data_sm)
 ```{r, echo = FALSE, eval = TRUE}
 library(dplyr)
 library(robotoolbox)
-glimpse(kobo_data(asset_sm_label))
+glimpse(data_sm)
 ```
 
 The column `pet_type` contains values (`1` to `5`) instead of the labels (`dog`, `cat`, etc.). Now, let's set the new `select_multiple_label` to `TRUE` and read again the data.

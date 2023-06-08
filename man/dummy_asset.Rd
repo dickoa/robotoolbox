@@ -18,7 +18,7 @@ asset_rg: A \code{kobo_asset} object on a survey using repeat groups.
 
 asset_spatial: A \code{kobo_asset} object on a survey showcasing gps questions.
 
-asset_spatial: A \code{kobo_asset} object to showcase select multiple labels.
+asset_sm_label: A \code{kobo_asset} object to showcase select multiple labels.
 
 asset_audit: A \code{kobo_asset} object on a survey with audit logging enabled.
 }

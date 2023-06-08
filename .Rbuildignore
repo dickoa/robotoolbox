@@ -18,3 +18,5 @@
 ^codecov\.yml$
 ^data\-raw$
 ^reference$
+^doc$
+^Meta$
