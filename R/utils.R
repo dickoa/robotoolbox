@@ -562,7 +562,8 @@ var_labels_from_form_ <- function(x, form, lang) {
   cond <- form$lang %in% lang & form$name %in% names(x)
   form <- form[cond, ]
   nm <- unique(form$name)
-  labels_select_multiple <- select_multiple_var_label(x = x, form = form, lang = lang)
+  labels_select_multiple <- select_multiple_var_label(x = x,
+                                                      form = form, lang = lang)
   nm_select_multiple <- names(labels_select_multiple)
   nm_missing <- setdiff(names(x), nm)
   nm_missing <- setdiff(nm_missing, nm_select_multiple)

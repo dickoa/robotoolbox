@@ -20,13 +20,32 @@ MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.or
 
 ## Installation
 
-This package is not on yet on CRAN and to install it, you will need the
-[`remotes`](https://github.com/r-lib/remotes) package. You can get
-`robotoolbox` from Gitlab or Github (mirror)
+The package is available on CRAN, Gitlab (dev) and Github (mirror).
+
+### Install robotoolbox from CRAN
+
+``` r
+install.packages("robotoolbox")
+```
+
+### Install robotoolbox from Gitlab
+
+you will need the [`remotes`](https://github.com/r-lib/remotes) package
+to install it from Gitlab.
 
 ``` r
 ## install.packages("remotes")
 remotes::install_gitlab("dickoa/robotoolbox")
+```
+
+### Install robotoolbox from Github
+
+You can use `remotes::install_github` or the
+[`pak`](https://github.com/r-lib/pak) package to install it from Github.
+
+``` r
+## install.packages("pak")
+pak::pkg_install("dickoa/robotoolbox")
 ```
 
 ## robotoolbox: A quick tutorial
