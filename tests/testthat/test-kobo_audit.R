@@ -23,3 +23,17 @@ test_that("with kobo_audit you can read your audit log data", {
   uid_no_audit_no_version <- "aLPEprhNHZCRzSMJiPXxj7"
   expect_error(kobo_audit(uid_no_audit_no_version))
 })
+
+test_that("kobo_audit has a progress parameter", {
+  skip_on_cran()
+  url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
+  token <- Sys.getenv("KOBOTOOLBOX_PROD_TOKEN")
+  skip <-  url == "" & token == ""
+  skip_if(skip,
+          message = "Test server not configured")
+
+  kobo_setup(url = url, token = token)
+  uid <- "aKQB8xLBd3nsJ7EZQmQhZd"
+
+  expect_message(kobo_audit(uid, progress = TRUE), "Checking audit data availability")
+})

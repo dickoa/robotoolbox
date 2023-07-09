@@ -5,7 +5,9 @@ robotoolbox 1.3.2.9000
 
 ### BUG FIXES
 
-### NEW FEATURES
+### MINOR IMPROVEMENTS
+
+- Add url of attachments from `image`, `video`, `audio` and `file` question type.
 
 robotoolbox 1.3.2
 ======================

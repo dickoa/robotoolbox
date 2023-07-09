@@ -4,11 +4,14 @@
 \alias{kobo_audit}
 \title{Get all audit logs data from a KoboToolbox survey}
 \usage{
-kobo_audit(x)
+kobo_audit(x, progress)
 }
 \arguments{
 \item{x}{the unique identifier of a specific asset (\code{character}) or
 a \code{kobo_asset} object.}
+
+\item{progress}{logical, whether or not you want to see the progess via message.
+Default to \code{FALSE}.}
 }
 \value{
 A \code{data.frame}. It contains survey paradata from audit logs.
