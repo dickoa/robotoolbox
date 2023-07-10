@@ -7,7 +7,7 @@ robotoolbox 1.3.2.9000
 
 ### MINOR IMPROVEMENTS
 
-- Add url of attachments from `image`, `video`, `audio` and `file` question type.
+- Keep the `_attachments` column in the data.
 
 robotoolbox 1.3.2
 ======================

@@ -716,24 +716,6 @@ is_label_available <- function(x) {
   length(x) > 0 && !is.null(x$label)
 }
 
-#' @importFrom tidyr unnest_wider
-#' @importFrom purrr map
-#' @importFrom rlang set_names
-#' @noRd
-add_attachments <- function(x, form) {
-  media_type <- c("image", "video", "audio", "file")
-  cond <- form$type %in% media_type
-  nm <- unique(form$name[cond])
-  nm <- intersect(names(x), nm)
-  if (any(cond) && length(nm) > 0) {
-    vnm <- paste0(rev(nm), "_url")
-    x[["_attachments"]] <- map(x[["_attachments"]],
-                               ~ set_names(.x[["download_url"]], vnm))
-    x <- unnest_wider(x, "_attachments")
-  }
-  x
-}
-
 #' @noRd
 #' @importFrom dplyr select
 #' @importFrom labelled labelled
@@ -753,11 +735,11 @@ remove_list_cols <- function(x) {
   val_dict <- val_dict[unique(names(val_dict))]
   x <- x |>
     mutate(`_validation_status` = labelled(val_stat, val_dict))
-  x <- select(x, -is_list_cols(x))
+  x <- select(x, -is_list_cols(x), any_of("_attachments"))
   } else {
   x <- x |>
     mutate(`_validation_status` = NA_character_)
-  x <- select(x, -is_list_cols(x))
+  x <- select(x, -is_list_cols(x), any_of("_attachments"))
   }
   x
 }
@@ -783,7 +765,6 @@ postprocess_data_ <- function(x, form, lang, select_multiple_label = FALSE, cn) 
   x <- extract_geotrace_(x, form)
   x <- extract_geoshape_(x, form)
   x <- type_convert_(x, form)
-  x <- add_attachments(x, form)
   x <- remove_list_cols(x)
   x <- add_missing_cols_(x, cn)
   x <- val_labels_from_form_(x = x, form = form, lang = lang)
@@ -894,7 +875,6 @@ kobo_form_names_ <- function(form) {
                                                                   "_wkt")),
                                     type %in% "geotrace" ~ list(c("", "_wkt")),
                                     type %in% "geoshape" ~ list(c("", "_wkt")),
-                                    type %in% media_type ~ list(c("", "_url")),
                                     type %in% "select_multiple" ~ lapply(.data$choices,
                                                                          \(ch) c("", paste0("_", unique(ch$value_name)))),
                                     .default = list(""))) |>
@@ -910,7 +890,6 @@ kobo_form_names_ <- function(form) {
                                                                   "_wkt")),
                                     type %in% "geotrace" ~ list(c("", "_wkt")),
                                     type %in% "geoshape" ~ list(c("", "_wkt")),
-                                    type %in% media_type ~ list(c("", "_url")),
                                     .default = list(""))) |>
       unnest("value_name") |>
       distinct(.data$name, .data$value_name)
