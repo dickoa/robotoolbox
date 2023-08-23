@@ -119,6 +119,30 @@ kobo_form.kobo_asset <- function(x, version = NULL) {
                                cols = all_of(cols_to_unnest),
                                keep_empty = TRUE),
                         gsub("^\\$", "", names(choices)))
+    choices_external <- empty_tibble_(c("list_name",
+                                        "value_lang",
+                                        "value_label",
+                                        "value_name"))
+    has_external_files <- grepl("from_file$", survey$type)
+    if (any(has_external_files)) {
+      ext <- kobo_files_list(x$uid)
+      fname <- unique(survey$list_name[has_external_files])
+      ext <- filter(ext,
+                    .data$mimetype %in% "text/csv",
+                    .data$filename %in% fname)
+      params <- if ("parameters" %in% names(survey))
+                  na.omit(unique(survey$parameters[has_external_files]))
+      lang <- lang[[1]]
+      lookup <- NULL
+      if (length(params) > 0)
+        lookup <- external_file_lookup_(params)
+      ext <- mutate(ext,
+                    `_data` = external_files_choice_(.data$content, lookup, lang))
+      choices_external <- ext |>
+        select(list_name = .data$filename, "_data") |>
+        unnest("_data")
+    }
+    choices <- bind_rows(choices, choices_external)
     choices$value_version <- x$deployed_version_id
     if (!is.null(version))
       choices$value_version <- version

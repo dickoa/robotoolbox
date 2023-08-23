@@ -81,6 +81,28 @@ xget <- function(path, args = list(), n_retry = 3L, ...) {
   res$parse("UTF-8")
 }
 
+#' @importFrom rlang abort
+#' @noRd
+xget_mime <- function(path, args = list(),
+                      n_retry = 3L, mimetype = "application/json", ...) {
+  headers <- list(Authorization = paste("Token",
+                                        Sys.getenv("KOBOTOOLBOX_TOKEN")),
+                  `User-Agent` = user_agent_())
+  cli <- HttpClient$new(Sys.getenv("KOBOTOOLBOX_URL"),
+                        headers = headers, opts = list(...))
+  res <- cli$retry("get",
+                   path = path,
+                   query = args,
+                   times = n_retry,
+                   retry_only_on = c(500, 503),
+                   terminate_on = 404)
+  if (res$status_code >= 300)
+    abort(error_msg(res$content),
+          call = NULL)
+  res$raise_for_ct(mimetype)
+  res$parse("UTF-8")
+}
+
 #' @importFrom purrr list_rbind
 #' @importFrom tibble as_tibble
 #' @importFrom dplyr transmute
@@ -341,9 +363,11 @@ fast_dummy_cols <- function(x, form, cols) {
   as_tibble(x)
 }
 
+#' @importFrom stringi stri_detect_regex
 #' @noRd
 dummy_from_form_ <- function(x, form) {
-  nm <- unique(form$name[form$type %in% "select_multiple"])
+  bool <- stri_detect_regex(form$type, "select_multiple")
+  nm <- unique(form$name[bool])
   nm <- intersect(names(x), nm)
   if (length(nm) > 0) {
     x <- fast_dummy_cols(x, form, nm)
@@ -439,12 +463,13 @@ kobo_extract_repeat_tbl <- function(x, form, all_versions) {
 #' @importFrom tidyselect all_of
 #' @importFrom stats setNames
 #' @importFrom labelled set_value_labels
+#' @importFrom stringi stri_detect_regex
 #' @importFrom rlang .data
 #' @noRd
 val_labels_from_form_ <- function(x, form, lang) {
   form <- filter(form,
                  .data$lang %in% !!lang,
-                 .data$type %in% "select_one")
+                 stri_detect_regex(.data$type, "select_one"))
   nm <- unique(form$name)
   nm <- intersect(names(x), nm)
   if (length(nm) > 0) {
@@ -487,7 +512,7 @@ val_labels_from_form_ <- function(x, form, lang) {
 val_labels_sm_from_form_ <- function(x, form, lang) {
   form <- filter(form,
                  .data$lang %in% !!lang,
-                 .data$type %in% "select_multiple")
+                 stri_detect_regex(.data$type, "select_multiple"))
   nm <- unique(form$name)
   nm <- intersect(names(x), nm)
   if (length(nm) > 0) {
@@ -538,10 +563,11 @@ replace_na_list_ <- function(x) {
 #' @noRd
 select_multiple_var_label <- function(x, form, lang) {
   labels <- list()
-  if (any(form$type %in% "select_multiple")) {
+  bool <- stri_detect_regex(form$type, "select_multiple")
+  if (any(bool)) {
     choices <- filter(form,
                       .data$lang %in% !!lang,
-                      .data$type %in% "select_multiple") |>
+                      stri_detect_regex(.data$type, "select_multiple")) |>
       unnest("choices") |>
       filter(.data$value_lang %in% !!lang) |>
       select(-"value_version") |>
@@ -810,7 +836,8 @@ empty_tibble_ <- function(cnames) {
 #' @importFrom tidyr fill
 #' @noRd
 kobo_form_name_to_list_ <- function(x) {
-  x <- distinct(x, .data$name, .data$type, .data$kuid)
+  x <- kobo_form_extra_(x)
+  x <- distinct(x, .data$name, .data$type, .data$cnames)
 
   x <- x |>
     rowid_to_column() |>
@@ -828,7 +855,7 @@ kobo_form_name_to_list_ <- function(x) {
 
   x |>
     split(x$scope) |>
-    map(~ .x$name) |>
+    map(~ .x$cnames) |>
     set_names(basename)
 }
 
@@ -859,11 +886,10 @@ set_names_from_varlabel_dm_ <- function(x) {
   x
 }
 
-
 #' @importFrom dplyr mutate case_when
 #' @importFrom stats na.omit
 #' @noRd
-kobo_form_names_ <- function(form) {
+kobo_form_extra_ <- function(form) {
   media_type <- c("image", "video", "audio", "file")
   if ("choices" %in% names(form)) {
     res <- mutate(form, "value_name" =
@@ -875,11 +901,11 @@ kobo_form_names_ <- function(form) {
                                                                   "_wkt")),
                                     type %in% "geotrace" ~ list(c("", "_wkt")),
                                     type %in% "geoshape" ~ list(c("", "_wkt")),
-                                    type %in% "select_multiple" ~ lapply(.data$choices,
+                                    stri_detect_regex(type, "select_multiple") ~ lapply(.data$choices,
                                                                          \(ch) c("", paste0("_", unique(ch$value_name)))),
                                     .default = list(""))) |>
       unnest("value_name") |>
-      distinct(.data$name, .data$value_name)
+      mutate(cnames = paste0(.data$name, .data$value_name))
   } else {
     res <- mutate(form, "value_name" =
                           case_when(type %in% "geopoint" ~ list(c("",
@@ -892,10 +918,18 @@ kobo_form_names_ <- function(form) {
                                     type %in% "geoshape" ~ list(c("", "_wkt")),
                                     .default = list(""))) |>
       unnest("value_name") |>
-      distinct(.data$name, .data$value_name)
+      mutate(cnames = paste0(.data$name, .data$value_name))
   }
-  res <- paste0(res$name, res$value_name)
-  na.omit(res)
+  res
+}
+
+#' @importFrom dplyr mutate case_when
+#' @importFrom stats na.omit
+#' @noRd
+kobo_form_names_ <- function(x) {
+  x <- kobo_form_extra_(x)
+  x <- unique(x$cnames)
+  na.omit(x)
 }
 
 #' @importFrom readr type_convert
@@ -914,7 +948,7 @@ kobo_type_cols_ <- function(x, form) {
   char_q <- c("device_id", "phonenumber", "username", "email",
               "audit", "select_one", "select_multiple",
               "select_one_from_file", "select_multiple_from_file",
-              "rank")
+              "rank", "text")
   form$cols <- case_when(form$type %in% datetime_q ~ "T",
                          form$type %in% date_q ~ "D",
                          form$type %in% time_q ~ "c",
@@ -948,4 +982,63 @@ kobo_form_version_ <- function(x, asset, all_versions) {
     form <- kobo_form(uid, version = v)
   }
   form
+}
+
+#' @noRd
+external_file_lookup_ <- function(x) {
+  x <- scan(text = gsub("value\\=", "name\\=", x),
+            what = character(),
+            sep = ",",
+            quiet = TRUE)
+  x <- strsplit(x, "=")
+  p1 <- vapply(x, \(val) val[2], "")
+  p2 <- vapply(x, \(val) val[1], "")
+  set_names(p1, p2)
+}
+
+#' @importFrom tools toTitleCase
+#' @importFrom stringi stri_replace_all_regex
+#' @importFrom tidyr pivot_longer
+#' @importFrom dplyr rename
+#' @importFrom tidyselect any_of starts_with
+#' @importFrom rlang .data
+#' @noRd
+parse_external_csv_ <- function(x, lookup, lang) {
+  x |>
+    select(-starts_with("label::")[-1]) |>
+    rename_with(~ gsub("::.+", "", .x)) |>
+    rename(any_of(lookup)) |>
+    mutate(value_name = as.character(.data$name),
+           value_label = .data$label,
+           value_lang = lang,
+           .keep = "none")
+}
+
+#' @importFrom purrr list_rbind
+#' @noRd
+external_files_choice_ <- function(urls, lookup = NULL, lang = "Labels", n_retry = 3L) {
+  headers <- list(Authorization = paste("Token",
+                                        Sys.getenv("KOBOTOOLBOX_TOKEN")))
+  reqs <- lapply(urls, function(url) {
+    req <- HttpRequest$new(url,
+                           headers = headers)
+    req$retry("get",
+              times = n_retry,
+              retry_only_on = c(500, 503),
+              terminate_on = 404)
+  })
+  res <- AsyncQueue$new(.list = reqs,
+                        bucket_size = Inf,
+                        sleep = 0.01)
+  res$request()
+  cond <- res$status_code() >= 300L
+  if (any(cond)) {
+    msg <- res$content()[cond]
+    abort(error_msg(msg[[1]]),
+          call = NULL)
+  }
+  res <- res$parse(encoding = "UTF-8")
+  res <- lapply(res,
+                \(f) parse_external_csv_(fread(f), lookup, lang))
+  res
 }

@@ -4,6 +4,8 @@ robotoolbox 1.3.2.9000
 ### NEW FEATURES
 
 ### BUG FIXES
+- text question with numbers are parsed as numbers, it's fixed now.
+
 
 ### MINOR IMPROVEMENTS
 
