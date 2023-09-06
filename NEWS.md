@@ -5,7 +5,7 @@ robotoolbox 1.3.2.9000
 
 ### BUG FIXES
 - text question with numbers are parsed as numbers, it's fixed now.
-
+- `select_multiple` questions with choices with special characters suchs `(`, `)`, `{` or `}` were breaking the split into dummy variables. Bug fixed.
 
 ### MINOR IMPROVEMENTS
 

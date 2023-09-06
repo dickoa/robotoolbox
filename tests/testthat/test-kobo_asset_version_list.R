@@ -7,7 +7,7 @@ test_that("kobo_asset_version_list works", {
           message = "Test server not configured")
 
   kobo_setup(url = url, token = token)
-  uid <- "aANhxwX9S6BCsiYMgQj9kV"
+  uid <- "aDMHypRASH2EuJdvKMx5Mi"
   al1 <- kobo_asset_version_list(uid)
   al2 <- kobo_asset_version_list(kobo_asset(uid))
 

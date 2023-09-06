@@ -354,9 +354,10 @@ fast_dummy_cols <- function(x, form, cols) {
     x[, (new_names) := 0L]
     x[which(is.na(y)), (new_names) := NA_integer_]
     for (iter in seq_along(uv)) {
+      a <- gsub("([[:punct:]])", "\\\\\\1", uv[iter])
       j <- paste0(col, "_", uv[iter])
       i <- which(stri_detect_regex(y,
-                                   paste0("\\b", uv[iter], "\\b")))
+                                   paste0("\\b", a,  "(\\s|$)")))
       set(x, i = i, j = j, value = 1L)
     }
   }
