@@ -35,7 +35,7 @@ reference:
       - kobo_asset_list
       - kobo_asset_version
       - kobo_asset_version_list
-      - kobo_files_list
+      - kobo_file_list
 
   - title: KoboToolbox form
     contents:

@@ -7,7 +7,7 @@ test_that("with kobo_data you can read your submissions", {
           message = "Test server not configured")
 
   kobo_setup(url = url, token = token)
-  uid <- "aAwD9dWwG8mxQcCFpoNpqx"
+  uid <- "aYuTZn9vegi3Z49MXwKjep"
   asset <- kobo_asset(uid)
   raw_uid <- kobo_data(uid)
   raw_asset <- kobo_data(asset)
@@ -24,14 +24,14 @@ test_that("with kobo_data you can read your submissions", {
 
 test_that("kobo_data with multiple languages", {
   skip_on_cran()
-  url <- Sys.getenv("KOBOTOOLBOX_TRAINING_URL")
-  token <- Sys.getenv("KOBOTOOLBOX_TRAINING_TOKEN")
+  url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
+  token <- Sys.getenv("KOBOTOOLBOX_PROD_TOKEN")
   skip <-  url == "" & token == ""
   skip_if(skip,
           message = "Test server not configured")
 
   kobo_setup(url = url, token = token)
-  uid <- "aJzZWSY9VMr5w38KBJPP5L"
+  uid <- "aYuTZn9vegi3Z49MXwKjep"
   raw_en <- kobo_data(uid, lang = "English (en)")
   raw_fr <- kobo_data(uid, lang = "Francais (fr)")
   raw_ar <- kobo_data(uid, lang = "Arabic (ar)")
@@ -55,7 +55,7 @@ test_that("repeating groups use the dm package", {
           message = "Test server not configured")
 
   kobo_setup(url = url, token = token)
-  uid <- "aSCXrTdtrxHDnx3n4DHefK"
+  uid <- "aANhxwX9S6BCsiYMgQj9kV"
   raw_uid <- kobo_data(uid)
   expect_is(raw_uid, "dm")
 })
@@ -69,7 +69,7 @@ test_that("kobo_submissions is similar to kobo_data", {
           message = "Test server not configured")
 
   kobo_setup(url = url, token = token)
-  uid <- "aAwD9dWwG8mxQcCFpoNpqx"
+  uid <- "aYuTZn9vegi3Z49MXwKjep"
   asset <- kobo_asset(uid)
   raw_uid1 <- kobo_data(uid)
   raw_asset1 <- kobo_data(asset)
@@ -104,14 +104,14 @@ test_that("kobo_data paginate automatically large data", {
 
 test_that("kobo_data can use select_multiple labels instead of values", {
   skip_on_cran()
-  url <- Sys.getenv("KOBOTOOLBOX_TRAINING_URL")
-  token <- Sys.getenv("KOBOTOOLBOX_TRAINING_TOKEN")
+  url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
+  token <- Sys.getenv("KOBOTOOLBOX_PROD_TOKEN")
   skip <-  url == "" & token == ""
   skip_if(skip,
           message = "Test server not configured")
 
   kobo_setup(url = url, token = token)
-  uid <- "aDdgw9sZZeRUcW7aWryQB6"
+  uid <- "atbUaNGu5PWR2u4tNDsYaH"
   form <- kobo_form(uid)
   cond <- form$type %in% "select_multiple"
   sm_col <- form$name[cond]
@@ -201,7 +201,7 @@ test_that("with kobo_data you have access to validation status", {
           message = "Test server not configured")
 
   kobo_setup(url = url, token = token)
-  uid <- "aeYW4rmNEHuxEZFC2jziCv"
+  uid <- "apBgxt6Nw4Vcjnn7wYpF33"
   raw <- kobo_data(uid)
   expect_equal(class(raw[["_validation_status"]]),
                c("haven_labelled", "vctrs_vctr", "character"))

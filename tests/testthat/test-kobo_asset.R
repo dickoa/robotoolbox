@@ -6,7 +6,7 @@ test_that("kobo_asset works", {
   skip_if(skip,
           message = "Test server not configured")
   kobo_setup(url = url, token = token)
-  uid <- "aSCXrTdtrxHDnx3n4DHefK"
+  uid <- "aANhxwX9S6BCsiYMgQj9kV"
   asset1 <- kobo_asset(uid)
   asset2 <- kobo_asset(asset1)
   asset3 <- kobo_asset(asset2)

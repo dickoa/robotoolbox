@@ -4,7 +4,7 @@
 #'
 #' @importFrom tidyr unnest_wider
 #'
-#' @name kobo_files_list
+#' @name kobo_file_list
 #'
 #' @param x the asset uid or the \code{kobo_asset} object.
 #'
@@ -27,16 +27,16 @@
 #' \dontrun{
 #' kobo_setup()
 #' uid <- "a9cwEQcbWqWzA5hzkjRUWi"
-#' kobo_files_list(uid)
+#' kobo_file_list(uid)
 #' }
 #'
 #' @export
-kobo_files_list <- function(x) {
-  UseMethod("kobo_files_list")
+kobo_file_list <- function(x) {
+  UseMethod("kobo_file_list")
 }
 
 #' @export
-kobo_files_list.character <- function(x) {
+kobo_file_list.character <- function(x) {
   if (!assert_uid(x))
     abort(message = "Invalid asset uid")
   path <- paste0("/api/v2/assets/",
@@ -60,6 +60,6 @@ kobo_files_list.character <- function(x) {
 }
 
 #' @export
-kobo_files_list.kobo_asset <- function(x) {
-  kobo_files_list.character(x$uid)
+kobo_file_list.kobo_asset <- function(x) {
+  kobo_file_list.character(x$uid)
 }

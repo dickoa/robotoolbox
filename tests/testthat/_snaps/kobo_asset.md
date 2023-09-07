@@ -1,10 +1,10 @@
 # kobo_asset works
 
-    <robotoolbox asset>  aSCXrTdtrxHDnx3n4DHefK 
-      Asset name: Media with repeat
+    <robotoolbox asset>  aANhxwX9S6BCsiYMgQj9kV 
+      Asset name: nested_roster
       Asset type: survey
       Asset owner: dickoa
-      Created: 2023-07-10 20:53:23
-      Last modified: 2023-07-10 20:53:56
-      Submissions: 4
+      Created: 2022-01-05 21:22:51
+      Last modified: 2023-09-07 07:27:04
+      Submissions: 3
 
