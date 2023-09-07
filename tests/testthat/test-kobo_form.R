@@ -50,3 +50,19 @@ test_that("kobo_form can load form with choices tab", {
   form <- kobo_form(uid)
   expect_true(!"choices" %in% names(form))
  })
+
+test_that("kobo_form works with external files", {
+  skip_on_cran()
+  url <- Sys.getenv("KOBOTOOLBOX_TRAINING_URL")
+  token <- Sys.getenv("KOBOTOOLBOX_TRAINING_TOKEN")
+  skip <-  url == "" & token == ""
+  skip_if(skip,
+          message = "Test server not configured")
+
+  kobo_setup(url = url, token = token)
+  uid <- "aUJbF9hPVWfo3o83S8Ageq"
+  form <- kobo_form(uid)
+  # fruits choices are coming from a csv
+  ch <- form$choices[form$name %in% "fruits"]
+  expect_gte(length(ch), 1)
+})

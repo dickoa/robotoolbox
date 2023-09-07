@@ -248,3 +248,17 @@ test_that("kobo_data has a progress parameter", {
 
   expect_message(kobo_data(uid, progress = TRUE), "Downloading data")
 })
+
+test_that("kobo_data can use labels as colnames", {
+  skip_on_cran()
+  url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
+  token <- Sys.getenv("KOBOTOOLBOX_PROD_TOKEN")
+  skip <-  url == "" & token == ""
+  skip_if(skip,
+          message = "Test server not configured")
+
+  kobo_setup(url = url, token = token)
+  uid <- "aDMHypRASH2EuJdvKMx5Mi"
+  raw <- kobo_data(uid, colnames_label = TRUE)
+  expect_in("What is your name?", colnames(raw))
+})

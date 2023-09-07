@@ -84,7 +84,7 @@ xget <- function(path, args = list(), n_retry = 3L, ...) {
 #' @importFrom rlang abort
 #' @noRd
 xget_mime <- function(path, args = list(),
-                      n_retry = 3L, mimetype = "application/json", ...) {
+                      n_retry = 3L, mimetype = "application/json", ...) { # nocov start
   headers <- list(Authorization = paste("Token",
                                         Sys.getenv("KOBOTOOLBOX_TOKEN")),
                   `User-Agent` = user_agent_())
@@ -101,7 +101,7 @@ xget_mime <- function(path, args = list(),
           call = NULL)
   res$raise_for_ct(mimetype)
   res$parse("UTF-8")
-}
+}  # nocov end
 
 #' @importFrom purrr list_rbind
 #' @importFrom tibble as_tibble
@@ -257,9 +257,9 @@ map_chr2 <- function(x, key) {
 }
 
 #' @noRd
-map_int2 <- function(x, key) {
+map_int2 <- function(x, key) { # nocov start
   vapply(x, function(l) as.integer(l[[key]]), integer(1))
-}
+} # nocov end
 
 #' @noRd
 parse_kobo_datetime <- function(x) {
