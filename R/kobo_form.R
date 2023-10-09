@@ -139,7 +139,7 @@ kobo_form.kobo_asset <- function(x, version = NULL) {
       ext <- mutate(ext,
                     `_data` = external_files_choice_(.data$content, lookup, lang))
       choices_external <- ext |>
-        select(list_name = .data$filename, "_data") |>
+        select(list_name = "filename", "_data") |>
         unnest("_data")
     }
     choices <- bind_rows(choices, choices_external)

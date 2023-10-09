@@ -1,4 +1,4 @@
-robotoolbox 1.3.2.9000
+robotoolbox 1.3.3.9000
 ======================
 
 ### NEW FEATURES
@@ -8,7 +8,7 @@ robotoolbox 1.3.2.9000
 - `select_multiple` questions with choices with special characters suchs `(`, `)`, `{` or `}` were breaking the split into dummy variables. Bug fixed.
 
 ### MINOR IMPROVEMENTS
-
+- Support for media question types (`media::image`, `media::audio`, `media::video`)
 - Keep the `_attachments` column in the data.
 
 robotoolbox 1.3.2
