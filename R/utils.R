@@ -818,8 +818,10 @@ kobo_question_types <- function() {
 kobo_display_fields <- function() {
   c("label", "hint", "guidance_hint",
     "constraint_message", "required_message",
-    "image", "media::image", "audio",
-    "media::audio", "video", "media::video")
+    "image", "media::image",
+    "big-image", "media::big-image",
+    "audio", "media::audio",
+    "video", "media::video")
 }
 
 #' @importFrom dplyr bind_rows
