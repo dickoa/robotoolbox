@@ -37,7 +37,7 @@ kobo_submissions(
   colnames_label = FALSE,
   select_multiple_label = FALSE,
   progress = FALSE,
-  paginate = FALSE,
+  paginate = NULL,
   page_size = NULL
 )
 
@@ -48,7 +48,7 @@ kobo_submissions(
   colnames_label = FALSE,
   select_multiple_label = FALSE,
   progress = FALSE,
-  paginate = FALSE,
+  paginate = NULL,
   page_size = NULL
 )
 
@@ -59,7 +59,7 @@ kobo_submissions(
   colnames_label = FALSE,
   select_multiple_label = FALSE,
   progress = FALSE,
-  paginate = FALSE,
+  paginate = NULL,
   page_size = NULL
 )
 }
@@ -79,7 +79,7 @@ in lieu of column names based on form question names. Default to \code{FALSE}.}
 \item{progress}{logical, whether or not you want to see the progess via message.
 Default to \code{FALSE}.}
 
-\item{paginate}{logical, split submissions by page_size. Default to \code{FALSE}.}
+\item{paginate}{logical, split submissions by page_size. Default to \code{NULL}.}
 
 \item{page_size}{integer, number of submissions per page.}
 }

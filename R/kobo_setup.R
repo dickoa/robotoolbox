@@ -15,6 +15,7 @@
 kobo_settings <- function() {
   token <- Sys.getenv("KOBOTOOLBOX_TOKEN", "")
   url <- Sys.getenv("KOBOTOOLBOX_URL", "")
+  url <- clean_urls(url)
   ops <- list(token = token,
               url = url)
   structure(ops, class = "kobo_settings")
@@ -51,7 +52,7 @@ kobo_setup <- function(url = Sys.getenv("KOBOTOOLBOX_URL", ""),
   if (!assert_token(token))
     abort(message = "Invalid token")
 
-  Sys.setenv("KOBOTOOLBOX_URL" = url)
+  Sys.setenv("KOBOTOOLBOX_URL" = clean_urls(url))
   if (token != "")
     Sys.setenv("KOBOTOOLBOX_TOKEN" = token)
   invisible(kobo_settings())

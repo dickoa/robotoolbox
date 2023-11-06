@@ -63,3 +63,75 @@ kobo_file_list.character <- function(x) {
 kobo_file_list.kobo_asset <- function(x) {
   kobo_file_list.character(x$uid)
 }
+
+#' Download all uploaded files related to a KoboToolbox API asset
+#'
+#' Download all uploaded files related to a KoboToolbox API asset
+#'
+#' @importFrom crul Async
+#'
+#' @name kobo_file_download
+#'
+#' @param x the asset uid or the \code{kobo_asset} object.
+#' @param folder character, the folder where you store the downloaded files.
+#' The working directory is the default folder.
+#'
+#' @returns A vector of file paths.
+#'
+#' @examples
+#' \dontrun{
+#' kobo_setup()
+#' uid <- "a9cwEQcbWqWzA5hzkjRUWi"
+#' kobo_file_download(uid, folder = tempdir())
+#' }
+#'
+#' @export
+kobo_file_download <- function(x, folder) {
+  UseMethod("kobo_file_download")
+}
+
+## #' @export
+## kobo_file_download.kobo_asset <- function(x, folder = getwd()) {
+##   df <- kobo_data(x)
+##   attachments <- df[["_attachments"]]
+
+##   urls <- lapply(attachments,
+##                  \(x) data.frame(url = x$download_url,
+##                                  fname = x$filename))
+##   urls <- list_rbind(urls)
+##   urls <- unique(urls)
+##   urls$fname <- basename(urls$fname)
+
+##   headers <- list(Authorization = paste("Token",
+##                                         Sys.getenv("KOBOTOOLBOX_TOKEN")))
+
+##   cc <- Async$new(urls = urls$url,
+##                   headers = headers)
+##   cc$get(disk = file.path(folder, urls$fname))
+##   ## reqs <- lapply(seq_len(nrow(urls)), function(i) {
+##   ##   url <- urls$url[i]
+##   ##   fname <- file.path(folder, urls$fname[i])
+##   ##   req <- HttpRequest$new(url,
+##   ##                          headers = headers)
+##   ##   req$retry("get",
+##   ##             disk = fname,
+##   ##             times = 3L,
+##   ##             retry_only_on = c(500, 503),
+##   ##             terminate_on = 404)
+##   ## })
+
+##   ## res <- AsyncQueue$new(.list = reqs,
+##   ##                       bucket_size = Inf,
+##   ##                       sleep = 0.1)
+
+##   ## res$request()
+##   ## cond <- res$status_code() >= 300L
+##   ## if (any(cond)) {
+##   ##   msg <- res$content()[cond]
+##   ##   abort(error_msg(msg[[1]]),
+##   ##         call = NULL)
+##   ## }
+
+##   ## res$parse(encoding = "UTF-8")
+
+## }

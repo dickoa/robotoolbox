@@ -1,4 +1,4 @@
-robotoolbox 1.3.3.9000
+robotoolbox 1.3.4.9000
 ======================
 
 ### NEW FEATURES
@@ -6,6 +6,7 @@ robotoolbox 1.3.3.9000
 ### BUG FIXES
 - text question with numbers are parsed as numbers, it's fixed now.
 - `select_multiple` questions with choices with special characters suchs `(`, `)`, `{` or `}` were breaking the split into dummy variables. Bug fixed.
+- Fix bug on `paginate` in `kobo_data`
 
 ### MINOR IMPROVEMENTS
 - Support for media question types (`media::image`, `media::big-image`, `media::audio`, `media::video`)

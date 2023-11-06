@@ -23,6 +23,11 @@ assert_token <- function(x) {
 }
 
 #' @noRd
+clean_urls <- function(x) {
+  gsub("/$", "", x)
+}
+
+#' @noRd
 #' @importFrom utils packageVersion
 user_agent_ <- function() {
   robotoolbox_version <- packageVersion("robotoolbox")
@@ -184,7 +189,9 @@ build_subs_urls <- function(uid, size, chunk_size = NULL) {
     last_limit <- size %% chunk_size
     last_limit <- ifelse(last_limit, last_limit, chunk_size)
     limit <- c(limit, last_limit)
-    df <- tibble(start = start, limit = limit, uid = uid)
+    df <- tibble(start = sprintf("%d", start),
+                 limit = sprintf("%d", limit),
+                 uid = uid)
     template <- "api/v2/assets/{uid}/data.json?start={start}&limit={limit}"
     urls <- glue_data(df,
                       template)

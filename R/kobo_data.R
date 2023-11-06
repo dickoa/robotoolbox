@@ -6,7 +6,10 @@ kobo_data_ <- function(x, paginate, page_size, size, lang,
   if (isTRUE(progress))
     cli_progress_step("Downloading data")
 
-  if (size >= 10000 | !is.null(page_size))
+  if (is.null(paginate) & !is.null(page_size))
+    paginate <- TRUE
+
+  if (size >= 10000 & is.null(paginate))
     paginate <- TRUE
 
   if (isTRUE(paginate)) {
@@ -94,7 +97,7 @@ kobo_data_ <- function(x, paginate, page_size, size, lang,
 #' @param select_multiple_label logical, whether or not to replace select_multiple columns values by labels. Default to `FALSE`.
 #' @param progress logical, whether or not you want to see the progess via message.
 #' Default to `FALSE`.
-#' @param paginate logical, split submissions by page_size. Default to `FALSE`.
+#' @param paginate logical, split submissions by page_size. Default to `NULL`.
 #' @param page_size integer, number of submissions per page.
 #'
 #' @details \code{\link{kobo_data}} is the main function of \code{robotoolbox}, it is used
@@ -146,7 +149,7 @@ kobo_data.kobo_asset <- function(x, lang = NULL,
                                  colnames_label = FALSE,
                                  select_multiple_label = FALSE,
                                  progress = FALSE,
-                                 paginate = FALSE,
+                                 paginate = NULL,
                                  page_size = NULL) {
   if (x$asset_type != "survey")
     abort("You can just read data from survey")
@@ -179,7 +182,7 @@ kobo_data.character <- function(x, lang = NULL,
                                 colnames_label = FALSE,
                                 select_multiple_label = FALSE,
                                 progress = FALSE,
-                                paginate = FALSE,
+                                paginate = NULL,
                                 page_size = NULL) {
   if (!assert_uid(x))
     abort(message = "Invalid asset uid")
@@ -203,7 +206,7 @@ kobo_data.default <- function(x, lang = NULL,
                               colnames_label = FALSE,
                               select_multiple_label = FALSE,
                               progress = FALSE,
-                              paginate = FALSE,
+                              paginate = NULL,
                               page_size = NULL) {
   abort("You need to use a 'kobo_asset' or a valid asset uid")
 }
