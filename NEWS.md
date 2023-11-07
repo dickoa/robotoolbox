@@ -1,4 +1,4 @@
-robotoolbox 1.3.4.9000
+robotoolbox 1.3.4.9001
 ======================
 
 ### NEW FEATURES
@@ -11,6 +11,7 @@ robotoolbox 1.3.4.9000
 ### MINOR IMPROVEMENTS
 - Support for media question types (`media::image`, `media::big-image`, `media::audio`, `media::video`)
 - Keep the `_attachments` column in the data.
+- Works better with external csv used for choices
 
 robotoolbox 1.3.2
 ======================

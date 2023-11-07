@@ -1048,8 +1048,10 @@ external_files_choice_ <- function(urls, lookup = NULL, lang = "Labels", n_retry
     abort(error_msg(msg[[1]]),
           call = NULL)
   }
-  res <- res$parse(encoding = "UTF-8")
+
+  res <- res$content()
   res <- lapply(res,
-                \(f) parse_external_csv_(fread(f), lookup, lang))
+                \(f) parse_external_csv_(fread(text = rawToChar(f)),
+                                         lookup, lang))
   res
 }
