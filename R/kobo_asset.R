@@ -178,7 +178,7 @@ kobo_asset_version_list.character <- function(x) {
          url = map_chr2(res, "url"),
          deployed = is.na(as.logical(map_chr2(res,
                                               "date_deployed"))),
-         date_modified = as.POSIXct(map_chr2(res, "date_modified")))
+         date_modified = parse_kobo_datetime(map_chr2(res, "date_modified")))
 }
 
 #' @export
@@ -213,5 +213,5 @@ print.kobo_asset_version <- function(x, ...) {
   cat("  Asset deployed: ",
       is.na(as.logical(x$date_deployed)), "\n", sep = "")
   cat("  Date modified: ",
-      parse_kobo_datetime_simple(x$date_modified), "\n", sep = "")
+      parse_kobo_datetime(x$date_modified), "\n", sep = "")
 }

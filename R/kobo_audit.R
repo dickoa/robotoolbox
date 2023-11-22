@@ -31,9 +31,12 @@ kobo_audit_ <- function(uid, progress = FALSE) {
 
   res <- res$parse(encoding = "UTF-8")
   res <- mutate(audit_meta,
-                data = lapply(res, \(path) dt2tibble(fread(path))))
+                data = lapply(res, \(path) fread(path,
+                                                 colClasses = "character",
+                                                 data.table = FALSE)))
   res <- select(res, -"download_url")
   unnest(res, "data") |>
+    type_convert() |>
     mutate(name = basename(.data$node), .before = "start",
            start = as.POSIXct(.data$start / 1000, origin = "1970-01-01"),
            end = as.POSIXct(.data$end / 1000, origin = "1970-01-01"))
@@ -51,6 +54,7 @@ kobo_audit_ <- function(uid, progress = FALSE) {
 #' @importFrom dplyr mutate select
 #' @importFrom tidyr unnest
 #' @importFrom data.table fread
+#' @importFrom readr type_convert
 #'
 #' @param x the unique identifier of a specific asset (`character`) or
 #' a \code{kobo_asset} object.
