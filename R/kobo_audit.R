@@ -30,16 +30,24 @@ kobo_audit_ <- function(uid, progress = FALSE) {
     cli_progress_step("Processing audit data")
 
   res <- res$parse(encoding = "UTF-8")
+  col_classes <- c("event",
+                  "node",
+                  "old-value",
+                  "new-value",
+                  "user",
+                  "change-reason")
+  col_classes <- setNames(rep("character",
+                             length(col_classes)),
+                         col_classes)
   res <- mutate(audit_meta,
                 data = lapply(res, \(path) fread(path,
-                                                 colClasses = "character",
+                                                 colClasses = col_classes,
                                                  data.table = FALSE)))
   res <- select(res, -"download_url")
   unnest(res, "data") |>
-    type_convert() |>
     mutate(name = basename(.data$node), .before = "start",
-           start = as.POSIXct(.data$start / 1000, origin = "1970-01-01"),
-           end = as.POSIXct(.data$end / 1000, origin = "1970-01-01"))
+           start_dttm  = as.POSIXct(.data$start / 1000, origin = "1970-01-01"),
+           end_dttm = as.POSIXct(.data$end / 1000, origin = "1970-01-01"))
 }
 
 #' Get all audit logs data from a KoboToolbox survey
