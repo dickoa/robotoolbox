@@ -46,8 +46,10 @@ kobo_audit_ <- function(uid, progress = FALSE) {
   res <- select(res, -"download_url")
   unnest(res, "data") |>
     mutate(name = basename(.data$node), .before = "start",
-           start_dttm  = as.POSIXct(.data$start / 1000, origin = "1970-01-01"),
-           end_dttm = as.POSIXct(.data$end / 1000, origin = "1970-01-01"))
+           start_int = .data$start,
+           start = as.POSIXct(.data$start_int/1000, origin = "1970-01-01"),
+           end_int = .data$end,
+           end = as.POSIXct(.data$end_int/1000, origin = "1970-01-01"))
 }
 
 #' Get all audit logs data from a KoboToolbox survey
