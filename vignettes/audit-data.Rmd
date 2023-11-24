@@ -99,9 +99,13 @@ The columns in the audit logging data include:
 
 - `name`: This column is appended by `robotoolbox` to match the name of the question in the audit and the data from `kobo_data`.
 
-- `start`: This column records the timestamp when the event started.
+- `start_int`: This column records the timestamp when the event started in integer.
 
-- `end`: This column records the timestamp when the event ended.
+- `end_int`: This column records the timestamp when the event ended in integer.
+
+- `start`: This column records the timestamp when the event started in date time format (`POSIXct`).
+
+- `end`: This column records the timestamp when the event ended in date time format (`POSIXct`).
 
 - `latitude`: This column records the latitude of the device when the event occurred.
 
