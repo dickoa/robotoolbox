@@ -214,3 +214,85 @@ kobo_data.default <- function(x, lang = NULL,
 #' @name kobo_data
 #' @export
 kobo_submissions.default <- kobo_data.default
+
+
+#' @noRd
+kobo_attachment_download_ <- function(attachments, folder, progress) {
+  if (!dir.exists(folder))
+    abort(paste(folder, "folder does not exist, create it first!"),
+          call = NULL)
+  bool <- sapply(attachments, is.null)
+  path <- character()
+  if (any(!bool)) {
+    attachments <- attachments[!bool]
+    urls <- lapply(attachments,
+                   \(x) data.frame(url = x$download_url,
+                                   id = x$instance,
+                                   fname = x$filename))
+    urls <- list_rbind(urls)
+    urls <- unique(urls)
+    urls$fname <- basename(urls$fname)
+
+    headers <- list(Authorization = paste("Token",
+                                          Sys.getenv("KOBOTOOLBOX_TOKEN")))
+
+    if (isTRUE(progress))
+      cli_progress_step("Downloading files")
+    cc <- Async$new(urls = urls$url,
+                    headers = headers)
+    fname <- paste0(urls$id, "_", urls$fname)
+    path <- file.path(folder, fname)
+    res <- cc$get(disk = path)
+    cond <- vapply(res, \(x) x$status_code, double(1)) >= 300L
+    if (any(cond)) {
+      msg <- res$content()[cond]
+      abort(error_msg(msg[[1]]),
+            call = NULL)
+    }
+  }
+  invisible(path)
+}
+
+#' Download submitted files associatted to KoboToolbox API asset
+#'
+#' Download submitted files associatted to a KoboToolbox API asset
+#'
+#' @importFrom crul Async
+#'
+#' @name kobo_attachment_download
+#'
+#' @param x the asset uid or the \code{kobo_asset} object.
+#' @param folder character, the folder where you store the downloaded files.
+#' The working directory is the default folder.
+#' @param progress logical, whether or not you want to see the progess via message.
+#' Default to `FALSE`.
+#'
+#' @returns Silently returns a vector of files paths.
+#'
+#' @examples
+#' \dontrun{
+#' kobo_setup()
+#' uid <- "a9cwEQcbWqWzA5hzkjRUWi"
+#' kobo_attachment_download(uid, folder = tempdir())
+#' }
+#'
+#' @export
+kobo_attachment_download <- function(x, folder, progress) {
+  UseMethod("kobo_attachment_download")
+}
+
+#' @export
+kobo_attachment_download.character <- function(x, folder, progress = FALSE) {
+  subs <- get_subs(x)
+  kobo_attachment_download_(subs[["_attachments"]],
+                            folder = folder,
+                            progress = progress)
+}
+
+#' @export
+kobo_attachment_download.kobo_asset <- function(x, folder, progress = FALSE) {
+  subs <- get_subs(x$uid)
+  kobo_attachment_download_(subs[["_attachments"]],
+                            folder = folder,
+                            progress = progress)
+}

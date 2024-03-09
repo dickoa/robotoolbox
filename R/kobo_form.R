@@ -125,7 +125,7 @@ kobo_form.kobo_asset <- function(x, version = NULL) {
                                         "value_name"))
     has_external_files <- grepl("from_file$", survey$type)
     if (any(has_external_files)) {
-      ext <- kobo_file_list(x$uid)
+      ext <- kobo_asset_file_list(x$uid)
       fname <- unique(survey$list_name[has_external_files])
       ext <- filter(ext,
                     .data$mimetype %in% "text/csv",

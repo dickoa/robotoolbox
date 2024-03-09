@@ -31,11 +31,10 @@ kobo_audit_ <- function(uid, progress = FALSE) {
 
   res <- res$parse(encoding = "UTF-8")
   col_classes <- c("event",
-                  "node",
-                  "old-value",
-                  "new-value",
-                  "user",
-                  "change-reason")
+                   "node",
+                   "old-value",
+                   "new-value",
+                   "user")
   col_classes <- setNames(rep("character",
                              length(col_classes)),
                          col_classes)

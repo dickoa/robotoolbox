@@ -1,7 +1,9 @@
-robotoolbox 1.3.4.9003
+robotoolbox
 ======================
 
 ### NEW FEATURES
+- Added `kobo_file_list` to list all media files availabe
+- Added `kobo_attachment_download` to download attached files in a specific folder
 
 ### BUG FIXES
 - text question with numbers are parsed as numbers, it's fixed now.

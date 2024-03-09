@@ -346,7 +346,7 @@ hide_token <- function(x) {
   paste(c(a, b), collapse = "")
 }
 
-#' @importFrom data.table as.data.table alloc.col `:=` chmatch set
+#' @importFrom data.table as.data.table alloc.col := chmatch set
 #' @importFrom stringi stri_detect_regex
 #' @importFrom tibble as_tibble
 #' @importFrom stats na.omit
@@ -987,7 +987,7 @@ kobo_form_version_ <- function(x, asset, all_versions) {
   cond <- cond1 & cond2 & cond3 & all_versions
   if (cond) {
     form <- lapply(versions, \(v) kobo_form(uid, v))
-    form <- list_rbind(form)
+    form <- dt2tibble(rbindlist(form))
   } else {
     v <- if (!cond2 & cond3) versions else NULL
     form <- kobo_form(uid, version = v)
