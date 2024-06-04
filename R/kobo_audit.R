@@ -43,6 +43,11 @@ kobo_audit_ <- function(uid, progress = FALSE) {
                                                  colClasses = col_classes,
                                                  data.table = FALSE)))
   res <- select(res, -"download_url")
+  res$data <- lapply(res$data, function(x) {
+    x[['old-value']] <- as.character(x[['old-value']])
+    x[['new-value']] <- as.character(x[['new-value']])
+    x
+  })
   unnest(res, "data") |>
     mutate(name = basename(.data$node), .before = "start",
            start_int = .data$start,
