@@ -367,6 +367,7 @@ fast_dummy_cols <- function(x, form, cols, sep) {
                           new_names)
       names_inform_repair(old_cols, new_cols)
       x[, (new_cols) := .SD, .SDcols = old_cols]
+      x[, (old_cols) := NULL]
     }
     alloc.col(x, ncol(x) + length(uv))
     x[, (new_names) := 0L]
