@@ -247,7 +247,7 @@ get_subs_async <- function(uid, size, chunk_size = NULL, n_retry = 3L, ...) {
 
 #' @importFrom RcppSimdJson fparse
 #' @importFrom purrr list_rbind
-#' @importFrom dplyr select
+#' @importFrom dplyr select filter
 #' @noRd
 get_audit_url_ <- function(uid) {
   path <- paste0("api/v2/assets/", uid, "/data.json")
@@ -255,7 +255,8 @@ get_audit_url_ <- function(uid) {
   res <- fparse(res, max_simplify_lvl = "data_frame")
   res <- res$result
   list_rbind(res[["_attachments"]]) |>
-    select(`_id` = "instance", "download_url")
+   filter(grepl("audit.csv$", .data$filename)) |>
+   select(`_id` = "instance", "download_url")
 }
 
 #' @noRd
@@ -346,23 +347,33 @@ hide_token <- function(x) {
   paste(c(a, b), collapse = "")
 }
 
-#' @importFrom data.table as.data.table alloc.col := chmatch set
+#' @importFrom data.table as.data.table alloc.col := chmatch set .SD
 #' @importFrom stringi stri_detect_regex
 #' @importFrom tibble as_tibble
 #' @importFrom stats na.omit
+#' @importFrom rlang names_inform_repair
 #' @noRd
-fast_dummy_cols <- function(x, form, cols) {
+fast_dummy_cols <- function(x, form, cols, sep) {
   x <- as.data.table(x)
   for (col in cols) {
     y <- x[[col]]
     uv <- col2choices(x, form, col)
-    new_names <- paste0(col, "_", uv)
+    new_names <- paste0(col, sep, uv)
+    nm <- names(x)
+    if (any(new_names %in% nm)) {
+      old_cols <- intersect(new_names, nm)
+      new_cols <- setdiff(make.unique(c(new_names, old_cols),
+                                      sep = "_"),
+                          new_names)
+      names_inform_repair(old_cols, new_cols)
+      x[, (new_cols) := .SD, .SDcols = old_cols]
+    }
     alloc.col(x, ncol(x) + length(uv))
     x[, (new_names) := 0L]
     x[which(is.na(y)), (new_names) := NA_integer_]
     for (iter in seq_along(uv)) {
       a <- gsub("([[:punct:]])", "\\\\\\1", uv[iter])
-      j <- paste0(col, "_", uv[iter])
+      j <- paste0(col, sep, uv[iter])
       i <- which(stri_detect_regex(y,
                                    paste0("\\b", a,  "(\\s|$)")))
       set(x, i = i, j = j, value = 1L)
@@ -373,12 +384,12 @@ fast_dummy_cols <- function(x, form, cols) {
 
 #' @importFrom stringi stri_detect_regex
 #' @noRd
-dummy_from_form_ <- function(x, form) {
+dummy_from_form_ <- function(x, form, sep) {
   bool <- stri_detect_regex(form$type, "select_multiple")
   nm <- unique(form$name[bool])
   nm <- intersect(names(x), nm)
   if (length(nm) > 0) {
-    x <- fast_dummy_cols(x, form, nm)
+    x <- fast_dummy_cols(x, form, nm, sep)
   } else {
     x
   }
@@ -793,8 +804,8 @@ reorder_cols_ <- function(x, cn) {
 }
 
 #' @importFrom utils type.convert
-postprocess_data_ <- function(x, form, lang, select_multiple_label = FALSE, cn) {
-  x <- dummy_from_form_(x, form)
+postprocess_data_ <- function(x, form, lang, select_multiple_label = FALSE, cn, select_multiple_sep = "_") {
+  x <- dummy_from_form_(x, form, sep = select_multiple_sep)
   x <- extract_geopoint_(x, form)
   x <- extract_geotrace_(x, form)
   x <- extract_geoshape_(x, form)
@@ -846,8 +857,8 @@ empty_tibble_ <- function(cnames) {
 #' @importFrom rlang set_names
 #' @importFrom tidyr fill
 #' @noRd
-kobo_form_name_to_list_ <- function(x) {
-  x <- kobo_form_extra_(x)
+kobo_form_name_to_list_ <- function(x, sep) {
+  x <- kobo_form_extra_(x, sep)
   x <- distinct(x, .data$name, .data$type, .data$cnames)
 
   x <- x |>
@@ -900,7 +911,7 @@ set_names_from_varlabel_dm_ <- function(x) {
 #' @importFrom dplyr mutate case_when
 #' @importFrom stats na.omit
 #' @noRd
-kobo_form_extra_ <- function(form) {
+kobo_form_extra_ <- function(form, sep) {
   media_type <- c("image", "video", "audio", "file")
   if ("choices" %in% names(form)) {
     res <- mutate(form, "value_name" =
@@ -913,7 +924,7 @@ kobo_form_extra_ <- function(form) {
                                     type %in% "geotrace" ~ list(c("", "_wkt")),
                                     type %in% "geoshape" ~ list(c("", "_wkt")),
                                     stri_detect_regex(type, "select_multiple") ~ lapply(.data$choices,
-                                                                         \(ch) c("", paste0("_", unique(ch$value_name)))),
+                                                                         \(ch) c("", paste0(sep, unique(ch$value_name)))),
                                     .default = list(""))) |>
       unnest("value_name") |>
       mutate(cnames = paste0(.data$name, .data$value_name))
@@ -937,8 +948,8 @@ kobo_form_extra_ <- function(form) {
 #' @importFrom dplyr mutate case_when
 #' @importFrom stats na.omit
 #' @noRd
-kobo_form_names_ <- function(x) {
-  x <- kobo_form_extra_(x)
+kobo_form_names_ <- function(x, sep) {
+  x <- kobo_form_extra_(x, sep)
   x <- unique(x$cnames)
   na.omit(x)
 }
@@ -1020,8 +1031,8 @@ parse_external_csv_ <- function(x, lookup, lang) {
     rename_with(~ gsub("::.+", "", .x)) |>
     rename(any_of(lookup)) |>
     mutate(value_name = as.character(.data$name),
-           value_label = .data$label,
-           value_lang = lang,
+           value_label = as.character(.data$label),
+           value_lang = as.character(lang),
            .keep = "none")
 }
 

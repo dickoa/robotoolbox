@@ -4,8 +4,11 @@ robotoolbox
 ### NEW FEATURES
 - Added `kobo_file_list` to list all media files availabe
 - Added `kobo_attachment_download` to download attached files in a specific folder
+- `select_one_from_file` or `select_multiple_from_file` question types now have labels like `select_one` and `select_multiple`.
+
 
 ### BUG FIXES
+- if you have a column `var_other` and `select_multiple` choice `other` for a column `var`, the, `var_other` is silently overwritten. It's fixed now and we rename the duplicate.
 - text question with numbers are parsed as numbers, it's fixed now.
 - `select_multiple` questions with choices with special characters suchs `(`, `)`, `{` or `}` were breaking the split into dummy variables. Bug fixed.
 - Fix bug on `paginate` in `kobo_data`
@@ -14,7 +17,6 @@ robotoolbox
 ### MINOR IMPROVEMENTS
 - Support for media question types (`media::image`, `media::big-image`, `media::audio`, `media::video`)
 - Keep the `_attachments` column in the data.
-- Works better with external csv used for choices
 
 robotoolbox 1.3.2
 ======================

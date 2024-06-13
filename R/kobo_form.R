@@ -130,6 +130,7 @@ kobo_form.kobo_asset <- function(x, version = NULL) {
       ext <- filter(ext,
                     .data$mimetype %in% "text/csv",
                     .data$filename %in% fname)
+      params <- NULL
       params <- if ("parameters" %in% names(survey))
                   na.omit(unique(survey$parameters[has_external_files]))
       lang <- lang[[1]]

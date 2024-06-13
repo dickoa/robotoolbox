@@ -34,14 +34,13 @@ kobo_audit_ <- function(uid, progress = FALSE) {
                    "node",
                    "old-value",
                    "new-value",
-                   "user")
-  col_classes <- setNames(rep("character",
-                             length(col_classes)),
-                         col_classes)
+                   "user",
+                   "change-reason")
+  col_classes <- list(character = col_classes)
   res <- mutate(audit_meta,
-                data = lapply(res, \(path) fread(path,
-                                                 colClasses = col_classes,
-                                                 data.table = FALSE)))
+                data = lapply(res, \(path) suppressWarnings(fread(path,
+                                                                  colClasses = col_classes,
+                                                                  data.table = FALSE))))
   res <- select(res, -"download_url")
   unnest(res, "data") |>
     mutate(name = basename(.data$node), .before = "start",

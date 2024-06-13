@@ -14,6 +14,7 @@ kobo_data(
   all_versions,
   colnames_label,
   select_multiple_label,
+  select_multiple_sep,
   progress,
   paginate,
   page_size
@@ -25,6 +26,7 @@ kobo_submissions(
   all_versions,
   colnames_label,
   select_multiple_label,
+  select_multiple_sep,
   progress,
   paginate,
   page_size
@@ -36,6 +38,7 @@ kobo_submissions(
   all_versions = TRUE,
   colnames_label = FALSE,
   select_multiple_label = FALSE,
+  select_multiple_sep = "_",
   progress = FALSE,
   paginate = NULL,
   page_size = NULL
@@ -47,6 +50,7 @@ kobo_submissions(
   all_versions = TRUE,
   colnames_label = FALSE,
   select_multiple_label = FALSE,
+  select_multiple_sep = "_",
   progress = FALSE,
   paginate = NULL,
   page_size = NULL
@@ -58,6 +62,7 @@ kobo_submissions(
   all_versions = TRUE,
   colnames_label = FALSE,
   select_multiple_label = FALSE,
+  select_multiple_sep = "_",
   progress = FALSE,
   paginate = NULL,
   page_size = NULL
@@ -75,6 +80,8 @@ Default to \code{TRUE}. If \code{FALSE}, it uses the data from the latest versio
 in lieu of column names based on form question names. Default to \code{FALSE}.}
 
 \item{select_multiple_label}{logical, whether or not to replace select_multiple columns values by labels. Default to \code{FALSE}.}
+
+\item{select_multiple_sep}{character, column and choices separator for newly created dummy variables. Default to "_".}
 
 \item{progress}{logical, whether or not you want to see the progess via message.
 Default to \code{FALSE}.}

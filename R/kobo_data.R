@@ -1,6 +1,6 @@
 #' @noRd
 kobo_data_ <- function(x, paginate, page_size, size, lang,
-                       select_multiple_label, colnames_label,
+                       select_multiple_label, select_multiple_sep, colnames_label,
                        all_versions, progress) {
 
   if (isTRUE(progress))
@@ -23,13 +23,15 @@ kobo_data_ <- function(x, paginate, page_size, size, lang,
   if (isTRUE(progress))
     cli_progress_step("Processing data")
   form <- kobo_form_version_(subs, x, all_versions = all_versions)
-  cn <- kobo_form_names_(form)
+  cn <- kobo_form_names_(form,
+                         sep = select_multiple_sep)
   klang <- kobo_lang(x)
   if (is.null(lang) || !lang %in% klang)
     lang <- klang[1]
 
   if ("begin_repeat" %in% form$type) {
-    names_list <- kobo_form_name_to_list_(filter(form, .data$lang == lang))
+    names_list <- kobo_form_name_to_list_(filter(form, .data$lang == lang),
+                                          sep = select_multiple_sep)
     subs <- dedup_vars_(subs, all_versions = all_versions)
     subs <- set_names(subs, make_unique_names_)
     subs <- c(list(main = rowid_to_column(subs, "_index")),
@@ -43,6 +45,7 @@ kobo_data_ <- function(x, paginate, page_size, size, lang,
                         form = form,
                         lang = lang,
                         select_multiple_label =  select_multiple_label,
+                        select_multiple_sep =  select_multiple_sep,
                         cn = cn_list)
     })
     subs <- setNames(subs, nm)
@@ -67,6 +70,7 @@ kobo_data_ <- function(x, paginate, page_size, size, lang,
                               form = form,
                               lang = lang,
                               select_multiple_label =  select_multiple_label,
+                              select_multiple_sep =  select_multiple_sep,
                               cn = cn)
     if (isTRUE(colnames_label))
       subs <- set_names_from_varlabel_(subs)
@@ -95,6 +99,7 @@ kobo_data_ <- function(x, paginate, page_size, size, lang,
 #' @param colnames_label logical, whether or not to use variable labels
 #' in lieu of column names based on form question names. Default to `FALSE`.
 #' @param select_multiple_label logical, whether or not to replace select_multiple columns values by labels. Default to `FALSE`.
+#' @param select_multiple_sep character, column and choices separator for newly created dummy variables. Default to "_".
 #' @param progress logical, whether or not you want to see the progess via message.
 #' Default to `FALSE`.
 #' @param paginate logical, split submissions by page_size. Default to `NULL`.
@@ -128,6 +133,7 @@ kobo_data <- function(x, lang,
                       all_versions,
                       colnames_label,
                       select_multiple_label,
+                      select_multiple_sep,
                       progress,
                       paginate, page_size) {
   UseMethod("kobo_data")
@@ -139,6 +145,7 @@ kobo_submissions <- function(x, lang,
                              all_versions,
                              colnames_label,
                              select_multiple_label,
+                             select_multiple_sep,
                              progress,
                              paginate, page_size)
   UseMethod("kobo_submissions")
@@ -148,6 +155,7 @@ kobo_data.kobo_asset <- function(x, lang = NULL,
                                  all_versions = TRUE,
                                  colnames_label = FALSE,
                                  select_multiple_label = FALSE,
+                                 select_multiple_sep = "_",
                                  progress = FALSE,
                                  paginate = NULL,
                                  page_size = NULL) {
@@ -160,13 +168,15 @@ kobo_data.kobo_asset <- function(x, lang = NULL,
                       all_versions = all_versions,
                       colnames_label = colnames_label,
                       select_multiple_label = select_multiple_label,
+                      select_multiple_sep = select_multiple_sep,
                       progress = progress,
                       paginate = paginate,
                       page_size = page_size,
                       size = size)
   } else {
     form <- kobo_form(x)
-    cn <- kobo_form_names_(form)
+    cn <- kobo_form_names_(form,
+                           sep = select_multiple_sep)
     res <- empty_tibble_(cn)
   }
   res
@@ -181,6 +191,7 @@ kobo_data.character <- function(x, lang = NULL,
                                 all_versions = TRUE,
                                 colnames_label = FALSE,
                                 select_multiple_label = FALSE,
+                                select_multiple_sep = "_",
                                 progress = FALSE,
                                 paginate = NULL,
                                 page_size = NULL) {
@@ -191,6 +202,7 @@ kobo_data.character <- function(x, lang = NULL,
             all_versions = all_versions,
             colnames_label = colnames_label,
             select_multiple_label = select_multiple_label,
+            select_multiple_sep = select_multiple_sep,
             progress = progress,
             paginate = paginate,
             page_size = page_size)
@@ -205,6 +217,7 @@ kobo_data.default <- function(x, lang = NULL,
                               all_versions = TRUE,
                               colnames_label = FALSE,
                               select_multiple_label = FALSE,
+                              select_multiple_sep = "_",
                               progress = FALSE,
                               paginate = NULL,
                               page_size = NULL) {
