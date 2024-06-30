@@ -36,7 +36,7 @@ test_that("kobo_form has a version argument", {
                c("tbl_df", "tbl", "data.frame"))
  })
 
-test_that("kobo_form can load form with choices tab", {
+test_that("kobo_form can load form without choices tab", {
   skip_on_cran()
   url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
   token <- Sys.getenv("KOBOTOOLBOX_PROD_TOKEN")

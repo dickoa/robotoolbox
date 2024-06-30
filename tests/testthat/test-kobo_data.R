@@ -262,3 +262,27 @@ test_that("kobo_data can use labels as colnames", {
   raw <- kobo_data(uid, colnames_label = TRUE)
   expect_in("What is your name?", colnames(raw))
 })
+
+
+
+test_that("select_multiple column can have different separators", {
+  skip_on_cran()
+  url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
+  token <- Sys.getenv("KOBOTOOLBOX_PROD_TOKEN")
+  skip <-  url == "" & token == ""
+  skip_if(skip,
+          message = "Test server not configured")
+
+  kobo_setup(url = url, token = token)
+  uid <- "atbUaNGu5PWR2u4tNDsYaH"
+  form <- kobo_form(uid)
+  cond <- form$type %in% "select_multiple"
+  sm_col <- form$name[cond]
+  sm_col <- sm_col[1]
+  choices <- form$choices[form$name %in% sm_col][[1]]
+  label <- unique(choices$value_name)
+  raw_label <- kobo_data(uid,
+                         select_multiple_sep = "@")
+  expected <- paste0(sm_col, "@", label)
+  expect_true(all(expected %in% names(raw_label)))
+})

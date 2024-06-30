@@ -228,39 +228,51 @@ kobo_data.default <- function(x, lang = NULL,
 #' @export
 kobo_submissions.default <- kobo_data.default
 
-
 #' @noRd
-kobo_attachment_download_ <- function(attachments, folder, progress) {
+kobo_attachment_download_ <- function(attachments, folder, overwrite, n_retry) {
   if (!dir.exists(folder))
     abort(paste(folder, "folder does not exist, create it first!"),
           call = NULL)
   bool <- sapply(attachments, is.null)
   path <- character()
   if (any(!bool)) {
-    attachments <- attachments[!bool]
-    urls <- lapply(attachments,
-                   \(x) data.frame(url = x$download_url,
-                                   id = x$instance,
-                                   fname = x$filename))
-    urls <- list_rbind(urls)
-    urls <- unique(urls)
-    urls$fname <- basename(urls$fname)
+    urls <- attachments[!bool] |>
+      list_rbind() |>
+      mutate(id = .data$instance,
+             url = .data$download_url,
+             fname = basename(.data$filename),
+             fname_id = paste0(.data$id, "_", .data$fname),
+             path = file.path(folder, .data$fname_id),
+             .keep = "none") |>
+      distinct()
 
     headers <- list(Authorization = paste("Token",
                                           Sys.getenv("KOBOTOOLBOX_TOKEN")))
 
-    if (isTRUE(progress))
-      cli_progress_step("Downloading files")
-    cc <- Async$new(urls = urls$url,
-                    headers = headers)
-    fname <- paste0(urls$id, "_", urls$fname)
-    path <- file.path(folder, fname)
-    res <- cc$get(disk = path)
-    cond <- vapply(res, \(x) x$status_code, double(1)) >= 300L
-    if (any(cond)) {
-      msg <- res$content()[cond]
-      abort(error_msg(msg[[1]]),
-            call = NULL)
+    if (isFALSE(overwrite))
+      urls <- filter(urls,
+                     .data$fname %in% list.files(folder))
+
+    if (nrow(urls) > 0) {
+      reqs <- lapply(urls$url, function(url) {
+        req <- HttpRequest$new(url,
+                               headers = headers)
+        req$retry("get",
+                  times = n_retry,
+                  retry_only_on = c(500, 503),
+                  terminate_on = 404)
+      })
+      res <- AsyncQueue$new(.list = reqs,
+                            bucket_size = Inf,
+                            sleep = 0.1)
+      res$request()
+      cond <- res$status_code() >= 300L
+      if (any(cond)) {
+        msg <- res$content()[cond]
+        abort(error_msg(msg[[1]]),
+              call = NULL)
+      }
+      walk2(res$content(), urls$path, \(x, y) writeBin(x, con = y))
     }
   }
   invisible(path)
@@ -270,7 +282,8 @@ kobo_attachment_download_ <- function(attachments, folder, progress) {
 #'
 #' Download submitted files associatted to a KoboToolbox API asset
 #'
-#' @importFrom crul Async
+#' @importFrom crul AsyncQueue
+#' @importFrom purrr walk2
 #'
 #' @name kobo_attachment_download
 #'
@@ -279,6 +292,10 @@ kobo_attachment_download_ <- function(attachments, folder, progress) {
 #' The working directory is the default folder.
 #' @param progress logical, whether or not you want to see the progess via message.
 #' Default to `FALSE`.
+#' @param overwrite logical, whether or not you want to overwrite existing media files.
+#' Default to `FALSE`.
+#' @param n_retry integer, Number of time you should retry the failed request.
+#' Default to 3L.
 #'
 #' @returns Silently returns a vector of files paths.
 #'
@@ -290,22 +307,32 @@ kobo_attachment_download_ <- function(attachments, folder, progress) {
 #' }
 #'
 #' @export
-kobo_attachment_download <- function(x, folder, progress) {
+kobo_attachment_download <- function(x, folder, progress, overwrite, n_retry) {
   UseMethod("kobo_attachment_download")
 }
 
 #' @export
-kobo_attachment_download.character <- function(x, folder, progress = FALSE) {
+kobo_attachment_download.character <- function(x, folder, progress = FALSE, overwrite = FALSE, n_retry = 3L) {
+  if (isTRUE(progress))
+    cli_progress_step("Listing files")
   subs <- get_subs(x)
+  if (isTRUE(progress))
+      cli_progress_step("Downloading files")
   kobo_attachment_download_(subs[["_attachments"]],
                             folder = folder,
-                            progress = progress)
+                            overwrite = overwrite,
+                            n_retry = n_retry)
 }
 
 #' @export
-kobo_attachment_download.kobo_asset <- function(x, folder, progress = FALSE) {
+kobo_attachment_download.kobo_asset <- function(x, folder, progress = FALSE, overwrite = FALSE, n_retry = 3L) {
+  if (isTRUE(progress))
+    cli_progress_step("Listing files")
   subs <- get_subs(x$uid)
+  if (isTRUE(progress))
+    cli_progress_step("Downloading files")
   kobo_attachment_download_(subs[["_attachments"]],
                             folder = folder,
-                            progress = progress)
+                            overwrite = overwrite,
+                            n_retry = n_retry)
 }

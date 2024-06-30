@@ -4,7 +4,7 @@
 \alias{kobo_attachment_download}
 \title{Download submitted files associatted to KoboToolbox API asset}
 \usage{
-kobo_attachment_download(x, folder, progress)
+kobo_attachment_download(x, folder, progress, overwrite, n_retry)
 }
 \arguments{
 \item{x}{the asset uid or the \code{kobo_asset} object.}
@@ -14,6 +14,12 @@ The working directory is the default folder.}
 
 \item{progress}{logical, whether or not you want to see the progess via message.
 Default to \code{FALSE}.}
+
+\item{overwrite}{logical, whether or not you want to overwrite existing media files.
+Default to \code{FALSE}.}
+
+\item{n_retry}{integer, Number of time you should retry the failed request.
+Default to 3L.}
 }
 \value{
 Silently returns a vector of files paths.
