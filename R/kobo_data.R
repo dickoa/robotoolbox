@@ -251,7 +251,7 @@ kobo_attachment_download_ <- function(attachments, folder, overwrite, n_retry) {
 
     if (isFALSE(overwrite))
       urls <- filter(urls,
-                     .data$fname %in% list.files(folder))
+                     !.data$fname %in% list.files(folder))
 
     if (nrow(urls) > 0) {
       reqs <- lapply(urls$url, function(url) {
