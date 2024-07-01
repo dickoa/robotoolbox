@@ -999,7 +999,7 @@ kobo_form_version_ <- function(x, asset, all_versions) {
   cond <- cond1 & cond2 & cond3 & all_versions
   if (cond) {
     form <- lapply(versions, \(v) kobo_form(uid, v))
-    form <- dt2tibble(rbindlist(form))
+    form <- dt2tibble(rbindlist(form, fill = TRUE))
   } else {
     v <- if (!cond2 & cond3) versions else NULL
     form <- kobo_form(uid, version = v)
