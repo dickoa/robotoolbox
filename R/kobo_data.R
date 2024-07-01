@@ -312,7 +312,7 @@ kobo_attachment_download <- function(x, folder, progress, overwrite, n_retry) {
 }
 
 #' @export
-kobo_attachment_download.character <- function(x, folder, progress = FALSE, overwrite = FALSE, n_retry = 3L) {
+kobo_attachment_download.character <- function(x, folder, progress = FALSE, overwrite = TRUE, n_retry = 3L) {
   if (isTRUE(progress))
     cli_progress_step("Listing files")
   subs <- get_subs(x)
@@ -325,7 +325,7 @@ kobo_attachment_download.character <- function(x, folder, progress = FALSE, over
 }
 
 #' @export
-kobo_attachment_download.kobo_asset <- function(x, folder, progress = FALSE, overwrite = FALSE, n_retry = 3L) {
+kobo_attachment_download.kobo_asset <- function(x, folder, progress = FALSE, overwrite = TRUE, n_retry = 3L) {
   if (isTRUE(progress))
     cli_progress_step("Listing files")
   subs <- get_subs(x$uid)
