@@ -135,7 +135,7 @@ kobo_audit.kobo_asset <- function(x, progress = FALSE) {
   if (cond) {
     version <- unique(asset_version_list$uid)
     form <- lapply(version, \(v) kobo_form(x, v))
-    form <- list_rbind(form)
+    form <- dt2tibble(rbindlist(form, fill = TRUE))
   } else {
     form <- kobo_form(x)
   }

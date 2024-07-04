@@ -260,9 +260,13 @@ test_that("kobo_data can use labels as colnames", {
   kobo_setup(url = url, token = token)
   uid <- "aDMHypRASH2EuJdvKMx5Mi"
   raw <- kobo_data(uid, colnames_label = TRUE)
-  expect_in("What is your name?", colnames(raw))
-})
+  expect_in("What is your name?", names(raw))
 
+  ## works with dm too
+  uid_dm <- "aANhxwX9S6BCsiYMgQj9kV"
+  raw_dm <- kobo_data(uid_dm, colnames_label = TRUE)
+  expect_in("How many hobbies does ${name} have?", names(raw_dm$demo))
+})
 
 
 test_that("select_multiple column can have different separators", {
@@ -285,4 +289,28 @@ test_that("select_multiple column can have different separators", {
                          select_multiple_sep = "@")
   expected <- paste0(sm_col, "@", label)
   expect_true(all(expected %in% names(raw_label)))
+})
+
+test_that("kobo_data can use labels as colnames", {
+  skip_on_cran()
+  url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
+  token <- Sys.getenv("KOBOTOOLBOX_PROD_TOKEN")
+  skip <-  url == "" & token == ""
+  skip_if(skip,
+          message = "Test server not configured")
+
+  kobo_setup(url = url, token = token)
+  uid <- "aSCXrTdtrxHDnx3n4DHefK"
+  dir <- tempdir(check = TRUE)
+  kobo_attachment_download(uid, dir,
+                           progress = TRUE,
+                           overwrite = TRUE)
+
+  ## check overwrite
+  kobo_attachment_download(kobo_asset(uid),
+                           dir,
+                           progress = FALSE,
+                           overwrite = FALSE)
+  expect_true(file.exists(file.path(dir,
+                                    "30515362_file_example_MP4_480_1_5MG-20_54_20.mp4")))
 })
