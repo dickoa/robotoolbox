@@ -46,4 +46,4 @@ reference:
       - kobo_data
       - kobo_submissions
       - kobo_audit
-      - kobo_attachement_download
+      - kobo_attachment_download
