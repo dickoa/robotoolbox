@@ -28,8 +28,8 @@ The geotrace question type collects a series of connected geographic coordinates
 **Geoshape:**<br>
 A geoshape question type captures a series of geographic coordinates that form a closed polygon. This is useful for defining areas, such as land parcels, agricultural fields, or protected zones.
 
-To utilize these data types, we need to parse them into a GIS friendly format. `robotoolbox` uses [Well-Known Text (WKT)](https://libgeos.org/specifications/wkt/), a standard markup language for representing vector geometry, to represent points (`geopoint`), lines (`geotrace`) and polygons (`geoshape`).
 
+To utilize these data types, we need to parse them into a GIS friendly format. `robotoolbox` uses [Well-Known Text (WKT)](https://libgeos.org/specifications/wkt/), a standard markup language for representing vector geometry, to represent points (`geopoint`), lines (`geotrace`) and polygons (`geoshape`). WKT is chosen for its wide compatibility with GIS software and spatial analysis packages, making it easier to integrate `KoboToolbox` data with various spatial analysis workflows.
 
 ## Spatial data
 
@@ -75,9 +75,15 @@ The aforementioned form, named `Spatial data`, was uploaded to the server. You c
 ```{r, eval = FALSE}
 library(robotoolbox)
 library(dplyr)
+
+# Retrieve a list of all assets (projects) from your KoboToolbox server
 asset_list <- kobo_asset_list()
+
+# Filter the asset list to find the specific project and get its unique identifier (uid)
 uid <- filter(asset_list, name == "Spatial data") |>
   pull(uid)
+
+# Load the specific asset (project) using its uid
 asset <- kobo_asset(uid)
 asset
 ```
@@ -87,7 +93,12 @@ asset <- asset_spatial
 asset
 ```
 
-We have a single submission, where we recorded one location using a `geopoint` question, mapped a portion of a road using a `geotrace` question, and outlined a stadium using a `geoshape`` question.
+In this code:
+
+- `kobo_asset_list()` retrieves a list of all assets (projects) available on your `KoboToolbox` server.
+- `kobo_asset()` loads a specific asset (project) using its unique identifier (`uid`), allowing you to work with that particular project data and metadata.
+
+We have a single submission, where we recorded one location using a `geopoint` question, mapped a portion of a road using a `geotrace` question, and outlined a stadium using a `geoshape` question.
 
 ### Extracting the data
 
@@ -105,6 +116,8 @@ glimpse(df)
 
 We can see that we have all of our three columns `point`, `line` and `polygon`. For each of them, we have a corresponding WKT column.
 
+The WKT format for a point is simply `POINT (longitude latitude)`. For example, `POINT (-17.446667 14.692778)` represents a location in Dakar, Senegal.
+
 ```{r}
 pull(df, point)
 pull(df, point_wkt)
@@ -119,12 +132,16 @@ df |>
 
 The `line` column, derived from the `geotrace` question, has a corresponding `line_wkt` column.
 
+The WKT format for a line is `LINESTRING (lon1 lat1, lon2 lat2, ...)`. Each pair of coordinates represents a point along the line. For example, `LINESTRING (-17.4440 14.6937, -17.4502 14.7167)` represents a line connecting two points in Dakar.
+
 ```{r}
 pull(df, line)
 pull(df, line_wkt)
 ```
 
 Lastly, `polygon_wkt` is the WKT column derived from the `geoshape` question labeled `polygon`.
+
+The WKT format for a polygon is `POLYGON ((lon1 lat1, lon2 lat2, ..., lon1 lat1))`. Note that the first and last coordinate pairs are the same, closing the polygon. For example, `POLYGON ((-17.4440 14.6937, -17.4502 14.7167, -17.4314 14.7145, -17.4440 14.6937))` represents a triangular area in Dakar.
 
 ```{r}
 pull(df, polygon)
@@ -135,7 +152,7 @@ Now that we understand how `robotoolbox` stores spatial question types, we can c
 
 ## Geopoint
 
-The standard approach to manipulate spatial vector data in `R` involves using the `sf` package. `sf` stands for Simple Features and it extends a `data.frame` by adding a geometry list-column. It's a spatially enabled `data.frame`.
+The standard approach to manipulate spatial vector data in `R` involves using the `sf` package. `sf` stands for Simple Features and it extends a `data.frame` by adding a geometry list-column. It creates a spatially enabled `data.frame`.
 It provides an interface to the popular [GDAL](https://gdal.org/), [GEOS](https://libgeos.org/), [PRØJ](https://proj.org/) and [S2](https://s2geometry.io/) libraries. It can be used to efficiently manipulate and visualize spatial vector data.
 
 Creating an `sf` object from a text column that contains  [`WKT`](https://libgeos.org/specifications/wkt/) characters is straightforward. The `sf::st_as_sf` function can be used to turn the `data.frame` with a `WKT` column into an `sf` object.
@@ -145,6 +162,8 @@ point_sf <- st_as_sf(data_spatial,
                      wkt = "point_wkt", crs = 4326)
 mapview(point_sf)
 ```
+
+In this code, `crs = 4326` specifies the Coordinate Reference System (CRS) for the spatial data. CRS 4326 refers to the WGS84 (World Geodetic System 1984) coordinate system, which is widely used in GPS and web mapping applications. It represents locations on the Earth using latitude and longitude in degrees. This is the standard CRS used by KoboToolbox for storing geographic coordinates.
 
 ## Geotrace
 
@@ -167,6 +186,8 @@ poly_sf <- st_as_sf(data_spatial,
 mapview(poly_sf)
 ```
 
-Not only does `robotoolbox` rely on the `sf` package, but it also leverages other packages from the same ecosystem to provide robust spatial data analysis for `KoboToolbox` users.
+## Conclusion
+
+By combining `robotoolbox` with R spatial analysis tools, researchers and data analysts can efficiently process, analyze, and visualize geographic data collected through `KoboToolbox`, opening up a wide range of possibilities for spatial data analysis in various fields such as humanitarian work, environmental studies, and social sciences.
 
 You can learn a lot about the `sf` packages and spatial data analysis with R from the excellent [Geocomputation with R](https://r.geocompx.org/) book and through the extensive `sf` [package documentation](https://r-spatial.github.io/sf/).

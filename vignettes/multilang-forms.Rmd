@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
   comment = "#>")
 ```
 
-During data collection, it is often necessary to translate survey forms into multiple languages. Forms in `KoboToolbox` allow users to easily add translations, which can be used to label questions and choice values in either single or multiple-choice questions.
+During data collection, it is often necessary to translate survey forms into multiple languages. `KoboToolbox` forms allow users to easily add translations, which can be used to label questions and choice values in either single or multiple-choice questions.
 
 `robotoolbox` provides the capability to access these labels used in the form. The [`labelled`](https://cran.r-project.org/package=labelled/vignettes/intro_labelled.html) package is used to encode variable labels for question labels and value labels for choice labels.
 
@@ -118,7 +118,7 @@ var_label(df_ar$pet_yesno)
 
 ### Variable labels as column names
 
-The `kobo_data` function has an additional parameter `colnames_label` (default is `FALSE`) that allows you to use the variable labels as column names. While it is not recommended for data analysis, it can be useful when exporting your `data.frame` to a spreadsheet. This feature is already available in the traditional `KoboToolbox` export tools.
+The `kobo_data` function has an additional parameter `colnames_label` (default is `FALSE`) that allows you to use the variable labels as column names. While this is not recommended for data analysis, it can be useful when exporting your `data.frame` to a spreadsheet. This feature is already available in the traditional `KoboToolbox` export tools.
 
 ```{r colvar1, eval = FALSE, echo = TRUE}
 kobo_data(asset_ml,
@@ -148,7 +148,7 @@ count(df_ar, pet_yesno_ar = to_character(pet_yesno))
 
 ### Accessing labels for `select_multiple` question type
 
-Labels from `select_multiple` is also accessible using the `kobo_data` parameter `select_multiple_label`. Let's show this new feature, with the following form:
+Labels from `select_multiple` is also accessible using the `kobo_data` parameter `select_multiple_label`. Let's demonstrate this feature with the following form:
 
 - **Survey questions**
 

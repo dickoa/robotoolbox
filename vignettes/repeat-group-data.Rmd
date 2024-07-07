@@ -19,10 +19,25 @@ knitr::opts_chunk$set(
 
 `KoboToolbox` enables grouping of questions, allowing them to be answered multiple times. This feature is particularly useful during household surveys where a set of questions is designed to be answered by each member of the household.
 
+Repeating groups are a powerful tool in survey design, offering several advantages:
+
+1. Efficiency: A single set of questions can be used for multiple respondents.
+2. Flexibility: Surveys can accommodate varying numbers of respondents.
+3. Data consistency: The same questions are asked for each repetition, ensuring uniform data collection.
+4. Simplified analysis: The structured format facilitates easier data analysis across respondents.
+
+These benefits make repeating groups essential for surveys dealing with multi-member units like households, schools, or organizations.
+
 ## Loading data
 
 `KoboToolbox` implements this feature by incorporating the concept of [`repeat group`](https://support.kobotoolbox.org/group_repeat.html), enabling the repetition of a group of questions.
-This method involves enclosing the questions intended for repetition within a `begin_repeat`/`end_repeat` loop. Furthermore, `repeat group` allows for nesting, thus enabling the repetition of a question group within another `repeat group`. This concept can be demonstrated using the project and associated form below.
+
+In KoboToolbox forms, `begin_repeat` and `end_repeat` are special commands that define the boundaries of a repeating group:
+
+- `begin_repeat`: Marks the start of a group of questions that can be repeated multiple times.
+- `end_repeat`: Signals the end of the repeating group.
+
+Any questions placed between these commands will be repeated as a set, allowing for multiple responses to the same group of questions. This method involves enclosing the questions intended for repetition within a `begin_repeat`/`end_repeat` loop. Furthermore, `repeat group` allows for nesting, thus enabling the repetition of a question group within another `repeat group`. This concept can be demonstrated using the project and associated form below.
 
 ```{r setup, echo = FALSE}
 library(robotoolbox)
@@ -89,9 +104,15 @@ The aforementioned survey, named `nested_roster`, was uploaded to the server. It
 ```{r, eval = FALSE}
 library(robotoolbox)
 library(dplyr)
+
+# Retrieve a list of all assets (projects) from your KoboToolbox server
 asset_list <- kobo_asset_list()
+
+# Filter the asset list to find the specific project and get its unique identifier (uid)
 uid <- filter(asset_list, name == "nested_roster") |>
   pull(uid)
+
+# Load the specific asset (project) using its uid
 asset <- kobo_asset(uid)
 asset
 ```
@@ -100,6 +121,13 @@ asset
 asset <- asset_rg
 asset
 ```
+
+In this code:
+
+- `kobo_asset_list()` retrieves a list of all assets (projects) available on your `KoboToolbox` server.
+
+- `kobo_asset()` loads a specific asset (project) using its unique identifier (`uid`), allowing you to work with that particular project data and metadata.
+
 
 ### Extracting the data
 
@@ -115,11 +143,20 @@ df <- data_rg
 df
 ```
 
-The output is a `dm` object, sourced from the the `dm` package.
-
 ```{r, echo = FALSE}
 class(df)
 ```
+
+
+The output is a `dm` object, sourced from the `dm` package. A `dm` object is a collection of related data frames that preserves the relationships between different levels of data in repeating groups. It's particularly useful for repeating groups because:
+
+1. It maintains the hierarchical structure of the data, reflecting how repeating groups are nested within the survey.
+
+2. It allows for efficient storage and manipulation of data from different levels of the survey without losing the relationships between these levels.
+
+3. It provides tools for working with related tables, making it easier to analyze data across different repeating groups.
+
+Using a `dm` object helps preserve the complex structure of surveys with repeating groups, allowing for more intuitive and accurate data analysis.
 
 ## Manipulating `repeat group` as `dm` object
 
@@ -133,6 +170,8 @@ To comprehend the data storage structure, we can visualize the relationships amo
 library(dm)
 dm_draw(df)
 ```
+
+This visual representation of table relationships can significantly aid in planning your data analysis strategy and ensuring that you're working with the data in a way that respects its inherent structure.
 
 ### Number of rows of each table
 
@@ -167,6 +206,8 @@ df |>
   dm_nrow()
 ```
 
+This approach ensures that your filtered dataset maintains the structural integrity of your survey data, leading to more reliable and consistent analysis results.
+
 ## Joining tables
 
 In certain instances, analyzing joined data may prove simpler. The `dm_flatten_to_tbl` function can be used to join data safely while preserving its structure and the connections between tables. We can merge the `education` table with the `main` table using the `dm_flatten_to_tbl` function, with the operation starting from `education`.
@@ -187,5 +228,9 @@ df |>
                     .recursive = TRUE) |>
   glimpse()
 ```
+
+## Conclusion
+
+The integration of `robotoolbox` with the `dm` package provides a powerful toolkit for handling complex survey data with repeating groups from `KoboToolbox`. This approach preserves the hierarchical structure of your data, allows for efficient manipulation and analysis, and offers flexibility in how you view and work with your survey results. By maintaining the relationships between different levels of your survey data, it ensures accurate and meaningful analyses, from simple filtering to complex joins. Whether you're dealing with household surveys, multi-level organizational data, or any other nested data structure, this workflow offers a robust solution for managing and analyzing your `KoboToolbox` data in `R`.
 
 You can gain extensive knowledge about the [`dm`](https://cran.r-project.org/package=dm) package by going through its detailed documentation.
