@@ -251,13 +251,26 @@ get_subs_async <- function(uid, size, chunk_size = NULL, n_retry = 3L, ...) {
 #' @noRd
 get_audit_url_ <- function(uid) {
   path <- paste0("api/v2/assets/", uid, "/data.json")
-  res <- xget(path = path)
+  res <- xget(path = path,
+              args = list(fields = '["_attachments", "formhub/uuid", "_uuid"]'))
   res <- fparse(res, max_simplify_lvl = "data_frame")
   res <- res$result
   list_rbind(res[["_attachments"]]) |>
    filter(grepl("audit.csv$", .data$filename)) |>
    select(`_id` = "instance", "download_url")
 }
+
+#' @importFrom RcppSimdJson fparse
+#' @noRd
+get_attachment_url_ <- function(uid) {
+  path <- paste0("api/v2/assets/", uid, "/data.json")
+  res <- xget(path = path,
+              args = list(fields = '["_attachments", "formhub/uuid", "_uuid"]'))
+  res <- fparse(res, max_simplify_lvl = "data_frame")
+  res <- res$result
+  res[["_attachments"]]
+}
+
 
 #' @noRd
 map_chr2 <- function(x, key) {

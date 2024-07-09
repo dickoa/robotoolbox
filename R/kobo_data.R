@@ -315,10 +315,10 @@ kobo_attachment_download <- function(x, folder, progress, overwrite, n_retry) {
 kobo_attachment_download.character <- function(x, folder, progress = FALSE, overwrite = TRUE, n_retry = 3L) {
   if (isTRUE(progress))
     cli_progress_step("Listing files")
-  subs <- get_subs(x)
+  subs <- get_attachment_url_(x)
   if (isTRUE(progress))
       cli_progress_step("Downloading files")
-  kobo_attachment_download_(subs[["_attachments"]],
+  kobo_attachment_download_(subs,
                             folder = folder,
                             overwrite = overwrite,
                             n_retry = n_retry)
@@ -328,10 +328,10 @@ kobo_attachment_download.character <- function(x, folder, progress = FALSE, over
 kobo_attachment_download.kobo_asset <- function(x, folder, progress = FALSE, overwrite = TRUE, n_retry = 3L) {
   if (isTRUE(progress))
     cli_progress_step("Listing files")
-  subs <- get_subs(x$uid)
+  subs <- get_attachment_url_(x$uid)
   if (isTRUE(progress))
     cli_progress_step("Downloading files")
-  kobo_attachment_download_(subs[["_attachments"]],
+  kobo_attachment_download_(subs,
                             folder = folder,
                             overwrite = overwrite,
                             n_retry = n_retry)
