@@ -259,12 +259,12 @@ kobo_attachment_download_ <- function(attachments, folder, overwrite, n_retry) {
                                headers = headers)
         req$retry("get",
                   times = n_retry,
-                  retry_only_on = c(500, 503),
+                  retry_only_on = c(500, 502, 503),
                   terminate_on = 404)
       })
       res <- AsyncQueue$new(.list = reqs,
                             bucket_size = Inf,
-                            sleep = 0.1)
+                            sleep = 0.05)
       res$request()
       cond <- res$status_code() >= 300L
       if (any(cond)) {

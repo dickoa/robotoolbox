@@ -1,8 +1,5 @@
 #' @noRd
 kobo_audit_ <- function(uid, progress = FALSE) {
-  if (isTRUE(progress))
-    cli_progress_step("Downloading audit data")
-
   audit_meta <- get_audit_url_(uid)
   headers <- list(Authorization = paste("Token",
                                         Sys.getenv("KOBOTOOLBOX_TOKEN")))
@@ -11,15 +8,15 @@ kobo_audit_ <- function(uid, progress = FALSE) {
                            headers = headers)
     req$retry("get",
               times = 3L,
-              retry_only_on = c(500, 503),
+              retry_only_on = c(500, 502, 503),
               terminate_on = 404)
   })
-  sleep <- 0.01
+  sleep <- 0.05
   res <- AsyncQueue$new(.list = reqs,
                         bucket_size = Inf,
                         sleep = sleep)
   res$request()
-  cond <- any(res$status_code() >= 300L)
+  cond <- res$status_code() >= 300L
   if (any(cond)) {
     msg <- res$content()[cond]
     abort(error_msg(msg[[1]]),
@@ -41,8 +38,10 @@ kobo_audit_ <- function(uid, progress = FALSE) {
                 data = lapply(res, \(path) suppressWarnings(fread(path,
                                                                   colClasses = col_classes,
                                                                   data.table = FALSE))))
+
   res <- select(res, -"download_url")
-  unnest(res, "data") |>
+  res <- unnest(res, "data")
+  res |>
     mutate(name = basename(.data$node), .before = "start",
            start_int = .data$start,
            start = as.POSIXct(.data$start_int/1000, origin = "1970-01-01"),
@@ -127,7 +126,6 @@ kobo_audit <- function(x, progress) {
 kobo_audit.kobo_asset <- function(x, progress = FALSE) {
   if (isTRUE(progress))
     cli_progress_step("Checking audit data availability")
-
   asset_version_list <- kobo_asset_version_list(x$uid)
   asset_version_list <- filter(asset_version_list,
                                .data$deployed)
@@ -143,6 +141,8 @@ kobo_audit.kobo_asset <- function(x, progress = FALSE) {
   if (!any("audit" %in% form$name))
     abort("`audit` not enabled in the current version of the survey",
           call = NULL)
+  if (isTRUE(progress))
+    cli_progress_step("Downloading audit data")
   kobo_audit_(x$uid, progress = progress)
 }
 

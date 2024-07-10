@@ -9,7 +9,7 @@
 #' @name kobo_form
 #'
 #' @importFrom data.table rbindlist
-#' @importFrom dplyr select nest_join
+#' @importFrom dplyr select nest_join coalesce
 #' @importFrom tibble as_tibble new_tibble
 #' @importFrom tidyr unnest drop_na
 #' @importFrom stringi stri_trans_general
@@ -126,6 +126,8 @@ kobo_form.kobo_asset <- function(x, version = NULL) {
     has_external_files <- grepl("from_file$", survey$type)
     if (any(has_external_files)) {
       ext <- kobo_asset_file_list(x$uid)
+      if ("file" %in% names(survey))
+        survey$list_name <- coalesce(survey$list_name, survey$file)
       fname <- unique(survey$list_name[has_external_files])
       ext <- filter(ext,
                     .data$mimetype %in% "text/csv",
