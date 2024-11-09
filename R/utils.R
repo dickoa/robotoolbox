@@ -591,6 +591,13 @@ replace_na_list_ <- function(x) {
   x
 }
 
+#' @noRd
+replace_na_list_efficient_ <- function(x) {
+  is_na <- is.na(x)
+  x[is_na] <- names(x)[is_na]
+  x
+}
+
 #' @importFrom tidyr unnest
 #' @importFrom dplyr transmute distinct
 #' @noRd
@@ -631,7 +638,7 @@ var_labels_from_form_ <- function(x, form, lang) {
     labels <- setNames(as.list(form$label), form$name)
     labels_missing <- setNames(as.list(nm_missing), nm_missing)
     labels <- c(labels, labels_missing, labels_select_multiple)
-    labels <- replace_na_list_(labels)
+    labels <- replace_na_list_efficient_(labels)
     x <- set_variable_labels(x,
                              .labels = labels,
                              .strict = FALSE)
