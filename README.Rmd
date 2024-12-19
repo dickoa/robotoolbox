@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 [![GitLab CI Build Status](https://gitlab.com/dickoa/robotoolbox/badges/master/pipeline.svg)](https://gitlab.com/dickoa/robotoolbox/-/pipelines)
 [![Codecov Code Coverage](https://codecov.io/gl/dickoa/robotoolbox/branch/master/graph/badge.svg)](https://app.codecov.io/gl/dickoa/robotoolbox)
 [![CRAN status](https://www.r-pkg.org/badges/version/robotoolbox)](https://CRAN.R-project.org/package=robotoolbox)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/license/mit/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/license/mit)
 
 `robotoolbox` is an R client to access and manage data from [KoboToolbox](https://www.kobotoolbox.org/),  a powerful tool for collecting and analyzing data in challenging environments.
 
