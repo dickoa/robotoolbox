@@ -610,7 +610,7 @@ select_multiple_var_label <- function(x, form, lang) {
                       stri_detect_regex(.data$type, "select_multiple")) |>
       unnest("choices") |>
       filter(.data$value_lang %in% !!lang) |>
-      select(-"value_version") |>
+      select(-any_of("value_version")) |>
       distinct() |>
       transmute(value_name = paste0(.data$name, "_", .data$value_name),
                 value_label = paste0(.data$label, "::", .data$value_label)) |>

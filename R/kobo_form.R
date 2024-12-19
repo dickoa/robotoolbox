@@ -123,29 +123,6 @@ kobo_form.kobo_asset <- function(x, version = NULL) {
                                         "value_lang",
                                         "value_label",
                                         "value_name"))
-    has_external_files <- grepl("from_file$", survey$type)
-    ## if (any(has_external_files)) {
-    ##   ext <- kobo_asset_file_list(x$uid)
-    ##   if ("file" %in% names(survey))
-    ##     survey$list_name <- coalesce(survey$list_name, survey$file)
-    ##   fname <- unique(survey$list_name[has_external_files])
-    ##   ext <- filter(ext,
-    ##                 .data$mimetype %in% "text/csv",
-    ##                 .data$filename %in% fname)
-    ##   params <- NULL
-    ##   params <- if ("parameters" %in% names(survey))
-    ##               na.omit(unique(survey$parameters[has_external_files]))
-    ##   lang <- lang[[1]]
-    ##   lookup <- NULL
-    ##   if (length(params) > 0)
-    ##     lookup <- external_file_lookup_(params)
-    ##   ext <- mutate(ext,
-    ##                 `_data` = external_files_choice_(.data$content, lookup, lang))
-    ##   choices_external <- ext |>
-    ##     select(list_name = "filename", "_data") |>
-    ##     unnest("_data")
-    ## }
-    choices <- bind_rows(choices, choices_external)
     if (!is.null(version))
       choices$value_version <- version
     form <- nest_join(survey, choices,

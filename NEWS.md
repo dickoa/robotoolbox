@@ -1,11 +1,9 @@
-robotoolbox
+robotoolbox 1.3.4 (2024-12-19)
 ======================
 
 ### NEW FEATURES
 - Added `kobo_file_list` to list all media files availabe
 - Added `kobo_attachment_download` to download attached files in a specific folder
-- `select_one_from_file` or `select_multiple_from_file` question types now have labels like `select_one` and `select_multiple`.
-
 
 ### BUG FIXES
 - if you have a column `var_other` and `select_multiple` choice `other` for a column `var`, the, `var_other` is silently overwritten. It's fixed now and we rename the duplicate.
