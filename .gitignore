@@ -2,6 +2,7 @@
 .Rproj.user
 .Rhistory
 .RData
+air.toml
 inst/doc
 README.html
 docs/

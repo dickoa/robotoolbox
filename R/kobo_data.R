@@ -1,52 +1,63 @@
 #' @noRd
-kobo_data_ <- function(x, paginate, page_size, size, lang,
-                       select_multiple_label, select_multiple_sep, colnames_label,
-                       all_versions, progress) {
+kobo_data_ <- function(
+  x,
+  paginate,
+  page_size,
+  size,
+  lang,
+  select_multiple_label,
+  select_multiple_sep,
+  colnames_label,
+  all_versions,
+  progress
+) {
+  if (isTRUE(progress)) cli_progress_step("Downloading data")
 
-  if (isTRUE(progress))
-    cli_progress_step("Downloading data")
+  if (is.null(paginate) & !is.null(page_size)) paginate <- TRUE
 
-  if (is.null(paginate) & !is.null(page_size))
-    paginate <- TRUE
-
-  if (size >= 10000 & is.null(paginate))
-    paginate <- TRUE
+  if (size >= 10000 & is.null(paginate)) paginate <- TRUE
 
   if (isTRUE(paginate)) {
-    if (is.null(page_size))
-      page_size <- max(size %/% 5, 1)
+    if (is.null(page_size)) page_size <- min(max(size %/% 5, 1), 30000)
     subs <- get_subs_async(x$uid, size, page_size)
   } else {
     subs <- get_subs(x$uid)
   }
 
-  if (isTRUE(progress))
-    cli_progress_step("Processing data")
+  if (isTRUE(progress)) cli_progress_step("Processing data")
   form <- kobo_form_version_(subs, x, all_versions = all_versions)
-  cn <- kobo_form_names_(form,
-                         sep = select_multiple_sep)
+  cn <- kobo_form_names_(form, sep = select_multiple_sep)
   klang <- kobo_lang(x)
-  if (is.null(lang) || !lang %in% klang)
-    lang <- klang[1]
+  if (is.null(lang) || !lang %in% klang) lang <- klang[1]
 
   if ("begin_repeat" %in% form$type) {
-    names_list <- kobo_form_name_to_list_(filter(form, .data$lang == lang),
-                                          sep = select_multiple_sep)
+    names_list <- kobo_form_name_to_list_(
+      filter(form, .data$lang == lang),
+      sep = select_multiple_sep
+    )
     subs <- dedup_vars_(subs, all_versions = all_versions)
     subs <- set_names(subs, make_unique_names_)
-    subs <- c(list(main = rowid_to_column(subs, "_index")),
-              kobo_extract_repeat_tbl(subs, form, all_versions = all_versions))
+    subs <- c(
+      list(main = rowid_to_column(subs, "_index")),
+      kobo_extract_repeat_tbl(
+        subs,
+        form,
+        all_versions = all_versions
+      )
+    )
     nm <- names(subs)
     names_list <- names_list[nm]
     subs <- lapply(nm, function(n) {
       d <- subs[[n]]
       cn_list <- names_list[[n]]
-      postprocess_data_(x = d,
-                        form = form,
-                        lang = lang,
-                        select_multiple_label =  select_multiple_label,
-                        select_multiple_sep =  select_multiple_sep,
-                        cn = cn_list)
+      postprocess_data_(
+        x = d,
+        form = form,
+        lang = lang,
+        select_multiple_label = select_multiple_label,
+        select_multiple_sep = select_multiple_sep,
+        cn = cn_list
+      )
     })
     subs <- setNames(subs, nm)
     subs <- as_dm(subs)
@@ -55,25 +66,27 @@ kobo_data_ <- function(x, paginate, page_size, size, lang,
     for (j in 2:p) {
       tbl_nm <- names(subs)[j]
       ref_tbl_nm <- unique(subs[[j]][["_parent_table_name"]])
-      subs <- dm_add_pk(subs, {{tbl_nm}},
-                        "_index")
-      subs <- dm_add_fk(subs, {{tbl_nm}},
-                        "_parent_index",
-                        {{ref_tbl_nm}})
+      subs <- dm_add_pk(subs, {{ tbl_nm }}, "_index")
+      subs <- dm_add_fk(
+        subs,
+        {{ tbl_nm }},
+        "_parent_index",
+        {{ ref_tbl_nm }}
+      )
     }
-    if (isTRUE(colnames_label))
-      subs <- set_names_from_varlabel_dm_(subs)
+    if (isTRUE(colnames_label)) subs <- set_names_from_varlabel_dm_(subs)
   } else {
     subs <- dedup_vars_(subs, all_versions = all_versions)
     subs <- set_names(subs, make_unique_names_)
-    subs <- postprocess_data_(x = subs,
-                              form = form,
-                              lang = lang,
-                              select_multiple_label =  select_multiple_label,
-                              select_multiple_sep =  select_multiple_sep,
-                              cn = cn)
-    if (isTRUE(colnames_label))
-      subs <- set_names_from_varlabel_(subs)
+    subs <- postprocess_data_(
+      x = subs,
+      form = form,
+      lang = lang,
+      select_multiple_label = select_multiple_label,
+      select_multiple_sep = select_multiple_sep,
+      cn = cn
+    )
+    if (isTRUE(colnames_label)) subs <- set_names_from_varlabel_(subs)
   }
   subs
 }
@@ -129,54 +142,64 @@ kobo_data_ <- function(x, paginate, page_size, size, lang,
 #' }
 #'
 #' @export
-kobo_data <- function(x, lang,
-                      all_versions,
-                      colnames_label,
-                      select_multiple_label,
-                      select_multiple_sep,
-                      progress,
-                      paginate, page_size) {
+kobo_data <- function(
+  x,
+  lang,
+  all_versions,
+  colnames_label,
+  select_multiple_label,
+  select_multiple_sep,
+  progress,
+  paginate,
+  page_size
+) {
   UseMethod("kobo_data")
 }
 
 #' @name kobo_data
 #' @export
-kobo_submissions <- function(x, lang,
-                             all_versions,
-                             colnames_label,
-                             select_multiple_label,
-                             select_multiple_sep,
-                             progress,
-                             paginate, page_size)
-  UseMethod("kobo_submissions")
+kobo_submissions <- function(
+  x,
+  lang,
+  all_versions,
+  colnames_label,
+  select_multiple_label,
+  select_multiple_sep,
+  progress,
+  paginate,
+  page_size
+) UseMethod("kobo_submissions")
 
 #' @export
-kobo_data.kobo_asset <- function(x, lang = NULL,
-                                 all_versions = TRUE,
-                                 colnames_label = FALSE,
-                                 select_multiple_label = FALSE,
-                                 select_multiple_sep = "_",
-                                 progress = FALSE,
-                                 paginate = NULL,
-                                 page_size = NULL) {
-  if (x$asset_type != "survey")
-    abort("You can just read data from survey")
+kobo_data.kobo_asset <- function(
+  x,
+  lang = NULL,
+  all_versions = TRUE,
+  colnames_label = FALSE,
+  select_multiple_label = FALSE,
+  select_multiple_sep = "_",
+  progress = FALSE,
+  paginate = NULL,
+  page_size = NULL
+) {
+  if (x$asset_type != "survey") abort("You can just read data from survey")
   size <- x$deployment__submission_count
-  if (size > 0) {
-    res <- kobo_data_(x = x,
-                      lang = lang,
-                      all_versions = all_versions,
-                      colnames_label = colnames_label,
-                      select_multiple_label = select_multiple_label,
-                      select_multiple_sep = select_multiple_sep,
-                      progress = progress,
-                      paginate = paginate,
-                      page_size = page_size,
-                      size = size)
+  if (!is.null(size) && size > 0) {
+    res <- kobo_data_(
+      x = x,
+      lang = lang,
+      all_versions = all_versions,
+      colnames_label = colnames_label,
+      select_multiple_label = select_multiple_label,
+      select_multiple_sep = select_multiple_sep,
+      progress = progress,
+      paginate = paginate,
+      page_size = page_size,
+      size = size
+    )
   } else {
     form <- kobo_form(x)
-    cn <- kobo_form_names_(form,
-                           sep = select_multiple_sep)
+    cn <- kobo_form_names_(form, sep = select_multiple_sep)
     res <- empty_tibble_(cn)
   }
   res
@@ -187,25 +210,29 @@ kobo_data.kobo_asset <- function(x, lang = NULL,
 kobo_submissions.kobo_asset <- kobo_data.kobo_asset
 
 #' @export
-kobo_data.character <- function(x, lang = NULL,
-                                all_versions = TRUE,
-                                colnames_label = FALSE,
-                                select_multiple_label = FALSE,
-                                select_multiple_sep = "_",
-                                progress = FALSE,
-                                paginate = NULL,
-                                page_size = NULL) {
-  if (!assert_uid(x))
-    abort(message = "Invalid asset uid")
-  kobo_data(kobo_asset(x),
-            lang = lang,
-            all_versions = all_versions,
-            colnames_label = colnames_label,
-            select_multiple_label = select_multiple_label,
-            select_multiple_sep = select_multiple_sep,
-            progress = progress,
-            paginate = paginate,
-            page_size = page_size)
+kobo_data.character <- function(
+  x,
+  lang = NULL,
+  all_versions = TRUE,
+  colnames_label = FALSE,
+  select_multiple_label = FALSE,
+  select_multiple_sep = "_",
+  progress = FALSE,
+  paginate = NULL,
+  page_size = NULL
+) {
+  if (!assert_uid(x)) abort(message = "Invalid asset uid")
+  kobo_data(
+    kobo_asset(x),
+    lang = lang,
+    all_versions = all_versions,
+    colnames_label = colnames_label,
+    select_multiple_label = select_multiple_label,
+    select_multiple_sep = select_multiple_sep,
+    progress = progress,
+    paginate = paginate,
+    page_size = page_size
+  )
 }
 
 #' @name kobo_data
@@ -213,14 +240,17 @@ kobo_data.character <- function(x, lang = NULL,
 kobo_submissions.character <- kobo_data.character
 
 #' @export
-kobo_data.default <- function(x, lang = NULL,
-                              all_versions = TRUE,
-                              colnames_label = FALSE,
-                              select_multiple_label = FALSE,
-                              select_multiple_sep = "_",
-                              progress = FALSE,
-                              paginate = NULL,
-                              page_size = NULL) {
+kobo_data.default <- function(
+  x,
+  lang = NULL,
+  all_versions = TRUE,
+  colnames_label = FALSE,
+  select_multiple_label = FALSE,
+  select_multiple_sep = "_",
+  progress = FALSE,
+  paginate = NULL,
+  page_size = NULL
+) {
   abort("You need to use a 'kobo_asset' or a valid asset uid")
 }
 
@@ -231,48 +261,67 @@ kobo_submissions.default <- kobo_data.default
 #' @noRd
 kobo_attachment_download_ <- function(attachments, folder, overwrite, n_retry) {
   if (!dir.exists(folder))
-    abort(paste(folder, "folder does not exist, create it first!"),
-          call = NULL)
+    abort(
+      paste(
+        folder,
+        "folder does not exist, create it first!"
+      ),
+      call = NULL
+    )
   bool <- sapply(attachments, is.null)
   path <- character()
   if (any(!bool)) {
     urls <- attachments[!bool] |>
       list_rbind() |>
-      mutate(id = .data$instance,
-             url = .data$download_url,
-             fname = basename(.data$filename),
-             fname_id = paste0(.data$id, "_", .data$fname),
-             path = file.path(folder, .data$fname_id),
-             .keep = "none") |>
+      mutate(
+        id = .data$instance,
+        url = .data$download_url,
+        fname = basename(.data$filename),
+        fname_id = paste0(.data$id, "_", .data$fname),
+        path = file.path(folder, .data$fname_id),
+        .keep = "none"
+      ) |>
       distinct()
 
-    headers <- list(Authorization = paste("Token",
-                                          Sys.getenv("KOBOTOOLBOX_TOKEN")))
+    headers <- list(
+      Authorization = paste(
+        "Token",
+        Sys.getenv("KOBOTOOLBOX_TOKEN")
+      )
+    )
 
     if (isFALSE(overwrite))
-      urls <- filter(urls,
-                     !.data$fname %in% list.files(folder))
+      urls <- filter(
+        urls,
+        !.data$fname %in% list.files(folder)
+      )
 
     if (nrow(urls) > 0) {
       reqs <- lapply(urls$url, function(url) {
-        req <- HttpRequest$new(url,
-                               headers = headers)
-        req$retry("get",
-                  times = n_retry,
-                  retry_only_on = c(500, 502, 503),
-                  terminate_on = 404)
+        req <- HttpRequest$new(url, headers = headers)
+        req$retry(
+          "get",
+          times = n_retry,
+          retry_only_on = c(500, 502, 503),
+          terminate_on = 404
+        )
       })
-      res <- AsyncQueue$new(.list = reqs,
-                            bucket_size = Inf,
-                            sleep = 0.05)
+      res <- AsyncQueue$new(
+        .list = reqs,
+        bucket_size = Inf,
+        sleep = 0.05
+      )
       res$request()
       cond <- res$status_code() >= 300L
       if (any(cond)) {
         msg <- res$content()[cond]
-        abort(error_msg(msg[[1]]),
-              call = NULL)
+        abort(error_msg(msg[[1]]), call = NULL)
       }
-      walk2(res$content(), urls$path, \(x, y) writeBin(x, con = y))
+      walk2(
+        res$content(),
+        urls$path,
+        \(x, y) writeBin(x, con = y)
+      )
     }
   }
   invisible(path)
@@ -312,27 +361,39 @@ kobo_attachment_download <- function(x, folder, progress, overwrite, n_retry) {
 }
 
 #' @export
-kobo_attachment_download.character <- function(x, folder, progress = FALSE, overwrite = TRUE, n_retry = 3L) {
-  if (isTRUE(progress))
-    cli_progress_step("Listing files")
+kobo_attachment_download.character <- function(
+  x,
+  folder,
+  progress = FALSE,
+  overwrite = TRUE,
+  n_retry = 3L
+) {
+  if (isTRUE(progress)) cli_progress_step("Listing files")
   subs <- get_attachment_url_(x)
-  if (isTRUE(progress))
-      cli_progress_step("Downloading files")
-  kobo_attachment_download_(subs,
-                            folder = folder,
-                            overwrite = overwrite,
-                            n_retry = n_retry)
+  if (isTRUE(progress)) cli_progress_step("Downloading files")
+  kobo_attachment_download_(
+    subs,
+    folder = folder,
+    overwrite = overwrite,
+    n_retry = n_retry
+  )
 }
 
 #' @export
-kobo_attachment_download.kobo_asset <- function(x, folder, progress = FALSE, overwrite = TRUE, n_retry = 3L) {
-  if (isTRUE(progress))
-    cli_progress_step("Listing files")
+kobo_attachment_download.kobo_asset <- function(
+  x,
+  folder,
+  progress = FALSE,
+  overwrite = TRUE,
+  n_retry = 3L
+) {
+  if (isTRUE(progress)) cli_progress_step("Listing files")
   subs <- get_attachment_url_(x$uid)
-  if (isTRUE(progress))
-    cli_progress_step("Downloading files")
-  kobo_attachment_download_(subs,
-                            folder = folder,
-                            overwrite = overwrite,
-                            n_retry = n_retry)
+  if (isTRUE(progress)) cli_progress_step("Downloading files")
+  kobo_attachment_download_(
+    subs,
+    folder = folder,
+    overwrite = overwrite,
+    n_retry = n_retry
+  )
 }
