@@ -184,7 +184,7 @@ dm_nrow(df)
 ### A `dm` object is a list of `data.frame`
 
 A `dm` object is a `list` of `data.frame`. Similar to any list of `data.frame`, you can extract each table (`data.frame`), and analyze it separately.
-The principal table, where you have the first `repeat group`, is termede as `main`.
+The principal table, where you have the first `repeat group`, named `main`.
 
 ```{r access_specific1}
 glimpse(df$main)

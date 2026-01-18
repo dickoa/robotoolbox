@@ -1,4 +1,3 @@
-
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # robotoolbox <img src="man/figures/robotoolbox_hex.png" align="right" width="140" />
@@ -21,14 +20,14 @@ collecting and analyzing data in challenging environments.
 
 ## Features
 
-- Easy authentication with KoboToolbox API
-- List and access KoboToolbox assets
-- Retrieve and process survey submissions
-- Handle multi-language survey forms
-- Work with repeating groups in survey data
-- Process spatial data from KoboToolbox
-- Access and analyze audit logging data
-- Download media attachments
+-   Easy authentication with KoboToolbox API
+-   List and access KoboToolbox assets
+-   Retrieve and process survey submissions
+-   Handle multi-language survey forms
+-   Work with repeating groups in survey data
+-   Process spatial data from KoboToolbox
+-   Access and analyze audit logging data
+-   Download media attachments
 
 ## Installation
 
@@ -36,23 +35,19 @@ The package is available on CRAN, Gitlab (dev) and Github (mirror).
 
 ### Stable version (CRAN)
 
-``` r
-install.packages("robotoolbox")
-```
+    install.packages("robotoolbox")
 
 ### Development version
 
-you will need the [`remotes`](https://github.com/r-lib/remotes) package
+You will need the [`remotes`](https://github.com/r-lib/remotes) package
 to install it from Gitlab and Github. You can also use the
 [`pak`](https://github.com/r-lib/pak) package to install it from Github.
 
-``` r
-## From Gitlab
-remotes::install_gitlab("dickoa/robotoolbox")
+    ## From Gitlab
+    remotes::install_gitlab("dickoa/robotoolbox")
 
-## From Github
-pak::pkg_install("dickoa/robotoolbox")
-```
+    ## From Github
+    pak::pkg_install("dickoa/robotoolbox")
 
 ## robotoolbox: A quick tutorial
 
@@ -76,11 +71,9 @@ The following examples will utilize UNHCR `KoboToolbox` server url
 <https://kf.kobotoolbox.org/>, <https://kobo.humanitarianresponse.info/>
 or any other `KoboToolbox` server URL you typically use.
 
-``` r
-kobo_token(username = "xxxxxxxxx",
-           password = "xxxxxxxxx",
-           url = "https://kobo.unhcr.org")
-```
+    kobo_token(username = "xxxxxxxxx",
+               password = "xxxxxxxxx",
+               url = "https://kobo.unhcr.org")
 
 ### Setting up Your Session
 
@@ -88,27 +81,21 @@ You can either edit directly the `.Renviron` file or access it by
 calling `usethis::edit_r_environ()` (assuming you have the `usethis`
 package installed) and entering the following two lines:
 
-``` bash
-KOBOTOOLBOX_URL="https://kobo.unhcr.org/"
-KOBOTOOLBOX_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxx
-```
+    KOBOTOOLBOX_URL="https://kobo.unhcr.org/"
+    KOBOTOOLBOX_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxx
 
 Or use directly the `kobo_setup` function
 
-``` r
-kobo_setup(url = "https://kobo.unhcr.org",
-           token = "xxxxxxxxxxxxxxxxxxxxxxxxxx")
-```
+    kobo_setup(url = "https://kobo.unhcr.org",
+               token = "xxxxxxxxxxxxxxxxxxxxxxxxxx")
 
 You can check the settings using the `kobo_settings` function.
 
-``` r
-library("robotoolbox")
-kobo_settings()
-## <robotoolbox settings>
-##    KoboToolbox URL: https://kobo.unhcr.org/
-##    KoboToolbox API Token: xxxxxxxxxxxxxxxxxxxxxxxxxx
-```
+    library("robotoolbox")
+    kobo_settings()
+    ## <robotoolbox settings>
+    ##    KoboToolbox URL: https://kobo.unhcr.org/
+    ##    KoboToolbox API Token: xxxxxxxxxxxxxxxxxxxxxxxxxx
 
 With the settings done, it is possible to list all `assets` (e.g
 surveys, questions, etc) for the account associated to the token and
@@ -116,100 +103,93 @@ URL.
 
 ### Accessing data
 
-``` r
-library("dplyr")
-l <- kobo_asset_list()
-l
-# A tibble: 24 x 7
-   uid     name     asset_type owner_username date_created
-   <chr>   <chr>    <chr>      <chr>          <dttm>
- 1 b9kgvd… Proj_A1… survey     xxxxxxxxxxxxx… 2020-04-27 20:34:23
- 2 aRFJMp… Proj_A2… survey     xxxxxxxxxxxxx… 2020-04-27 21:21:12
- 3 a6qMG7… Proj_A3… survey     xxxxxxxxxxxxx… 2021-05-25 16:59:08
- 4 azhrVs… Proj_A4… survey     xxxxxxxxxxxxx… 2021-05-25 13:59:46
- 5 aReR58… Proj_A5… survey     xxxxxxxxxxxxx… 2021-06-07 09:15:53
- 6 aWaoqy… Proj_A6… survey     xxxxxxxxxxxxx… 2021-05-29 10:46:09
- 7 aABU3C… Proj_A7… survey     xxxxxxxxxxxxx… 2020-11-28 15:00:10
- 8 aaznyX… Proj_A9… survey     xxxxxxxxxxxxx… 2020-11-28 14:28:48
- 9 aCVr2Q… Proj_A9… survey     xxxxxxxxxxxxx… 2021-05-25 13:30:24
-10 aPxNao… Proj_A10… survey    xxxxxxxxxxxxx… 2020-04-27 11:37:34
-# … with 14 more rows, and 3 more variables:
-#   date_modified <dttm>, submissions <int>
-glimpse(l)
-$ uid            <chr> "b9kgvd7AXQCmo5qyUOBEl", "aRfJMpTSGRLzZ…"
-$ name           <chr> "Proj_A1", "Proj_A2", "Proj_A3", "Proj_A…"
-$ asset_type     <chr> "survey", "survey", "survey", "survey", …
-$ owner_username <chr> "xxxxxxxxxxxxxx", "xxxxxxxxxxxxxxx", "xx…"
-$ date_created   <dttm> 2020-04-27 20:34:23, 2020-04-27 21:21:1…
-$ date_modified  <dttm> 2021-06-17 01:52:57, 2021-06-17 01:52:5…
-$ submissions    <int> 2951, 2679, 2, 1, 0, 0, 287, 73, 0, 274,…
-```
+    library("dplyr")
+    l <- kobo_asset_list()
+    l
+    # A tibble: 24 x 7
+       uid     name     asset_type owner_username date_created
+       <chr>   <chr>    <chr>      <chr>          <dttm>
+     1 b9kgvd… Proj_A1… survey     xxxxxxxxxxxxx… 2020-04-27 20:34:23
+     2 aRFJMp… Proj_A2… survey     xxxxxxxxxxxxx… 2020-04-27 21:21:12
+     3 a6qMG7… Proj_A3… survey     xxxxxxxxxxxxx… 2021-05-25 16:59:08
+     4 azhrVs… Proj_A4… survey     xxxxxxxxxxxxx… 2021-05-25 13:59:46
+     5 aReR58… Proj_A5… survey     xxxxxxxxxxxxx… 2021-06-07 09:15:53
+     6 aWaoqy… Proj_A6… survey     xxxxxxxxxxxxx… 2021-05-29 10:46:09
+     7 aABU3C… Proj_A7… survey     xxxxxxxxxxxxx… 2020-11-28 15:00:10
+     8 aaznyX… Proj_A9… survey     xxxxxxxxxxxxx… 2020-11-28 14:28:48
+     9 aCVr2Q… Proj_A9… survey     xxxxxxxxxxxxx… 2021-05-25 13:30:24
+    10 aPxNao… Proj_A10… survey    xxxxxxxxxxxxx… 2020-04-27 11:37:34
+    # … with 14 more rows, and 3 more variables:
+    #   date_modified <dttm>, submissions <int>
+    glimpse(l)
+    $ uid            <chr> "b9kgvd7AXQCmo5qyUOBEl", "aRfJMpTSGRLzZ…"
+    $ name           <chr> "Proj_A1", "Proj_A2", "Proj_A3", "Proj_A…"
+    $ asset_type     <chr> "survey", "survey", "survey", "survey", …
+    $ owner_username <chr> "xxxxxxxxxxxxxx", "xxxxxxxxxxxxxxx", "xx…"
+    $ date_created   <dttm> 2020-04-27 20:34:23, 2020-04-27 21:21:1…
+    $ date_modified  <dttm> 2021-06-17 01:52:57, 2021-06-17 01:52:5…
+    $ submissions    <int> 2951, 2679, 2, 1, 0, 0, 287, 73, 0, 274,…
 
 The list of `assets` is a `tibble`, you can filter it to select the form
 unique identifier `uid` that uniquely identify the API asset you want to
 open. The function `kobo_asset` can then be used to get the `asset` from
 the `uid`.
 
-``` r
-uid <- l |>
-  filter(name == "proj_A1") |>
-  pull(uid) |>
-  first()
-uid
-## b9agvd9AXQCmo5qyUOBEl
+    uid <- l |>
+      filter(name == "proj_A1") |>
+      pull(uid) |>
+      first()
+    uid
+    ## b9agvd9AXQCmo5qyUOBEl
 
-asset <- kobo_asset(uid)
-asset
-## <robotoolbox asset>  b9agvd9AXQCmo5qyUOBEl
-##   Asset Name: proj_A1
-##   Asset Type: survey
-##   Created: 2021-05-10 07:47:53
-##   Last modified: 2021-08-16 12:35:50
-##   Submissions: 941
-```
+    asset <- kobo_asset(uid)
+    asset
+    ## <robotoolbox asset>  b9agvd9AXQCmo5qyUOBEl
+    ##   Asset Name: proj_A1
+    ##   Asset Type: survey
+    ##   Created: 2021-05-10 07:47:53
+    ##   Last modified: 2021-08-16 12:35:50
+    ##   Submissions: 941
 
 Now with the selected `asset`, we can extract the `submissions` using
 the `kobo_submissions` function. The `kobo_data` can also be used, it’s
 an alias of `kobo_submissions`.
 
-``` r
-df <- kobo_submissions(asset) ## or df <-  kobo_data(asset)
-glimpse(df)
-## Rows: 941
-## Columns: 17
-## $ id                                                         <int> …
-## $ start                                                      <dttm> …
-## $ end                                                        <dttm> …
-## $ today                                                      <date> …
-## $ deviceid                                                   <chr> …
-## $ test                                                       <chr+lbl> …
-## $ round                                                      <date> …
-## $ effective_date                                             <date> …
-## $ collect_type                                               <chr+lbl> …
-## $ covid_module                                               <chr+lbl> …
-## $ country                                                    <chr+lbl> …
-## $ interviewer_id                                             <chr> …
-## $ respondent_is_major                                        <chr+lbl> …
-## $ consent                                                    <chr+lbl> …
-## $ admin_level_1                                              <chr+lbl> …
-## $ admin_level_2                                              <chr+lbl> …
-## $ admin_level_3                                              <chr+lbl> …
-```
+    df <- kobo_submissions(asset) ## or df <-  kobo_data(asset)
+    glimpse(df)
+    ## Rows: 941
+    ## Columns: 17
+    ## $ id                                                         <int> …
+    ## $ start                                                      <dttm> …
+    ## $ end                                                        <dttm> …
+    ## $ today                                                      <date> …
+    ## $ deviceid                                                   <chr> …
+    ## $ test                                                       <chr+lbl> …
+    ## $ round                                                      <date> …
+    ## $ effective_date                                             <date> …
+    ## $ collect_type                                               <chr+lbl> …
+    ## $ covid_module                                               <chr+lbl> …
+    ## $ country                                                    <chr+lbl> …
+    ## $ interviewer_id                                             <chr> …
+    ## $ respondent_is_major                                        <chr+lbl> …
+    ## $ consent                                                    <chr+lbl> …
+    ## $ admin_level_1                                              <chr+lbl> …
+    ## $ admin_level_2                                              <chr+lbl> …
+    ## $ admin_level_3                                              <chr+lbl> …
 
 ### Multi-Languages Survey forms
 
 `robotoolbox` uses the R package
 [`labelled`](https://larmarange.github.io/labelled/) to provide tools to
 manipulate variable labels and value labels. You can learn more about
-this here. You can learn more about this
-[here](https://dickoa.gitlab.io/robotoolbox/articles/multilang-forms.html)
+this here.
 
 ### Repeating groups
 
 Repeating groups associate multiple records to a single record in the
 `main` table. It’s used to group questions that need to be answered
 repeatedly. The package [`dm`](https://dm.cynkra.com) is used to model
-such relationship and allow you to safely query and join such linked
+such relationship and allows you to safely query and join such linked
 data for your analysis. Learn more about it
 [here](https://dickoa.gitlab.io/robotoolbox/articles/repeat-group-data.html)
 
@@ -250,9 +230,10 @@ for interacting with ODK data.
 
 ## Meta
 
-- Please [report any issues or
-  bugs](https://gitlab.com/dickoa/robotoolbox/-/issues).
-- License: MIT
-- Please note that this project is released with a [Contributor Code of
-  Conduct](https://dickoa.gitlab.io/robotoolbox/CODE_OF_CONDUCT.html).
-  By participating in this project you agree to abide by its terms.
+-   Please [report any issues or
+    bugs](https://gitlab.com/dickoa/robotoolbox/-/issues).
+-   License: MIT
+-   Please note that this project is released with a [Contributor Code
+    of
+    Conduct](https://dickoa.gitlab.io/robotoolbox/CODE_OF_CONDUCT.html).
+    By participating in this project you agree to abide by its terms.

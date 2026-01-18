@@ -15,10 +15,10 @@ kobo_data_ <- function(
 
   if (is.null(paginate) & !is.null(page_size)) paginate <- TRUE
 
-  if (size >= 10000 & is.null(paginate)) paginate <- TRUE
+  if (size >= 1000 & is.null(paginate)) paginate <- TRUE
 
   if (isTRUE(paginate)) {
-    if (is.null(page_size)) page_size <- min(max(size %/% 5, 1), 30000)
+    if (is.null(page_size)) page_size <- min(max(size %/% 5, 1), 1000)
     subs <- get_subs_async(x$uid, size, page_size)
   } else {
     subs <- get_subs(x$uid)
@@ -268,20 +268,19 @@ kobo_attachment_download_ <- function(attachments, folder, overwrite, n_retry) {
       ),
       call = NULL
     )
-  bool <- sapply(attachments, is.null)
   path <- character()
-  if (any(!bool)) {
-    urls <- attachments[!bool] |>
-      list_rbind() |>
-      mutate(
-        id = .data$instance,
-        url = .data$download_url,
-        fname = basename(.data$filename),
-        fname_id = paste0(.data$id, "_", .data$fname),
-        path = file.path(folder, .data$fname_id),
-        .keep = "none"
-      ) |>
-      distinct()
+  if (nrow(attachments) > 0) {
+  urls <- attachments |>
+    mutate(
+      id = .data$`_id`,
+      url = .data$download_url,
+      att_uid = .data$uid,
+      fname = .data$media_file_basename,
+      fname_id = paste0(.data$att_uid, "_", .data$fname),
+      path = file.path(folder, .data$fname_id),
+      .keep = "none"
+    ) |>
+    distinct()
 
     headers <- list(
       Authorization = paste(
@@ -293,7 +292,7 @@ kobo_attachment_download_ <- function(attachments, folder, overwrite, n_retry) {
     if (isFALSE(overwrite))
       urls <- filter(
         urls,
-        !.data$fname %in% list.files(folder)
+        !.data$fname_id %in% list.files(folder)
       )
 
     if (nrow(urls) > 0) {

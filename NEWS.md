@@ -1,3 +1,46 @@
+robotoolbox 1.5 (2026-01-17)
+======================
+
+### BREAKING CHANGES
+- **Default pagination limit reduced from 30,000 to 1,000** to comply with KoboToolbox API changes
+  effective January 2026 on public servers (see https://community.kobotoolbox.org/t/important-changes-to-api-v2-assets-uid-asset-data-result-limits/74610).
+- Auto-pagination now triggers at 1,000 submissions (previously 10,000).
+- **Attachment filenames now include attachment UID** for uniqueness. Files are now named
+  `{att_uid}_{filename}` instead of `{submission_id}_{filename}` to handle cases where the same
+  submission has multiple attachments with identical filenames.
+
+### NEW FEATURES
+- **Session-level caching** for form metadata and languages significantly improves performance
+  for repeated operations. Use `kobo_cache_info()` to view cache status and `kobo_cache_clear()`
+  to clear the cache when needed.
+- **Language switching without re-downloading data:**
+  - `kobo_lang_set(data, asset, lang)` instantly switches variable and value labels to a different
+    language using cached form metadata.
+  - `kobo_lang_get(data, asset)` detects the current language applied to a dataset.
+  - Works with both simple `data.frame` and complex `dm` objects (nested forms).
+
+### BUG FIXES
+- Fixed `kobo_audit()` and `kobo_attachment_download()` to handle API changes where the
+  `instance` field was removed from the `_attachments` structure.
+- Fixed `kobo_attachment_download()` `overwrite = FALSE` check to correctly skip existing files.
+- Improved error handling for non-JSON API error responses.
+- Fixed `val_labels_from_form_()` to handle forms without `value_version` column.
+- Fixed documentation typos in README and vignettes.
+
+### IMPROVEMENTS
+- Simplified internal attachment processing using `tidyr::unnest()` for cleaner code.
+- Reduced sleep times between paginated API requests for better performance with 1,000 record limit.
+- Removed deprecated `vcr::check_cassette_names()` from test setup.
+
+### NOTES
+- The default `page_size` is now capped at 1,000 for safety on public KoboToolbox servers.
+- **Performance tip for private instances:** Users with private servers that allow higher limits
+  can explicitly set `page_size` (e.g., `kobo_data(asset, page_size = 30000)`) for significantly
+  better performance on large datasets.
+- **Known limitation:** `kobo_audit()` and `kobo_attachment_download()` currently fetch
+  attachments from the first 1,000 submissions only. Full pagination support for these
+  functions is planned for a future release.
+
 robotoolbox 1.3.4 (2024-12-19)
 ======================
 

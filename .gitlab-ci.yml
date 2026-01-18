@@ -2,37 +2,78 @@ image: rocker/tidyverse:latest
 
 variables:
   CODECOV_TOKEN: $CODECOV_TOKEN
+  R_LIBS_USER: "$CI_PROJECT_DIR/ci/lib"
 
+cache:
+  key: r-packages-$CI_COMMIT_REF_SLUG
+  paths:
+    - $CI_PROJECT_DIR/ci/lib
+
+stages:
+  - test
+  - deploy
+  - release
+
+# Run R CMD check
+test:
+  stage: test
+  before_script:
+    - apt-get update -qq
+    - apt-get install --yes --no-install-recommends libssl-dev libssh2-1-dev libxml2-dev libcurl4-gnutls-dev libgit2-dev libmagick++-dev pandoc libudunits2-dev libgdal-dev libglpk-dev
+    - mkdir -p $R_LIBS_USER
+  script:
+    - Rscript -e 'devtools::install_deps(dependencies = TRUE)'
+    - Rscript -e 'install.packages("crul", repos = "https://packages.ropensci.org")'
+    - Rscript -e 'devtools::check(error_on = "error")'
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - when: always
+
+# Code coverage (only on main branch)
+coverage:
+  stage: test
+  before_script:
+    - apt-get update -qq
+    - apt-get install --yes --no-install-recommends libssl-dev libssh2-1-dev libxml2-dev libcurl4-gnutls-dev libgit2-dev libmagick++-dev pandoc libudunits2-dev libgdal-dev libglpk-dev
+    - mkdir -p $R_LIBS_USER
+  script:
+    - Rscript -e 'install.packages("covr")'
+    - Rscript -e 'devtools::install_deps(dependencies = TRUE)'
+    - Rscript -e 'install.packages("crul", repos = "https://packages.ropensci.org")'
+    - Rscript -e 'covr::codecov()'
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  allow_failure: true
+
+# Build pkgdown site
 pages:
   stage: deploy
-
   before_script:
-    - apt update -qq
-    - apt install --yes libssl-dev libssh2-1-dev libxml2-dev libcurl4-gnutls-dev libgit2-dev libmagick++-dev pandoc libudunits2-dev libgdal-dev libglpk-dev
-
+    - apt-get update -qq
+    - apt-get install --yes --no-install-recommends libssl-dev libssh2-1-dev libxml2-dev libcurl4-gnutls-dev libgit2-dev libmagick++-dev pandoc libudunits2-dev libgdal-dev libglpk-dev
+    - mkdir -p $R_LIBS_USER
   script:
-    - Rscript -e 'install.packages(c("pkgdown", "DiagrammeR", "DiagrammeRsvg", "covr"))'
+    - Rscript -e 'install.packages(c("pkgdown", "DiagrammeR", "DiagrammeRsvg"))'
     - Rscript -e 'devtools::install_deps(dependencies = TRUE)'
     - Rscript -e 'remotes::install_github("vidonne/unhcrtemplate")'
-    - Rscript -e 'install.packages("crul", repos = "http://packages.ropensci.org")'
-    - Rscript -e 'remotes::install_gitlab("dickoa/robotoolbox")'
+    - Rscript -e 'install.packages("crul", repos = "https://packages.ropensci.org")'
+    - Rscript -e 'devtools::install()'
     - Rscript -e 'pkgdown::build_site(override = list(destination = "public"))'
-
-  after_script:
-    - Rscript -e 'covr::package_coverage()'
-    - Rscript -e 'covr::codecov()'
-
   artifacts:
     paths:
       - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
+# Create release on tag
 release_job:
-  stage: build
+  stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   rules:
-    - if: $CI_COMMIT_TAG                 # Run this job when a tag is created
+    - if: $CI_COMMIT_TAG
   script:
-    - echo "running release_job"
-  release:                               # See https://docs.gitlab.com/ee/ci/yaml/#release for available properties
+    - echo "Creating release $CI_COMMIT_TAG"
+  release:
     tag_name: '$CI_COMMIT_TAG'
     description: '$CI_COMMIT_TAG'

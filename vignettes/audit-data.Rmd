@@ -122,7 +122,7 @@ The columns in the audit logging data include:
 - `change-reason`:  This column records the reason before they save changes to a form.
 
 The structure of the output depends on the audit logging parameters you set in your form. For instance, if you set the parameter `track-changes=true`, the columns `old-value` and `new-value` become available. `latitude`, `longitude` and `accuracy` are associated to the parameter `location-priority`. The `user` column is available when you use the `identify-user=true` parameter.
-Using the parameter `track-changes-reasons=on-form-edit` prevents editing of filled-out forms without providing a reason. These reasons are recored in the `change-reason` column.
+Using the parameter `track-changes-reasons=on-form-edit` prevents editing of filled-out forms without providing a reason. These reasons are recorded in the `change-reason` column.
 You can learn how to use audit logging in the documentation of `KoboToolbox` and `ODK`.
 
 - ODK's guide on audit logging: https://docs.getodk.org/form-audit-log/

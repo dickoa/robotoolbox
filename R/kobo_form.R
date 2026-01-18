@@ -9,13 +9,13 @@
 #' @name kobo_form
 #'
 #' @importFrom data.table rbindlist
-#' @importFrom dplyr select nest_join coalesce
+#' @importFrom dplyr select nest_join coalesce filter
 #' @importFrom tibble as_tibble new_tibble
 #' @importFrom tidyr unnest drop_na
 #' @importFrom stringi stri_trans_general
 #' @importFrom stats setNames
 #' @importFrom tidyselect contains everything all_of
-#' @importFrom rlang .data set_names
+#' @importFrom rlang .data set_names abort
 #'
 #' @returns A \code{data.frame} with the following columns:
 #' - `name` the name of the survey questions
@@ -49,6 +49,35 @@ kobo_form <- function(x, version) {
 
 #' @export
 kobo_form.kobo_asset <- function(x, version = NULL) {
+  uid <- x$uid
+
+  if (has_cached_form_(uid, version))
+    return(get_cached_form_(uid, version))
+
+  form <- kobo_form_api_(x, version)
+  set_cached_form_(uid, version, form)
+
+  form
+}
+
+#' @export
+kobo_form.character <- function(x, version = NULL) {
+  if (!assert_uid(x))
+    abort(message = "Invalid asset uid")
+
+  if (has_cached_form_(x, version))
+    return(get_cached_form_(x, version))
+
+  kobo_form(kobo_asset(x), version)
+}
+
+#' @export
+kobo_form.default <- function(x, version) {
+  abort("You need to use a 'kobo_asset' or a valid asset uid")
+}
+
+#' @noRd
+kobo_form_api_ <- function(x, version = NULL) {
 
   form_display_fields <- function(x, lang) {
     nm <- intersect(names(x),
@@ -130,16 +159,4 @@ kobo_form.kobo_asset <- function(x, version = NULL) {
   }
   form$name <- stri_trans_general(form$name, "latin-ascii")
   form
-}
-
-#' @export
-kobo_form.character <- function(x, version = NULL) {
-  if (!assert_uid(x))
-    abort(message = "Invalid asset uid")
-  kobo_form(kobo_asset(x), version)
-}
-
-#' @export
-kobo_form.default <- function(x, version) {
-  abort("You need to use a 'kobo_asset' or a valid asset uid")
 }

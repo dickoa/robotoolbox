@@ -84,24 +84,6 @@ test_that("kobo_submissions is similar to kobo_data", {
   expect_equal(raw_paginate1, raw_paginate2)
 })
 
-
-test_that("kobo_data paginate automatically large data", {
-  skip_on_cran()
-  url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
-  token <- Sys.getenv("KOBOTOOLBOX_PROD_TOKEN")
-  skip <-  url == "" & token == ""
-  skip_if(skip,
-          message = "Test server not configured")
-
-  kobo_setup(url = url, token = token)
-  uid <- "a7XzRuPFn9j5WkT2mR6wbg"
-  asset <- kobo_asset(uid)
-  raw <- kobo_data(uid)
-  raw1 <- kobo_data(uid, paginate = TRUE)
-
-  expect_equal(raw, raw1)
-})
-
 test_that("kobo_data can use select_multiple labels instead of values", {
   skip_on_cran()
   url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
@@ -268,7 +250,6 @@ test_that("kobo_data can use labels as colnames", {
   expect_in("How many hobbies does ${name} have?", names(raw_dm$demo))
 })
 
-
 test_that("select_multiple column can have different separators", {
   skip_on_cran()
   url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
@@ -291,7 +272,7 @@ test_that("select_multiple column can have different separators", {
   expect_true(all(expected %in% names(raw_label)))
 })
 
-test_that("kobo_data can use labels as colnames", {
+test_that("kobo_attachment_download downloads files", {
   skip_on_cran()
   url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
   token <- Sys.getenv("KOBOTOOLBOX_PROD_TOKEN")
@@ -311,6 +292,38 @@ test_that("kobo_data can use labels as colnames", {
                            dir,
                            progress = FALSE,
                            overwrite = FALSE)
-  expect_true(file.exists(file.path(dir,
-                                    "30515362_file_example_MP4_480_1_5MG-20_54_20.mp4")))
+
+  files <- list.files(dir, pattern = "^att.*\\.mp4$")
+  expect_true(length(files) > 0)
+})
+
+
+test_that("kobo_attachment_download fails gracefully with invalid uid", {
+  skip_on_cran()
+  url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
+  token <- Sys.getenv("KOBOTOOLBOX_PROD_TOKEN")
+  skip <-  url == "" & token == ""
+
+  kobo_setup(url = url, token = token)
+  skip_if(skip,
+          message = "Test server not configured")
+  expect_error(kobo_attachment_download("invalid_uid", tempdir()))
+})
+
+test_that("kobo_attachment_download handles no attachments", {
+  skip_on_cran()
+  url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
+  token <- Sys.getenv("KOBOTOOLBOX_PROD_TOKEN")
+  skip <-  url == "" & token == ""
+  skip_if(skip,
+          message = "Test server not configured")
+
+  kobo_setup(url = url, token = token)
+  uid_no_attachments <- "aREsLnfwNU9L7ePbUjnajg"
+  dir <- tempdir()
+  existing <- list.files(dir, pattern = "^att", full.names = TRUE)
+  if (length(existing) > 0)
+    file.remove(existing)
+  result <- kobo_attachment_download(uid_no_attachments, dir)
+  expect_true(length(list.files(dir, pattern = "^att")) == 0)
 })

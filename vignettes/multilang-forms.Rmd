@@ -148,7 +148,7 @@ count(df_ar, pet_yesno_ar = to_character(pet_yesno))
 
 ### Accessing labels for `select_multiple` question type
 
-Labels from `select_multiple` is also accessible using the `kobo_data` parameter `select_multiple_label`. Let's demonstrate this feature with the following form:
+Labels from `select_multiple` are also accessible using the `kobo_data` parameter `select_multiple_label`. Let's demonstrate this feature with the following form:
 
 - **Survey questions**
 

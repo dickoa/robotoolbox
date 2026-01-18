@@ -2,29 +2,105 @@
 % Please edit documentation in R/kobo_lang.R
 \name{kobo_lang}
 \alias{kobo_lang}
-\title{Get the languages used in a KoboToolbox survey form}
+\alias{kobo_lang.kobo_asset}
+\alias{kobo_lang.character}
+\alias{kobo_lang.default}
+\alias{kobo_lang_get}
+\alias{kobo_lang_get.data.frame}
+\alias{kobo_lang_get.dm}
+\alias{kobo_lang_get.default}
+\alias{kobo_lang_set}
+\alias{kobo_lang_set.data.frame}
+\alias{kobo_lang_set.dm}
+\alias{kobo_lang_set.default}
+\title{Get and set the languages used in KoboToolbox data}
 \usage{
 kobo_lang(x)
+
+\method{kobo_lang}{kobo_asset}(x)
+
+\method{kobo_lang}{character}(x)
+
+\method{kobo_lang}{default}(x)
+
+kobo_lang_get(data, asset)
+
+\method{kobo_lang_get}{data.frame}(data, asset)
+
+\method{kobo_lang_get}{dm}(data, asset)
+
+\method{kobo_lang_get}{default}(data, asset)
+
+kobo_lang_set(data, asset, lang)
+
+\method{kobo_lang_set}{data.frame}(data, asset, lang)
+
+\method{kobo_lang_set}{dm}(data, asset, lang)
+
+\method{kobo_lang_set}{default}(data, asset, lang)
 }
 \arguments{
-\item{x}{the unique identifier of a specific asset (\code{character}) or
+\item{x}{For \code{kobo_lang()}: the unique identifier of a specific asset (\code{character}) or
 a \code{kobo_asset} object.}
+
+\item{data}{For \code{kobo_lang_get()} and \code{kobo_lang_set()}: a \code{data.frame} or \code{dm} object
+returned by \code{kobo_data()}.}
+
+\item{asset}{For \code{kobo_lang_get()} and \code{kobo_lang_set()}: the \code{kobo_asset} object
+used to fetch the data.}
+
+\item{lang}{For \code{kobo_lang_set()}: character, the target language.
+Use \code{kobo_lang(asset)} to see available languages.}
 }
 \value{
-A vector of \code{character}. The languages used in the form, it returns "Labels"
+\itemize{
+\item \code{kobo_lang()}: A character vector of available languages. Returns \code{"Labels"}
 when no language is set.
+\item \code{kobo_lang_get()}: A character string of the current language, or \code{NA} if
+it cannot be determined.
+\item \code{kobo_lang_set()}: The data with updated labels in the new language.
+}
 }
 \description{
-Get the languages used in a KoboToolbox survey form from a \code{kobo_asset}
-or asset unique identifier.
+\itemize{
+\item \code{kobo_lang()}: Get the languages available in a KoboToolbox survey form.
+\item \code{kobo_lang_get()}: Get the current language of a dataset returned by \code{kobo_data()}.
+\item \code{kobo_lang_set()}: Change the language labels of a dataset without re-downloading.
+}
+}
+\details{
+KoboToolbox forms can have multiple language translations. Normally, switching
+languages requires calling \code{kobo_data()} again with a different \code{lang} parameter,
+which re-downloads all data from the server.
+
+\code{kobo_lang_set()} applies labels from a different language to existing data
+instantly, using the cached form metadata. This is useful when you need to
+work with data in multiple languages or export data with different label sets.
+
+\code{kobo_lang_get()} inspects the current variable labels in the data and matches
+them against the form to determine which language is currently applied.
 }
 \examples{
 \dontrun{
-kobo_setup()
-uid <- "a9cwEQcbWqWzA5hzkjRUWi"
-asset <- kobo_asset(uid)
-lang <- kobo_lang(asset)
-lang
+# Setup
+asset <- kobo_asset("aYuTZn9vegi3Z49MXwKjep")
+
+# List available languages
+kobo_lang(asset)
+
+# Fetch data in English
+df <- kobo_data(asset, lang = "English (en)")
+
+# Check current language
+kobo_lang_get(df, asset)
+
+# Switch to French instantly (no API call)
+df_fr <- kobo_lang_set(df, asset, lang = "Francais (fr)")
+kobo_lang_get(df_fr, asset)
+
+# Works with dm objects (nested forms) too
+dm_data <- kobo_data(complex_asset)
+dm_fr <- kobo_lang_set(dm_data, complex_asset, lang = "French")
 }
 
 }

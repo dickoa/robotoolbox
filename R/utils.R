@@ -32,15 +32,25 @@ clean_urls <- function(x) {
 user_agent_ <- function() {
   robotoolbox_version <- packageVersion("robotoolbox")
   os <- Sys.info()[["sysname"]]
-  os_version <- paste(Sys.info()[["release"]],
-                      Sys.info()[["version"]])
-  r_version <- paste0(R.version$major, ".",
-                      R.version$minor,
-                      ifelse(R.version$status == "", "",
-                             paste0("-", R.version$status)))
-  header <- paste0("robotoolbox/",
-                   robotoolbox_version, " (", os, "/",
-                   os_version, "; ", "R/", r_version, ")")
+  os_version <- paste(Sys.info()[["release"]], Sys.info()[["version"]])
+  r_version <- paste0(
+    R.version$major,
+    ".",
+    R.version$minor,
+    ifelse(R.version$status == "", "", paste0("-", R.version$status))
+  )
+  header <- paste0(
+    "robotoolbox/",
+    robotoolbox_version,
+    " (",
+    os,
+    "/",
+    os_version,
+    "; ",
+    "R/",
+    r_version,
+    ")"
+  )
   header
 }
 
@@ -51,62 +61,91 @@ error_msg <- function(x) {
   check_token_info <- "Check again your token in `kobo_setup` is correct or use `kobo_token`"
   check_cred_info <- "Check again your username or password"
   check_default <- "Check that you have the right server and if it's working"
-  msg <- fparse(rawToChar(x))$detail
-  info <- case_when(grepl("not found",
-                          msg, ignore.case = TRUE) ~ c("uid (project) not found in this account/server",
-                                                       i = check_uid_info),
-                    grepl("invalid token",
-                          msg, ignore.case = TRUE) ~ c("Invalid API token",
-                                                       i = check_token_info),
-                    grepl("invalid username/password",
-                          msg, ignore.case = TRUE) ~ c("Invalid username or password",
-                                                       i = check_cred_info),
-                    .default = setNames(check_default, "i"))
+  msg <- tryCatch(
+    fparse(rawToChar(x))$detail,
+    error = function(e) NULL
+  )
+  if (is.null(msg)) {
+    return(setNames(check_uid_info, "i"))
+  }
+  info <- case_when(
+    grepl("not found", msg, ignore.case = TRUE) ~ c(
+      "uid (project) not found in this account/server",
+      i = check_uid_info
+    ),
+    grepl("invalid token", msg, ignore.case = TRUE) ~ c(
+      "Invalid API token",
+      i = check_token_info
+    ),
+    grepl("invalid username/password", msg, ignore.case = TRUE) ~ c(
+      "Invalid username or password",
+      i = check_cred_info
+    ),
+    .default = setNames(check_default, "i")
+  )
   info
 }
 
 #' @importFrom rlang abort
 #' @noRd
 xget <- function(path, args = list(), n_retry = 3L, ...) {
-  headers <- list(Authorization = paste("Token",
-                                        Sys.getenv("KOBOTOOLBOX_TOKEN")),
-                  `User-Agent` = user_agent_())
-  cli <- HttpClient$new(Sys.getenv("KOBOTOOLBOX_URL"),
-                        headers = headers, opts = list(...))
-  res <- cli$retry("get",
-                   path = path,
-                   query = args,
-                   times = n_retry,
-                   retry_only_on = c(500, 503),
-                   terminate_on = 404)
-  if (res$status_code >= 300)
-    abort(error_msg(res$content),
-          call = NULL)
+  headers <- list(
+    Authorization = paste("Token", Sys.getenv("KOBOTOOLBOX_TOKEN")),
+    `User-Agent` = user_agent_()
+  )
+  cli <- HttpClient$new(
+    Sys.getenv("KOBOTOOLBOX_URL"),
+    headers = headers,
+    opts = list(...)
+  )
+  res <- cli$retry(
+    "get",
+    path = path,
+    query = args,
+    times = n_retry,
+    retry_only_on = c(500, 503),
+    terminate_on = 404
+  )
+  if (res$status_code >= 300) {
+    abort(error_msg(res$content), call = NULL)
+  }
   res$raise_for_ct_json()
   res$parse("UTF-8")
 }
 
 #' @importFrom rlang abort
 #' @noRd
-xget_mime <- function(path, args = list(),
-                      n_retry = 3L, mimetype = "application/json", ...) { # nocov start
-  headers <- list(Authorization = paste("Token",
-                                        Sys.getenv("KOBOTOOLBOX_TOKEN")),
-                  `User-Agent` = user_agent_())
-  cli <- HttpClient$new(Sys.getenv("KOBOTOOLBOX_URL"),
-                        headers = headers, opts = list(...))
-  res <- cli$retry("get",
-                   path = path,
-                   query = args,
-                   times = n_retry,
-                   retry_only_on = c(500, 503),
-                   terminate_on = 404)
-  if (res$status_code >= 300)
-    abort(error_msg(res$content),
-          call = NULL)
+xget_mime <- function(
+  path,
+  args = list(),
+  n_retry = 3L,
+  mimetype = "application/json",
+  ...
+) {
+  # nocov start
+  headers <- list(
+    Authorization = paste("Token", Sys.getenv("KOBOTOOLBOX_TOKEN")),
+    `User-Agent` = user_agent_()
+  )
+  cli <- HttpClient$new(
+    Sys.getenv("KOBOTOOLBOX_URL"),
+    headers = headers,
+    opts = list(...)
+  )
+  res <- cli$retry(
+    "get",
+    path = path,
+    query = args,
+    times = n_retry,
+    retry_only_on = c(500, 503),
+    terminate_on = 404
+  )
+  if (res$status_code >= 300) {
+    abort(error_msg(res$content), call = NULL)
+  }
   res$raise_for_ct(mimetype)
   res$parse("UTF-8")
-}  # nocov end
+} # nocov end
 
 #' @importFrom purrr list_rbind
 #' @importFrom tibble as_tibble
@@ -114,49 +153,58 @@ xget_mime <- function(path, args = list(),
 #' @importFrom crul Paginator
 #' @importFrom rlang abort
 #' @noRd
-get_asset_list_paginate <- function(limit = 100L,
-                                    chunk = min(limit, 100L), n_retry = 3L) {
-  headers <- list(Authorization = paste("Token",
-                                        Sys.getenv("KOBOTOOLBOX_TOKEN")),
-                  `User-Agent` = user_agent_())
-  cli <- HttpClient$new(Sys.getenv("KOBOTOOLBOX_URL"),
-                        headers = headers)
+get_asset_list_paginate <- function(
+  limit = 100L,
+  chunk = min(limit, 100L),
+  n_retry = 3L
+) {
+  headers <- list(
+    Authorization = paste("Token", Sys.getenv("KOBOTOOLBOX_TOKEN")),
+    `User-Agent` = user_agent_()
+  )
+  cli <- HttpClient$new(Sys.getenv("KOBOTOOLBOX_URL"), headers = headers)
 
-  cc <- Paginator$new(cli,
-                      by = "limit_offset",
-                      limit_param = "limit",
-                      offset_param = "offset",
-                      limit = limit,
-                      chunk = chunk)
+  cc <- Paginator$new(
+    cli,
+    by = "limit_offset",
+    limit_param = "limit",
+    offset_param = "offset",
+    limit = limit,
+    chunk = chunk
+  )
 
-  cc$get(path = "/api/v2/assets",
-         args = list(metadata = "on"),
-         times = n_retry,
-         retry_only_on = c(500, 503),
-         terminate_on = 404)
+  cc$get(
+    path = "/api/v2/assets",
+    args = list(metadata = "on"),
+    times = n_retry,
+    retry_only_on = c(500, 503),
+    terminate_on = 404
+  )
 
   cond <- cc$status_code() >= 300L
   if (any(cond)) {
     msg <- cc$content()[cond]
-    abort(error_msg(msg[[1]]),
-          call = NULL)
+    abort(error_msg(msg[[1]]), call = NULL)
   }
 
   resp <- cc$parse("UTF-8")
-  res <- fparse(resp,
-                max_simplify_lvl = "data_frame",
-                query = "/results")
+  res <- fparse(resp, max_simplify_lvl = "data_frame", query = "/results")
 
-  if (length(resp) >= 2)
+  if (length(resp) >= 2) {
     res <- list_rbind(res)
+  }
 
-  transmute(as_tibble(res),
-            .data$uid, .data$name, .data$asset_type,
-            owner_username = .data$owner__username,
-            date_created = parse_kobo_datetime(.data$date_created),
-            date_modified = parse_kobo_datetime(.data$date_modified),
-            deployed = .data$deployment__active,
-            submissions = .data$deployment__submission_count)
+  transmute(
+    as_tibble(res),
+    .data$uid,
+    .data$name,
+    .data$asset_type,
+    owner_username = .data$owner__username,
+    date_created = parse_kobo_datetime(.data$date_created),
+    date_modified = parse_kobo_datetime(.data$date_modified),
+    deployed = .data$deployment__active,
+    submissions = .data$deployment__submission_count
+  )
 }
 
 #' @importFrom tibble as_tibble
@@ -172,8 +220,7 @@ dt2tibble <- function(x) {
 get_subs <- function(uid, args = list(), ...) {
   path <- paste0("api/v2/assets/", uid, "/data.json")
   res <- xget(path = path, args = args, ...)
-  res <- fparse(res, max_simplify_lvl = "data_frame",
-                query = "/results")
+  res <- fparse(res, max_simplify_lvl = "data_frame", query = "/results")
   as_tibble(res)
 }
 
@@ -189,12 +236,13 @@ build_subs_urls <- function(uid, size, chunk_size = NULL) {
     last_limit <- size %% chunk_size
     last_limit <- ifelse(last_limit, last_limit, chunk_size)
     limit <- c(limit, last_limit)
-    df <- tibble(start = sprintf("%d", start),
-                 limit = sprintf("%d", limit),
-                 uid = uid)
+    df <- tibble(
+      start = sprintf("%d", start),
+      limit = sprintf("%d", limit),
+      uid = uid
+    )
     template <- "api/v2/assets/{uid}/data.json?start={start}&limit={limit}"
-    urls <- glue_data(df,
-                      template)
+    urls <- glue_data(df, template)
   }
   file.path(Sys.getenv("KOBOTOOLBOX_URL"), urls)
 }
@@ -207,39 +255,35 @@ build_subs_urls <- function(uid, size, chunk_size = NULL) {
 #' @importFrom rlang abort
 #' @noRd
 get_subs_async <- function(uid, size, chunk_size = NULL, n_retry = 3L, ...) {
-  headers <- list(Authorization = paste("Token",
-                                        Sys.getenv("KOBOTOOLBOX_TOKEN")))
+  headers <- list(
+    Authorization = paste("Token", Sys.getenv("KOBOTOOLBOX_TOKEN"))
+  )
   urls <- build_subs_urls(uid, size, chunk_size)
   reqs <- lapply(urls, function(url) {
-    req <- HttpRequest$new(url,
-                           headers = headers,
-                           opts = list(...))
-    req$retry("get",
-              times = n_retry,
-              retry_only_on = c(500, 503),
-              terminate_on = 404)
+    req <- HttpRequest$new(url, headers = headers, opts = list(...))
+    req$retry(
+      "get",
+      times = n_retry,
+      retry_only_on = c(500, 503),
+      terminate_on = 404
+    )
   })
   sleep <- case_when(
-    size > 30000 ~ 1.5,
-    size > 15000 ~ 1,
-    size > 5000 ~ 0.5,
-    size > 1000 ~ 0.25,
-    .default = 0.1
+    size > 30000 ~ 0.25,
+    size > 15000 ~ 0.2,
+    size > 5000 ~ 0.15,
+    size > 1000 ~ 0.1,
+    .default = 0.05
   )
-  res <- AsyncQueue$new(.list = reqs,
-                        bucket_size = Inf,
-                        sleep = sleep)
+  res <- AsyncQueue$new(.list = reqs, bucket_size = Inf, sleep = sleep)
   res$request()
   cond <- res$status_code() >= 300L
   if (any(cond)) {
     msg <- res$content()[cond]
-    abort(error_msg(msg[[1]]),
-          call = NULL)
+    abort(error_msg(msg[[1]]), call = NULL)
   }
   res <- res$parse(encoding = "UTF-8")
-  res <- fparse(res,
-                max_simplify_lvl = "data_frame",
-                query = "/results")
+  res <- fparse(res, max_simplify_lvl = "data_frame", query = "/results")
   res <- rbindlist(res, fill = TRUE)
   res <- dt2tibble(res)
   res
@@ -251,24 +295,28 @@ get_subs_async <- function(uid, size, chunk_size = NULL, n_retry = 3L, ...) {
 #' @noRd
 get_audit_url_ <- function(uid) {
   path <- paste0("api/v2/assets/", uid, "/data.json")
-  res <- xget(path = path,
-              args = list(fields = '["_attachments", "formhub/uuid", "_uuid"]'))
+  res <- xget(
+    path = path,
+    args = list(fields = '["_attachments", "formhub/uuid", "_uuid"]')
+  )
   res <- fparse(res, max_simplify_lvl = "data_frame")
-  res <- res$result
-  list_rbind(res[["_attachments"]]) |>
-   filter(grepl("audit.csv$", .data$filename)) |>
-   select(`_id` = "instance", "download_url")
+  res <- res$results
+  unnest(res[c("_id", "_attachments")], "_attachments") |>
+    filter(.data$media_file_basename %in% "audit.csv") |>
+    select("_id", "download_url")
 }
 
 #' @importFrom RcppSimdJson fparse
 #' @noRd
 get_attachment_url_ <- function(uid) {
   path <- paste0("api/v2/assets/", uid, "/data.json")
-  res <- xget(path = path,
-              args = list(fields = '["_attachments", "formhub/uuid", "_uuid"]'))
+  res <- xget(
+    path = path,
+    args = list(fields = '["_attachments", "formhub/uuid", "_uuid"]')
+  )
   res <- fparse(res, max_simplify_lvl = "data_frame")
-  res <- res$result
-  res[["_attachments"]]
+  res <- res$results
+  unnest(res[c("_id", "_attachments")], "_attachments")
 }
 
 
@@ -278,15 +326,14 @@ map_chr2 <- function(x, key) {
 }
 
 #' @noRd
-map_int2 <- function(x, key) { # nocov start
+map_int2 <- function(x, key) {
+  # nocov start
   vapply(x, function(l) as.integer(l[[key]]), integer(1))
 } # nocov end
 
 #' @noRd
 parse_kobo_datetime <- function(x) {
-  x <- as.POSIXct(x,
-                  format = "%Y-%m-%dT%H:%M:%OS",
-                  tz = "GMT")
+  x <- as.POSIXct(x, format = "%Y-%m-%dT%H:%M:%OS", tz = "GMT")
   x <- round(x, "secs")
   as.character(x)
 }
@@ -319,10 +366,11 @@ is_null_recursive <- function(x) {
 #' @noRd
 drop_nulls <- function(x) {
   x <- lapply(x, function(node) {
-    if (is.list(node))
+    if (is.list(node)) {
       drop_nulls(node)
-    else
+    } else {
       node
+    }
   })
   x[vapply(x, is.null, logical(1))] <- NULL
   x
@@ -330,8 +378,9 @@ drop_nulls <- function(x) {
 
 #' @noRd
 null2char <- function(x) {
-  if (is.null(x))
+  if (is.null(x)) {
     return("")
+  }
   x
 }
 
@@ -347,10 +396,7 @@ col2choices <- function(x, form, col) {
     uv <- unique(unlist(strsplit(x[[col]], "\\s+")))
     uv <- trimws(na.omit(uv))
   }
-  stri_sort(uv,
-            na_last = TRUE,
-            locale = "en_US",
-            numeric = TRUE)
+  stri_sort(uv, na_last = TRUE, locale = "en_US", numeric = TRUE)
 }
 
 #' @noRd
@@ -375,9 +421,10 @@ fast_dummy_cols <- function(x, form, cols, sep) {
     nm <- names(x)
     if (any(new_names %in% nm)) {
       old_cols <- intersect(new_names, nm)
-      new_cols <- setdiff(make.unique(c(new_names, old_cols),
-                                      sep = "_"),
-                          new_names)
+      new_cols <- setdiff(
+        make.unique(c(new_names, old_cols), sep = "_"),
+        new_names
+      )
       names_inform_repair(old_cols, new_cols)
       x[, (new_cols) := .SD, .SDcols = old_cols]
       x[, (old_cols) := NULL]
@@ -388,8 +435,7 @@ fast_dummy_cols <- function(x, form, cols, sep) {
     for (iter in seq_along(uv)) {
       a <- gsub("([[:punct:]])", "\\\\\\1", uv[iter])
       j <- paste0(col, sep, uv[iter])
-      i <- which(stri_detect_regex(y,
-                                   paste0("\\b", a,  "(\\s|$)")))
+      i <- which(stri_detect_regex(y, paste0("\\b", a, "(\\s|$)")))
       set(x, i = i, j = j, value = 1L)
     }
   }
@@ -421,17 +467,16 @@ dedup_vars_ <- function(x, all_versions = TRUE) {
   cond <- duplicated(nm_to_test, fromLast = FALSE)
   if (any(cond)) {
     if (all_versions) {
-    rs <- c(nm[cond],
-            nm[duplicated(nm_to_test, fromLast = TRUE)])
-    rs <- unique(rs)
-    rs_key <- basename(rs)
-    rs <- split(rs, rs_key)
-    rs_key <- names(rs)
-    for (v in rs_key) {
-      old_vars <- rs[[v]]
-      x[[v]] <- with(x, coalesce(!!!as.list(x[old_vars])))
-      x[old_vars] <- NULL
-    }
+      rs <- c(nm[cond], nm[duplicated(nm_to_test, fromLast = TRUE)])
+      rs <- unique(rs)
+      rs_key <- basename(rs)
+      rs <- split(rs, rs_key)
+      rs_key <- names(rs)
+      for (v in rs_key) {
+        old_vars <- rs[[v]]
+        x[[v]] <- with(x, coalesce(!!!as.list(x[old_vars])))
+        x[old_vars] <- NULL
+      }
     } else {
       x <- x[!cond]
     }
@@ -453,17 +498,18 @@ extract_repeat_tbl <- function(x, form, all_versions) {
   nm <- unique(form$name[form$type %in% "begin_repeat"])
   nm <- intersect(names(x), nm)
   if (length(nm) > 0) {
-    res <- setNames(lapply(nm, function(n) {
-      res <- x[[n]]
-      res <- modify_if(res, ~ !is.data.frame(.), ~ tibble())
-      res <- rbindlist(res,
-                       idcol = "_parent_index",
-                       fill = TRUE)
-      res <- tibble(res)
-      res <- dedup_vars_(res, all_versions = all_versions)
-      res <- set_names(res, make_unique_names_)
-      rowid_to_column(res, "_index")
-    }), nm)
+    res <- setNames(
+      lapply(nm, function(n) {
+        res <- x[[n]]
+        res <- modify_if(res, ~ !is.data.frame(.), ~ tibble())
+        res <- rbindlist(res, idcol = "_parent_index", fill = TRUE)
+        res <- tibble(res)
+        res <- dedup_vars_(res, all_versions = all_versions)
+        res <- set_names(res, make_unique_names_)
+        rowid_to_column(res, "_index")
+      }),
+      nm
+    )
   }
   res
 }
@@ -471,22 +517,27 @@ extract_repeat_tbl <- function(x, form, all_versions) {
 #' @importFrom rlang squash
 #' @noRd
 kobo_extract_repeat_tbl <- function(x, form, all_versions) {
-  if (is.null(x))
+  if (is.null(x)) {
     return(NULL)
+  }
   x <- extract_repeat_tbl(x, form, all_versions)
   x <- lapply(x, function(df) {
     df$`_parent_table_name` <- "main"
     df
   })
-  res <- lapply(seq_along(x), function(i)
+  res <- lapply(seq_along(x), function(i) {
     if (is.data.frame(x[[i]])) {
-      c(setNames(list(x[[i]]), names(x[i])),
+      c(
+        setNames(list(x[[i]]), names(x[i])),
         lapply(extract_repeat_tbl(x[[i]], form, all_versions), function(df) {
-               df$`_parent_table_name` <- names(x[i])
-               df}))
-      } else {
-        list()
-      })
+          df$`_parent_table_name` <- names(x[i])
+          df
+        })
+      )
+    } else {
+      list()
+    }
+  })
   res <- suppressWarnings(squash(res))
   res <- set_names(res, make.unique, sep = "_")
   res
@@ -500,9 +551,11 @@ kobo_extract_repeat_tbl <- function(x, form, all_versions) {
 #' @importFrom rlang .data
 #' @noRd
 val_labels_from_form_ <- function(x, form, lang) {
-  form <- filter(form,
-                 .data$lang %in% !!lang,
-                 stri_detect_regex(.data$type, "select_one"))
+  form <- filter(
+    form,
+    .data$lang %in% !!lang,
+    stri_detect_regex(.data$type, "select_one")
+  )
   nm <- unique(form$name)
   nm <- intersect(names(x), nm)
   if (length(nm) > 0) {
@@ -510,24 +563,29 @@ val_labels_from_form_ <- function(x, form, lang) {
       filter(.data$name %in% nm) |>
       distinct(.data$name, .data$choices) |>
       group_by(.data$name) |>
-      mutate(choices = list(distinct(select(bind_rows(choices),
-                                            -"value_version")))) |>
+      mutate(
+        choices = list(distinct(select(
+          bind_rows(choices),
+          -any_of("value_version")
+        )))
+      ) |>
       ungroup()
     choices <- form$choices
     names(choices) <- form$name
     choices <- lapply(nm, function(n) {
       ch <- choices[[n]]
-      ch <- filter(ch,
-                   .data$value_lang %in% !!lang)
+      ch <- filter(ch, .data$value_lang %in% !!lang)
       ch$value_label <- make.unique(ch$value_label, sep = "_")
       ch <- setNames(ch$value_name, ch$value_label)
       ch[!duplicated(ch)]
     })
     names(choices) <- nm
     labels <- choices[nm]
-    x <- set_value_labels(mutate(x, across(all_of(nm), as.character)),
-                          .labels = labels,
-                          .strict = FALSE)
+    x <- set_value_labels(
+      mutate(x, across(all_of(nm), as.character)),
+      .labels = labels,
+      .strict = FALSE
+    )
   } else {
     x
   }
@@ -543,9 +601,11 @@ val_labels_from_form_ <- function(x, form, lang) {
 #'
 #' @noRd
 val_labels_sm_from_form_ <- function(x, form, lang) {
-  form <- filter(form,
-                 .data$lang %in% !!lang,
-                 stri_detect_regex(.data$type, "select_multiple"))
+  form <- filter(
+    form,
+    .data$lang %in% !!lang,
+    stri_detect_regex(.data$type, "select_multiple")
+  )
   nm <- unique(form$name)
   nm <- intersect(names(x), nm)
   if (length(nm) > 0) {
@@ -553,15 +613,18 @@ val_labels_sm_from_form_ <- function(x, form, lang) {
       filter(.data$name %in% nm) |>
       distinct(.data$name, .data$choices) |>
       group_by(.data$name) |>
-      mutate(choices = list(distinct(select(bind_rows(choices),
-                                            -"value_version")))) |>
+      mutate(
+        choices = list(distinct(select(
+          bind_rows(choices),
+          -any_of("value_version")
+        )))
+      ) |>
       ungroup()
     choices <- form$choices
     names(choices) <- form$name
     choices <- lapply(nm, function(n) {
       ch <- choices[[n]]
-      ch <- filter(ch,
-                   .data$value_lang %in% !!lang)
+      ch <- filter(ch, .data$value_lang %in% !!lang)
       ch$value_label <- make.unique(ch$value_label, sep = "_")
       ch
     })
@@ -570,10 +633,12 @@ val_labels_sm_from_form_ <- function(x, form, lang) {
       d <- x[[n]]
       ch <- choices[[n]]
       vl <- var_label(d)
-      x[[n]] <- stri_replace_all_regex(d,
-                                       paste0("\\b", ch$value_name, "\\b"),
-                                       ch$value_label,
-                                       vectorize_all = FALSE)
+      x[[n]] <- stri_replace_all_regex(
+        d,
+        paste0("\\b", ch$value_name, "\\b"),
+        ch$value_label,
+        vectorize_all = FALSE
+      )
       var_label(x[[n]]) <- vl
     }
   } else {
@@ -586,8 +651,9 @@ val_labels_sm_from_form_ <- function(x, form, lang) {
 replace_na_list_ <- function(x) {
   b <- is.na(x)
   v <- names(x)[b]
-  for (i in seq_along(v))
+  for (i in seq_along(v)) {
     x[b][[i]] <- v[i]
+  }
   x
 }
 
@@ -605,18 +671,24 @@ select_multiple_var_label <- function(x, form, lang) {
   labels <- list()
   bool <- stri_detect_regex(form$type, "select_multiple")
   if (any(bool)) {
-    choices <- filter(form,
-                      .data$lang %in% !!lang,
-                      stri_detect_regex(.data$type, "select_multiple")) |>
+    choices <- filter(
+      form,
+      .data$lang %in% !!lang,
+      stri_detect_regex(.data$type, "select_multiple")
+    ) |>
       unnest("choices") |>
       filter(.data$value_lang %in% !!lang) |>
       select(-any_of("value_version")) |>
       distinct() |>
-      transmute(value_name = paste0(.data$name, "_", .data$value_name),
-                value_label = paste0(.data$label, "::", .data$value_label)) |>
+      transmute(
+        value_name = paste0(.data$name, "_", .data$value_name),
+        value_label = paste0(.data$label, "::", .data$value_label)
+      ) |>
       distinct()
-    labels <- setNames(as.list(choices$value_label),
-                       make.unique(choices$value_name, sep = "_"))
+    labels <- setNames(
+      as.list(choices$value_label),
+      make.unique(choices$value_name, sep = "_")
+    )
   }
   labels
 }
@@ -628,8 +700,11 @@ var_labels_from_form_ <- function(x, form, lang) {
   cond <- form$lang %in% lang & form$name %in% names(x)
   form <- form[cond, ]
   nm <- unique(form$name)
-  labels_select_multiple <- select_multiple_var_label(x = x,
-                                                      form = form, lang = lang)
+  labels_select_multiple <- select_multiple_var_label(
+    x = x,
+    form = form,
+    lang = lang
+  )
   nm_select_multiple <- names(labels_select_multiple)
   nm_missing <- setdiff(names(x), nm)
   nm_missing <- setdiff(nm_missing, nm_select_multiple)
@@ -639,14 +714,10 @@ var_labels_from_form_ <- function(x, form, lang) {
     labels_missing <- setNames(as.list(nm_missing), nm_missing)
     labels <- c(labels, labels_missing, labels_select_multiple)
     labels <- replace_na_list_efficient_(labels)
-    x <- set_variable_labels(x,
-                             .labels = labels,
-                             .strict = FALSE)
+    x <- set_variable_labels(x, .labels = labels, .strict = FALSE)
   } else {
     labels <- setNames(as.list(names(x)), names(x))
-    x <- set_variable_labels(x,
-                             .labels = labels,
-                             .strict = FALSE)
+    x <- set_variable_labels(x, .labels = labels, .strict = FALSE)
   }
   x
 }
@@ -670,21 +741,25 @@ extract_geopoint_ <- function(x, form) {
     separate_geopoint <- function(x, col) {
       lbl <- var_label(select(x, all_of(col)))
       nm <- c("latitude", "longitude", "altitude", "precision", "wkt")
-      lbl <- lapply(seq_along(lbl), function(i)  setNames(paste0(lbl[[i]], "::", nm),
-                                                          paste0(names(lbl)[i], "_", nm)))
+      lbl <- lapply(seq_along(lbl), function(i) {
+        setNames(paste0(lbl[[i]], "::", nm), paste0(names(lbl)[i], "_", nm))
+      })
       lbl <- lapply(lbl, as.list)
       lbl <- unlist(lbl, recursive = FALSE)
 
       x <- x |>
-        mutate(across(.cols = all_of(col),
-                      .fns = ~ wkt_geopoint(.x),
-                      .names = "{.col}_wkt")) |>
-        separate_wider_delim({{col}},
-                             names = c("latitude", "longitude",
-                                       "altitude", "precision"),
-                             delim = " ",
-                             names_sep = "_",
-                             cols_remove = FALSE) |>
+        mutate(across(
+          .cols = all_of(col),
+          .fns = ~ wkt_geopoint(.x),
+          .names = "{.col}_wkt"
+        )) |>
+        separate_wider_delim(
+          {{ col }},
+          names = c("latitude", "longitude", "altitude", "precision"),
+          delim = " ",
+          names_sep = "_",
+          cols_remove = FALSE
+        ) |>
         rename_with(~ gsub("^(.+)_(\\1)$", "\\1", .x), starts_with(col)) |>
         set_variable_labels(.labels = lbl, .strict = FALSE)
       x
@@ -709,19 +784,24 @@ extract_geotrace_ <- function(x, form) {
       pattern <- "^(\\s*-?\\d+(?:\\.\\d+)?)\\s+(-?\\d+(?:\\.\\d+)?)\\s+(-?\\d+(?:\\.\\d+)?)(\\s+-?\\d+(?:\\.\\d+)?)$"
       replacement <- "\\2 \\1 \\3"
       x <- lapply(x, \(s) gsub(pattern, replacement, s))
-      vapply(x, \(s) paste0("LINESTRING (", paste0(s, collapse = ", "), ")"),
-             character(1))
+      vapply(
+        x,
+        \(s) paste0("LINESTRING (", paste0(s, collapse = ", "), ")"),
+        character(1)
+      )
     }
 
     separate_geotrace <- function(x, col) {
       lbl <- var_label(select(x, all_of(col)))
       lbl <- set_names(lbl, paste0(col, "_wkt"))
-      lbl <- lapply(lbl, function(x)  paste0(x, "::", "wkt"))
+      lbl <- lapply(lbl, function(x) paste0(x, "::", "wkt"))
 
       x <- x |>
-        mutate(across(.cols = all_of(col),
-                      .fns = ~ wkt_geotrace(.x),
-                      .names = "{.col}_wkt")) |>
+        mutate(across(
+          .cols = all_of(col),
+          .fns = ~ wkt_geotrace(.x),
+          .names = "{.col}_wkt"
+        )) |>
         set_variable_labels(.labels = lbl, .strict = FALSE)
       x
     }
@@ -745,20 +825,25 @@ extract_geoshape_ <- function(x, form) {
       pattern <- "^(\\s*-?\\d+(?:\\.\\d+)?)\\s+(-?\\d+(?:\\.\\d+)?)\\s+(-?\\d+(?:\\.\\d+)?)(\\s+-?\\d+(?:\\.\\d+)?)$"
       replacement <- "\\2 \\1 \\3"
       x <- lapply(x, \(s) gsub(pattern, replacement, s))
-      x <- vapply(x, \(s) paste0("POLYGON ((", paste0(s, collapse = ", "), "))"),
-                  character(1))
+      x <- vapply(
+        x,
+        \(s) paste0("POLYGON ((", paste0(s, collapse = ", "), "))"),
+        character(1)
+      )
       x
     }
 
     separate_geoshape <- function(x, col) {
       lbl <- var_label(select(x, all_of(col)))
       lbl <- set_names(lbl, paste0(col, "_wkt"))
-      lbl <- lapply(lbl, function(x)  paste0(x, "::", "wkt"))
+      lbl <- lapply(lbl, function(x) paste0(x, "::", "wkt"))
 
       x <- x |>
-        mutate(across(.cols = all_of(col),
-                      .fns = ~ wkt_geoshape(.x),
-                      .names = "{.col}_wkt")) |>
+        mutate(across(
+          .cols = all_of(col),
+          .fns = ~ wkt_geoshape(.x),
+          .names = "{.col}_wkt"
+        )) |>
         set_variable_labels(.labels = lbl, .strict = FALSE)
       x
     }
@@ -790,22 +875,38 @@ remove_list_cols <- function(x) {
   val_col <- x[["_validation_status"]]
   cond <- all(vapply(val_col, is_zero_length_or_null, logical(1)))
   if (!cond) {
-  val_stat <- vapply(val_col,
-                     \(x) if (!is_uid_available(x))
-                       NA_character_ else x$uid, character(1))
-  val_lbl <- vapply(val_col,
-                    \(x) if (!is_label_available(x))
-                      NA_character_ else x$label, character(1))
-  b <- is.na(val_stat)
-  val_dict <- setNames(val_stat[!b], val_lbl[!b])
-  val_dict <- val_dict[unique(names(val_dict))]
-  x <- x |>
-    mutate(`_validation_status` = labelled(val_stat, val_dict))
-  x <- select(x, -is_list_cols(x), any_of("_attachments"))
+    val_stat <- vapply(
+      val_col,
+      \(x) {
+        if (!is_uid_available(x)) {
+          NA_character_
+        } else {
+          x$uid
+        }
+      },
+      character(1)
+    )
+    val_lbl <- vapply(
+      val_col,
+      \(x) {
+        if (!is_label_available(x)) {
+          NA_character_
+        } else {
+          x$label
+        }
+      },
+      character(1)
+    )
+    b <- is.na(val_stat)
+    val_dict <- setNames(val_stat[!b], val_lbl[!b])
+    val_dict <- val_dict[unique(names(val_dict))]
+    x <- x |>
+      mutate(`_validation_status` = labelled(val_stat, val_dict))
+    x <- select(x, -is_list_cols(x), any_of("_attachments"))
   } else {
-  x <- x |>
-    mutate(`_validation_status` = NA_character_)
-  x <- select(x, -is_list_cols(x), any_of("_attachments"))
+    x <- x |>
+      mutate(`_validation_status` = NA_character_)
+    x <- select(x, -is_list_cols(x), any_of("_attachments"))
   }
   x
 }
@@ -825,7 +926,14 @@ reorder_cols_ <- function(x, cn) {
 }
 
 #' @importFrom utils type.convert
-postprocess_data_ <- function(x, form, lang, select_multiple_label = FALSE, cn, select_multiple_sep = "_") {
+postprocess_data_ <- function(
+  x,
+  form,
+  lang,
+  select_multiple_label = FALSE,
+  cn,
+  select_multiple_sep = "_"
+) {
   x <- dummy_from_form_(x, form, sep = select_multiple_sep)
   x <- extract_geopoint_(x, form)
   x <- extract_geotrace_(x, form)
@@ -835,41 +943,76 @@ postprocess_data_ <- function(x, form, lang, select_multiple_label = FALSE, cn, 
   x <- add_missing_cols_(x, cn)
   x <- val_labels_from_form_(x = x, form = form, lang = lang)
   x <- var_labels_from_form_(x = x, form = form, lang = lang)
-  if (isTRUE(select_multiple_label))
+  if (isTRUE(select_multiple_label)) {
     x <- val_labels_sm_from_form_(x = x, form = form, lang = lang)
+  }
   x <- reorder_cols_(x, cn)
 }
 
 #' @noRd
 kobo_question_types <- function() {
-  c("start", "end", "today", "deviceid",
-    "phonenumber", "username", "email", "audit",
-    "integer", "decimal", "range", "text",
-    "select_one", "select_multiple",
-    "select_one_from_file", "select_multiple_from_file",
-    "rank", "note", "geopoint", "geotrace", "geoshape",
-    "date", "time", "dateTime", "datetime", "image", "audio",
-    "background-audio", "video", "file", "barcode",
-    "calculate", "acknowledge", "hidden")
+  c(
+    "start",
+    "end",
+    "today",
+    "deviceid",
+    "phonenumber",
+    "username",
+    "email",
+    "audit",
+    "integer",
+    "decimal",
+    "range",
+    "text",
+    "select_one",
+    "select_multiple",
+    "select_one_from_file",
+    "select_multiple_from_file",
+    "rank",
+    "note",
+    "geopoint",
+    "geotrace",
+    "geoshape",
+    "date",
+    "time",
+    "dateTime",
+    "datetime",
+    "image",
+    "audio",
+    "background-audio",
+    "video",
+    "file",
+    "barcode",
+    "calculate",
+    "acknowledge",
+    "hidden"
+  )
 }
 
 #' @noRd
 kobo_display_fields <- function() {
-  c("label", "hint", "guidance_hint",
-    "constraint_message", "required_message",
-    "image", "media::image",
-    "big-image", "media::big-image",
-    "audio", "media::audio",
-    "video", "media::video")
+  c(
+    "label",
+    "hint",
+    "guidance_hint",
+    "constraint_message",
+    "required_message",
+    "image",
+    "media::image",
+    "big-image",
+    "media::big-image",
+    "audio",
+    "media::audio",
+    "video",
+    "media::video"
+  )
 }
 
 #' @importFrom dplyr bind_rows
 #' @importFrom rlang set_names
 #' @noRd
 empty_tibble_ <- function(cnames) {
-  tibble(!!!cnames,
-         .rows = 0,
-         .name_repair = ~ cnames)
+  tibble(!!!cnames, .rows = 0, .name_repair = ~cnames)
 }
 
 #' @importFrom purrr map map_chr accumulate
@@ -885,15 +1028,25 @@ kobo_form_name_to_list_ <- function(x, sep) {
   x <- x |>
     rowid_to_column() |>
     filter(grepl("repeat", .data$type)) |>
-    mutate(scope = accumulate(.data$name, ~ if(!is.na(.y))
-      c(.x, .y) else head(.x, -1))) |>
+    mutate(
+      scope = accumulate(
+        .data$name,
+        ~ if (!is.na(.y)) {
+          c(.x, .y)
+        } else {
+          head(.x, -1)
+        }
+      )
+    ) |>
     select("rowid", "scope") |>
     right_join(rowid_to_column(x), by = "rowid") |>
     arrange(.data$rowid) |>
     select(-"rowid") |>
     fill("scope") |>
-    mutate(scope = map_chr(.data$scope, paste, collapse = "/"),
-           scope = if_else(.data$scope == "", "main", .data$scope)) |>
+    mutate(
+      scope = map_chr(.data$scope, paste, collapse = "/"),
+      scope = if_else(.data$scope == "", "main", .data$scope)
+    ) |>
     filter(!grepl("repeat", .data$type))
 
   x |>
@@ -906,8 +1059,7 @@ kobo_form_name_to_list_ <- function(x, sep) {
 #' @importFrom labelled var_label
 lookup_varlabel_ <- function(x) {
   v <- var_label(x)
-  setNames(names(v),
-           make.unique(unlist(v), sep = "_"))
+  setNames(names(v), make.unique(unlist(v), sep = "_"))
 }
 
 #' @importFrom dplyr rename
@@ -922,9 +1074,7 @@ set_names_from_varlabel_ <- function(x) {
 set_names_from_varlabel_dm_ <- function(x) {
   tbl_nm <- names(x)
   for (nm in tbl_nm) {
-    x <- dm_rename(x,
-                   {{nm}},
-                   lookup_varlabel_(x[[nm]]))
+    x <- dm_rename(x, {{ nm }}, lookup_varlabel_(x[[nm]]))
   }
   x
 }
@@ -935,31 +1085,45 @@ set_names_from_varlabel_dm_ <- function(x) {
 kobo_form_extra_ <- function(form, sep) {
   media_type <- c("image", "video", "audio", "file")
   if ("choices" %in% names(form)) {
-    res <- mutate(form, "value_name" =
-                          case_when(type %in% "geopoint" ~ list(c("",
-                                                                  "_latitude",
-                                                                  "_longitude",
-                                                                  "_altitude",
-                                                                  "_precision",
-                                                                  "_wkt")),
-                                    type %in% "geotrace" ~ list(c("", "_wkt")),
-                                    type %in% "geoshape" ~ list(c("", "_wkt")),
-                                    stri_detect_regex(type, "select_multiple") ~ lapply(.data$choices,
-                                                                         \(ch) c("", paste0(sep, unique(ch$value_name)))),
-                                    .default = list(""))) |>
+    res <- mutate(
+      form,
+      "value_name" = case_when(
+        type %in% "geopoint" ~ list(c(
+          "",
+          "_latitude",
+          "_longitude",
+          "_altitude",
+          "_precision",
+          "_wkt"
+        )),
+        type %in% "geotrace" ~ list(c("", "_wkt")),
+        type %in% "geoshape" ~ list(c("", "_wkt")),
+        stri_detect_regex(type, "select_multiple") ~ lapply(
+          .data$choices,
+          \(ch) c("", paste0(sep, unique(ch$value_name)))
+        ),
+        .default = list("")
+      )
+    ) |>
       unnest("value_name") |>
       mutate(cnames = paste0(.data$name, .data$value_name))
   } else {
-    res <- mutate(form, "value_name" =
-                          case_when(type %in% "geopoint" ~ list(c("",
-                                                                  "_latitude",
-                                                                  "_longitude",
-                                                                  "_altitude",
-                                                                  "_precision",
-                                                                  "_wkt")),
-                                    type %in% "geotrace" ~ list(c("", "_wkt")),
-                                    type %in% "geoshape" ~ list(c("", "_wkt")),
-                                    .default = list(""))) |>
+    res <- mutate(
+      form,
+      "value_name" = case_when(
+        type %in% "geopoint" ~ list(c(
+          "",
+          "_latitude",
+          "_longitude",
+          "_altitude",
+          "_precision",
+          "_wkt"
+        )),
+        type %in% "geotrace" ~ list(c("", "_wkt")),
+        type %in% "geoshape" ~ list(c("", "_wkt")),
+        .default = list("")
+      )
+    ) |>
       unnest("value_name") |>
       mutate(cnames = paste0(.data$name, .data$value_name))
   }
@@ -988,15 +1152,26 @@ kobo_type_cols_ <- function(x, form) {
   time_q <- "time"
   datetime_q <- c("start", "end", "datetime", "dateTime")
   date_q <- c("today", "date")
-  char_q <- c("device_id", "phonenumber", "username", "email",
-              "audit", "select_one", "select_multiple",
-              "select_one_from_file", "select_multiple_from_file",
-              "rank", "text")
-  form$cols <- case_when(form$type %in% datetime_q ~ "T",
-                         form$type %in% date_q ~ "D",
-                         form$type %in% time_q ~ "c",
-                         form$type %in% char_q ~ "c",
-                         .default = "?")
+  char_q <- c(
+    "device_id",
+    "phonenumber",
+    "username",
+    "email",
+    "audit",
+    "select_one",
+    "select_multiple",
+    "select_one_from_file",
+    "select_multiple_from_file",
+    "rank",
+    "text"
+  )
+  form$cols <- case_when(
+    form$type %in% datetime_q ~ "T",
+    form$type %in% date_q ~ "D",
+    form$type %in% time_q ~ "c",
+    form$type %in% char_q ~ "c",
+    .default = "?"
+  )
   v <- form$cols[match(names(x), form$name)]
   paste(coalesce(v, "?"), collapse = "")
 }
@@ -1005,19 +1180,23 @@ kobo_type_cols_ <- function(x, form) {
 kobo_form_version_ <- function(x, asset, all_versions) {
   uid <- asset$uid
   default_version <- asset$deployed_version_id
+
+  # Always call API - version lists can change, and server requires this call
   form_versions <- kobo_asset_version_list(uid)
+
   form_versions <- filter(form_versions, .data$deployed)
   cond3 <- nrow(form_versions) > 0
   form_versions <- unique(form_versions$uid)
   cond1 <- sum(grepl("\\_version\\_", names(x))) == 1
   subs_versions <- unique(x[["__version__"]])
   cond2 <- length(subs_versions) > 1
-  versions <- intersect(unique(form_versions),
-                        unique(subs_versions))
-  if (length(versions) == 0)
+  versions <- intersect(unique(form_versions), unique(subs_versions))
+  if (length(versions) == 0) {
     versions <- default_version
+  }
   cond <- cond1 & cond2 & cond3 & all_versions
   if (cond) {
+    # kobo_form() uses cache internally - avoids redundant API calls
     form <- lapply(versions, \(v) kobo_form(uid, v))
     form <- dt2tibble(rbindlist(form, fill = TRUE))
   } else {
@@ -1029,10 +1208,12 @@ kobo_form_version_ <- function(x, asset, all_versions) {
 
 #' @noRd
 external_file_lookup_ <- function(x) {
-  x <- scan(text = gsub("value\\=", "name\\=", x),
-            what = character(),
-            sep = ",",
-            quiet = TRUE)
+  x <- scan(
+    text = gsub("value\\=", "name\\=", x),
+    what = character(),
+    sep = ",",
+    quiet = TRUE
+  )
   x <- strsplit(x, "=")
   p1 <- vapply(x, \(val) val[2], "")
   p2 <- vapply(x, \(val) val[1], "")
@@ -1051,39 +1232,45 @@ parse_external_csv_ <- function(x, lookup, lang) {
     select(-starts_with("label::")[-1]) |>
     rename_with(~ gsub("::.+", "", .x)) |>
     rename(any_of(lookup)) |>
-    mutate(value_name = as.character(.data$name),
-           value_label = as.character(.data$label),
-           value_lang = as.character(lang),
-           .keep = "none")
+    mutate(
+      value_name = as.character(.data$name),
+      value_label = as.character(.data$label),
+      value_lang = as.character(lang),
+      .keep = "none"
+    )
 }
 
 #' @importFrom purrr list_rbind
 #' @noRd
-external_files_choice_ <- function(urls, lookup = NULL, lang = "Labels", n_retry = 3L) {
-  headers <- list(Authorization = paste("Token",
-                                        Sys.getenv("KOBOTOOLBOX_TOKEN")))
+external_files_choice_ <- function(
+  urls,
+  lookup = NULL,
+  lang = "Labels",
+  n_retry = 3L
+) {
+  headers <- list(
+    Authorization = paste("Token", Sys.getenv("KOBOTOOLBOX_TOKEN"))
+  )
   reqs <- lapply(urls, function(url) {
-    req <- HttpRequest$new(url,
-                           headers = headers)
-    req$retry("get",
-              times = n_retry,
-              retry_only_on = c(500, 503),
-              terminate_on = 404)
+    req <- HttpRequest$new(url, headers = headers)
+    req$retry(
+      "get",
+      times = n_retry,
+      retry_only_on = c(500, 503),
+      terminate_on = 404
+    )
   })
-  res <- AsyncQueue$new(.list = reqs,
-                        bucket_size = Inf,
-                        sleep = 0.01)
+  res <- AsyncQueue$new(.list = reqs, bucket_size = Inf, sleep = 0.01)
   res$request()
   cond <- res$status_code() >= 300L
   if (any(cond)) {
     msg <- res$content()[cond]
-    abort(error_msg(msg[[1]]),
-          call = NULL)
+    abort(error_msg(msg[[1]]), call = NULL)
   }
 
   res <- res$content()
-  res <- lapply(res,
-                \(f) parse_external_csv_(fread(text = rawToChar(f)),
-                                         lookup, lang))
+  res <- lapply(res, \(f) {
+    parse_external_csv_(fread(text = rawToChar(f)), lookup, lang)
+  })
   res
 }
