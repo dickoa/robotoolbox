@@ -27,7 +27,12 @@ reference:
       - kobo_setup
       - kobo_settings
       - kobo_token
+
+  - title: Languages
+    contents:
       - kobo_lang
+      - kobo_lang_get
+      - kobo_lang_set
 
   - title: KoboToolbox asset
     contents:
@@ -47,3 +52,9 @@ reference:
       - kobo_submissions
       - kobo_audit
       - kobo_attachment_download
+
+  - title: Cache management
+    contents:
+      - kobo_cache
+      - kobo_cache_clear
+      - kobo_cache_info
