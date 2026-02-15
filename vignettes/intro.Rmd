@@ -24,11 +24,11 @@ knitr::opts_chunk$set(
 
 # Configure robotoolbox
 
-In order to use `robotoolbox`, you need to configure and specify your **API token** and your `KoboToolbox` **server URL**. An API token is a unique identifier that acts like a combination of username and password. It allows the user to authenticate to `KoboToolbox` API to access your data. The simplest way to configure `robotoolbox` is to store your API token and server URL in your `.Renviron` file.
+In order to use `robotoolbox`, you need to configure and specify your **API token** and your `KoboToolbox` **server URL**. An API token is a unique identifier that acts like a combination of username and password. It allows you to authenticate to the `KoboToolbox` API to access your data. The simplest way to configure `robotoolbox` is to store your API token and server URL in your `.Renviron` file.
 
 We use the environment variables `KOBOTOOLBOX_URL` and `KOBOTOOLBOX_TOKEN` for the URL and the token, respectively. You can use the `usethis` package and the `usethis::edit_r_environ()` function to add these environment variables to your `.Renviron` file.
 
-The following examples will utilize UNHCR `KoboToolbox` server url (https://kobo.unhcr.org/). You can replace this URL by the one you use, it can be https://kf.kobotoolbox.org/, https://kobo.humanitarianresponse.info/ or any other `KoboToolbox` server URL you typically use.
+The following examples will utilize UNHCR `KoboToolbox` server URL (https://kobo.unhcr.org/). You can replace this URL by the one you use, it can be https://kf.kobotoolbox.org/, https://kobo.humanitarianresponse.info/ or any other `KoboToolbox` server URL you typically use.
 
 ```{bash, eval = FALSE, engine = "sh"}
 KOBOTOOLBOX_URL="https://kobo.unhcr.org/"
@@ -167,7 +167,7 @@ asset_ml
 asset
 ```
 
-Then, we can use the `asset_ml` object, which uniquely identifies the `Multiple languages` asset, to read its data
+Then, we can use the `asset_ml` object, which uniquely identifies the `Multiple languages` asset, to read its data.
 
 ```{r, echo = FALSE}
 data_ml <- robotoolbox::data_ml_default
@@ -191,7 +191,7 @@ data_ml |>
 
 # KoboToolbox form
 
-`robotoolbox` allows you to display and manipulate `KoboToolbox` survey forms. You can pull the form from a particular survey using the `kobo_form` function
+`robotoolbox` allows you to display and manipulate `KoboToolbox` survey forms. You can pull the form from a particular survey using the `kobo_form` function.
 
 ```{r}
 asset_ml |>

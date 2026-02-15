@@ -17,7 +17,9 @@ kobo_data(
   select_multiple_sep,
   progress,
   paginate,
-  page_size
+  page_size,
+  query,
+  fields
 )
 
 kobo_submissions(
@@ -29,7 +31,9 @@ kobo_submissions(
   select_multiple_sep,
   progress,
   paginate,
-  page_size
+  page_size,
+  query,
+  fields
 )
 
 \method{kobo_submissions}{kobo_asset}(
@@ -41,7 +45,9 @@ kobo_submissions(
   select_multiple_sep = "_",
   progress = FALSE,
   paginate = NULL,
-  page_size = NULL
+  page_size = NULL,
+  query = NULL,
+  fields = NULL
 )
 
 \method{kobo_submissions}{character}(
@@ -53,7 +59,9 @@ kobo_submissions(
   select_multiple_sep = "_",
   progress = FALSE,
   paginate = NULL,
-  page_size = NULL
+  page_size = NULL,
+  query = NULL,
+  fields = NULL
 )
 
 \method{kobo_submissions}{default}(
@@ -65,7 +73,9 @@ kobo_submissions(
   select_multiple_sep = "_",
   progress = FALSE,
   paginate = NULL,
-  page_size = NULL
+  page_size = NULL,
+  query = NULL,
+  fields = NULL
 )
 }
 \arguments{
@@ -89,6 +99,14 @@ Default to \code{FALSE}.}
 \item{paginate}{logical, split submissions by page_size. Default to \code{NULL}.}
 
 \item{page_size}{integer, number of submissions per page.}
+
+\item{query}{character, a MongoDB-style query string to filter submissions
+server-side. For example, \code{'{"field_name": "value"}'} to return only
+submissions where \code{field_name} equals \code{"value"}. Default to \code{NULL} (no filtering).}
+
+\item{fields}{character vector of field names to return. When provided, only
+these fields (plus \verb{__version__}) are fetched from the server. The server always
+includes \verb{_id} and \verb{_uuid}. Default to \code{NULL} (all fields).}
 }
 \value{
 A \code{data.frame} or A \code{dm} object if you have a repeating
@@ -112,6 +130,12 @@ kobo_setup(url = "https://kf.kobotoolbox.org/",
 uid <- "a9cwEQcbWqWzA5hzkjRUWi"
 asset <- kobo_asset(uid)
 subs <- kobo_data(asset)
+
+# Filter submissions server-side with a MongoDB query
+filtered <- kobo_data(asset, query = '{"pet_yesno": "1"}')
+
+# Select specific fields
+partial <- kobo_data(asset, fields = c("full_name", "pet_yesno"))
 
 if (require(dplyr)) {
  library(dplyr)

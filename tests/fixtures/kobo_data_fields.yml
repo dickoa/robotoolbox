@@ -1,0 +1,318 @@
+http_interactions:
+- request:
+    method: GET
+    uri: https://kobo.unhcr.org/api/v2/assets/aYuTZn9vegi3Z49MXwKjep
+  response:
+    status: 200
+    headers:
+      status: 'HTTP/2 200 '
+      date: Sun, 15 Feb 2026 14:27:00 GMT
+      content-type: application/json
+      server: nginx
+      vary: Accept, origin, Accept-Language, Cookie
+      allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      content-security-policy: 'script-src ''self'' https://kobocat.unhcr.org https://enketo.unhcr.org
+        https://sentry.kbtdev.org https://sentry.kbtdev.org; style-src ''self'' https://kobocat.unhcr.org
+        https://enketo.unhcr.org ''unsafe-inline''; frame-src ''self'' https://kobocat.unhcr.org
+        https://enketo.unhcr.org https://sentry.kbtdev.org https://sentry.kbtdev.org;
+        default-src ''self'' https://kobocat.unhcr.org https://enketo.unhcr.org https://sentry.kbtdev.org
+        https://sentry.kbtdev.org; img-src ''self'' https://kobocat.unhcr.org https://enketo.unhcr.org
+        data: https://*.openstreetmap.org https://*.openstreetmap.fr https://*.opentopomap.org
+        https://*.arcgisonline.com; connect-src ''self'' https://kobocat.unhcr.org
+        https://enketo.unhcr.org https://sentry.kbtdev.org https://sentry.kbtdev.org'
+      x-kobonaut: dickoa
+      x-frame-options: DENY
+      content-language: en
+      x-content-type-options: nosniff
+      referrer-policy: same-origin
+      cross-origin-opener-policy: same-origin
+      content-encoding: gzip
+    body:
+      raw_gzip: |-
+        eJzVWs1u2zoWfhVB6KIDOLF+/L+5SG6SW7RN2jRp0+aiEGiJshlLoi5FOVaCLAbT3hncl5jF
+        LApcYFa
+        zmjdJ3mYOKcmiHadxHTfFrGySh985/HhIHvLoUk9ZoPf0Iedx0qvXR7RPN9No6LJN
+        ygZ1FJP62KqjJM
+        E8qaMP6fFp1B3jAbFPG9399+cvznBc12s6PY8wuxcmTTBL6h5xRxRNezmO
+        qI5QiKF/3gZNMWI44novS
+        oOgpoN2TqJBovcu4b/LKYN/VzXdpWnEWab3fv1Y0z2cuIzEnNAI
+        kAQ8G6CIXKCqppB3XArCohdgyLE5
+        PIuF/iRlY5yBpE+CXAKUp2GIhJJLfYCp3vNRkOCaHqA+
+        DoSIfjJEXCOJltGUaWIgPwHADhVlbYjGWEN
+        RpsWY/6R/FCYEaRjJfnLMNV2qLvDgN8EBjNDx
+        GQ2dgCTckWLQM6DuyEFBUFkgK6JMMSkapGggDdd3ow
+        F0H2pPcfQXgN1jKHIRWPnUZ6K8xVCf
+        uNpTBCUAZ/TckezoPUtQ6aM0AFagUxKUBM4gXoEU4thxGYYfD
+        5otw7I2DHPDaB+bRs9u98zO
+        ZtMyrU7rVC+EQ+oRn5TSjQ3D3jC6x0a312j1LHvTslpNsz2V9nAc0Gwx
+        tmVtthuNRrsrpMfg
+        VmCiQ4To+KTl778+PnnxPNz2vaM3++0zr/FOkYJxRhycyxmiZAgdWq7dRobZbJq
+        e4Xdbfrtr
+        2X230zWbyPbMhmt1bbdltlwFomDKrumAUdgZSn/lLMWCv9xyZznL5sWlnxc6zJoe4cl0Jc
+        QM
+        jwlNk7LMcAITJSb8Uk+/ruXhC700r75YR12usFW5/bYpX+BOd0pfiWVeTZIDyyoaSY5nKcHR
+        CHOV
+        FO+V/24bJydiVcL2E2Dnng651IJ+NHKX7ewbfdNyO57daaGu1Wl3fa/TwS3f9Ey7a9qW
+        2Nh8H4ZwL+B
+        ENUQ6Dj6/r08hpvYkPoMd6L6OZMGol+tZjJvcRds3otzL35wzIJeTMZ5duXkL
+        +BhyPDikAoq8ymkmQe
+        IEeIDcbG45uYirzpMfc3gSU3b3kgIwuWyS8fowAUxgXpB4fZgAJjBH
+        YbA+TAATmEDBMmAMfxUs17UJY
+        JOcz/VhCrA5p0nSfkgS9Sxozm0xCE5uRYoTGd/MblMNo2da
+        m1a7A7Wn+iwAjlyWxfJkLU53tTXN9/qm
+        3em4rY7hmV2z0elYHYwaTXBy5Hcsw7eNWcyEIy5O
+        jul5A805A9CUyXjnsjz68/gqibFb7LCXOo68opY
+        jVghw6qEs/+vDeZTHKrII8Y6T4SSiogjl
+        EVgsm5Mplr5n7TLsunigT0H1n7OYWK+Mg0N9iq63TqKDw7
+        dRsKfPqNHj0e7I6F+8b+sz+nRk
+        Tt6nnsF+0YXmYohumnAa5sYhbwzREBy4PgZKmLRJrVYmLnGHOETC5
+        iJEpP0ziM9A45PZgDOi
+        WtlfK2E1ubmI+EjzKdP4EOIv+BPqQlmEgiwhiSMqnLNEgAhiBrCzT+3xiEBH
+        gQOTEHhlyBqi
+        uJqxoqwOrziEZbRcmK+bguM8uhWxQsFgznqtHFtZfDLK/UudjCco5XSm21VtiiPmc4q
+        SF0oM
+        dZJVDCGlIORzPcUoiyWK6gIqSi6n4FT+UWGJ+KmCUr0mD7rviuEPUxxoOOHamHKGtYiGmqi+
+        +
+        Xz9Rbv+cv2fm883f9Ou/yniZ9WmygTFrso/K7bzSJ9GWLGu8l3FuoWXiZq+NcYXG2OIBrU0
+        gnoSokDz
+        sObSMEaDiODc2r/ffNKu/wSj/7z5JOz9980fN/+4/nLzuxjFv6Duj5u/ir+3xqGa
+        vPhW0tPz9itxsRl
+        S4uJE9S5TGRdrexO7b4Un6rg+gHxNf5USYefv1/+9+SwvOrfwC7vGKEhz
+        XIVYQ/W1Z9v9raNn+LWq5E
+        D0P4DlBTo+XX9ZSoMhh6RcO8VeV1yGxG74awH/sarO4/Zvu3eJ
+        U6WIL3LixF6AxDYoDsU1hOybAkeQV
+        QGHwXqAAUdwhMM+/k7G58HRrPVy91wLtkCqyyHIvzK+
+        Ww8m3AopHSXrQJRAApGjAWz5DLwxf8koNouF
+        vUScRiLZLsDzEGsd1hTBarFw9iFMIHGAterZ
+        Qb6mkEGE+hC8x5gVh2hxPV1izpQ+dXldkQbVq+Wsv4P
+        a8gz9dkx3CLbi26i7cNCujhrCWb4I
+        dV/WazGjMmRYBRpCACUaSVT0Lc/TlKaV4CXHd+BLph+qAN7xOI
+        H4ZbEOJdzUt1yu0UhVCMUg
+        08SRoxWBqKvJJ0TxEjNn+AJ7v9a98INZAOkESwJ4cB7yeYAdWbn0EFBA5
+        DPG3DCK6uVgrh6w
+        Cu6Y93kaVpr32/yoKm4TtZr3LmBwxoMXUCl3/FW2pq9vjRXiRr4FihsXuP/e/s+j
+        neOdw/Ot
+        8+4b+ywl9u5v+8JGMX1LPphvRTTKQgjz3kJR9K2U/ei9ZDVSoiN20rF9eF7Z2t0LOe/v9dn
+        R
+        N5JSZRH+39k4del7b/vZSzLaP32z+6ZBjt/uXjw2G+s7GFckYYdmmbs9+oU3BwfPTtwus7vJ
+        DyJh3
+        fviaoxMhm/fXaTsZIv1rXdo1+VhGLYfm5Hvto2vxskWt/e9UWe/8dy2Xh/4/nPkN+PH
+        5mTN0d5qTHS7
+        H1o8beOTs2zQfPa+H44nhD82E6udv9+VlxZ/fTiJ3k62ub17McRHR/HzD+6j
+        87Kmm8tqFLTP0p0je4e
+        47Ze/cZ83xzY9ePlDKFj6YiHeEXwfy0zMrXujSNYXV0516UkWlbaK
+        9PkW9Wy71WtREL64/1ckFtwGFl
+        l3P8JCG+cilZyuPLXyQBcqEzR6CehUT17ThDJOXuxl5KxJ
+        WX/QPRq+6DJ+9uLwZC2vMLnWjVJr/Q5d9
+        Tzji0QS0Lmd2/leWoVKmf1RtMsE0yOqLxJahSss
+        znzbG0Zzw7KPTbNnGz2juWnZLdNqnC6a1kv5lYgI
+        cpWHyOmTdP5yVyUbavqA0TSG/jG0imkI
+        i1cfJ38Rhto+5UORJo7cIPXANOwRSVWZUhWPTwI+Ae925Ft
+        8mdEaEswQc4eZQyJH7g7JtC23
+        IX9wRvCeXn0aIVCvxBoQ/DxwKgSEGJU7JIHHcKR8eGGITFfaFymePu
+        h2ymqZqsrzaMkQMZlF
+        Q5DfSIpRll9mSI8REvLNTqbEEAFxZw1m50gbpfVFyOHI76mSIYlLG/IPrMp9d
+        /pxlUxOli7k
+        9LNc/Op/k49RTg==
+  recorded_at: 2026-02-15 14:27:00
+- request:
+    method: GET
+    uri: https://kobo.unhcr.org/api/v2/assets/aYuTZn9vegi3Z49MXwKjep/data.json?fields=%5B%22full_name%22%2C%22pet_yesno%22%2C%22__version__%22%5D
+  response:
+    status: 200
+    headers:
+      status: 'HTTP/2 200 '
+      date: Sun, 15 Feb 2026 14:27:01 GMT
+      content-type: application/json
+      server: nginx
+      vary: Accept, origin, Accept-Language, Cookie
+      allow: GET, HEAD, OPTIONS
+      content-security-policy: 'connect-src ''self'' https://kobocat.unhcr.org https://enketo.unhcr.org
+        https://sentry.kbtdev.org https://sentry.kbtdev.org; frame-src ''self'' https://kobocat.unhcr.org
+        https://enketo.unhcr.org https://sentry.kbtdev.org https://sentry.kbtdev.org;
+        script-src ''self'' https://kobocat.unhcr.org https://enketo.unhcr.org https://sentry.kbtdev.org
+        https://sentry.kbtdev.org; default-src ''self'' https://kobocat.unhcr.org
+        https://enketo.unhcr.org https://sentry.kbtdev.org https://sentry.kbtdev.org;
+        style-src ''self'' https://kobocat.unhcr.org https://enketo.unhcr.org ''unsafe-inline'';
+        img-src ''self'' https://kobocat.unhcr.org https://enketo.unhcr.org data:
+        https://*.openstreetmap.org https://*.openstreetmap.fr https://*.opentopomap.org
+        https://*.arcgisonline.com'
+      x-kobonaut: dickoa
+      x-frame-options: DENY
+      content-language: en
+      x-content-type-options: nosniff
+      referrer-policy: same-origin
+      cross-origin-opener-policy: same-origin
+      set-cookie: django_language=en; expires=Sun, 22 Feb 2026 14:27:01 GMT; Max-Age=604800;
+        Path=/
+      content-encoding: gzip
+    body:
+      raw_gzip: |-
+        eJyl0r2K3DAQwPF3mdpDJEuyLHdJkeLCwpGvK0Iw+hhxDl77sOUlYdkyBPIeIWnzNrtvE0y4
+        wgcGH1s
+        K9Bf6MXME309dgkpl0NHXBFU3tW0GDwMdmn4aH88DjVObRqg+HaFuAlRcayGNkRnE
+        qW3rzu4JKnh5v7
+        cBMnigVH+jseuhAgYZ1PWBhrHpu7qGCg53Rdzdvr97c7N/FcO7tzv9JciP
+        87Vpmt8G501pclGiF2RR8
+        pCjjUqitiLPvVEusgIy2FOyL4a+Tx/+Z3NdbWzrg22bYNP8pzHZ
+        NFOPp1O25Kklb9f4e2pbeiLkzxcW
+        jhmmlUFeeokyOI+GvEStGLeF4z7mbE24sd0gVIyxpfD8
+        6/zn/Pf8+/Lj8vPy/XqnLEJQIkRkPjCUxik
+        sS6uRpFO5VgXp0q45N7bbnPnSeUO2w9uGhoGu
+        X9coAotSeGTSEEpHJTprJFqjrSbOueKr67qx3YYUS+
+        Rrm5r99TNkghkRSCKJ3KPkTmIZywJd
+        MGVkPgZJao23sV3hfT79AzlXcNk=
+  recorded_at: 2026-02-15 14:27:01
+- request:
+    method: GET
+    uri: https://kobo.unhcr.org/api/v2/assets/aYuTZn9vegi3Z49MXwKjep/versions/
+  response:
+    status: 200
+    headers:
+      status: 'HTTP/2 200 '
+      date: Sun, 15 Feb 2026 14:27:01 GMT
+      content-type: application/json
+      content-length: '855'
+      server: nginx
+      vary: Accept, origin, Accept-Language, Cookie
+      allow: GET, POST, HEAD, OPTIONS
+      content-security-policy: 'script-src ''self'' https://kobocat.unhcr.org https://enketo.unhcr.org
+        https://sentry.kbtdev.org https://sentry.kbtdev.org; style-src ''self'' https://kobocat.unhcr.org
+        https://enketo.unhcr.org ''unsafe-inline''; frame-src ''self'' https://kobocat.unhcr.org
+        https://enketo.unhcr.org https://sentry.kbtdev.org https://sentry.kbtdev.org;
+        default-src ''self'' https://kobocat.unhcr.org https://enketo.unhcr.org https://sentry.kbtdev.org
+        https://sentry.kbtdev.org; img-src ''self'' https://kobocat.unhcr.org https://enketo.unhcr.org
+        data: https://*.openstreetmap.org https://*.openstreetmap.fr https://*.opentopomap.org
+        https://*.arcgisonline.com; connect-src ''self'' https://kobocat.unhcr.org
+        https://enketo.unhcr.org https://sentry.kbtdev.org https://sentry.kbtdev.org'
+      x-kobonaut: dickoa
+      x-frame-options: DENY
+      content-language: en
+      x-content-type-options: nosniff
+      referrer-policy: same-origin
+      cross-origin-opener-policy: same-origin
+      set-cookie: django_language=en; expires=Sun, 22 Feb 2026 14:27:01 GMT; Max-Age=604800;
+        Path=/
+      accept-ranges: bytes
+    body:
+      raw_gzip: |-
+        eJyt0F1r2zAYBeD/8l67sb5sybpcxxjzMrIla7uMUWRLSpw4kmdJXpuS/z426GAQ2KC5PHDg
+        cJ4naH1
+        yESTNwJmHCNKlvs9gGM3U+RSe82hC6mMA+fUJUqdBwnRb2vlidVu/O7yyevlpznea
+        3UAGaexBwjbGIc
+        g83/vGz5LbtuPMj5tcDV0+kVyFYGLI1Ze0WrtqMpuOrlk1v/tR78yQT2YM
+        nXchP7+RQwatd9G4eL9VY
+        QsSypZyhXBRYI1sVVpeEdq0osKFohqzllS0LXHZQgZaRXOvzdD7
+        R/PrB0GEXCF8hfgKI0m5JGTGGWO8
+        Wj+3D153tvtn+5T9sXl7vfos9t1isyRp/2FnYv394fHC
+        Nmc3LmpjVR/MfxhgMRMcYVT8ZXB05uObul5
+        urg/25vVid3x/dwwXNji7ccaAccK0bhBHlBVF
+        pbltfr8XRAhtm1JQRTQS5EUGBeWsJGs4fTv9BLxVDZ
+        U=
+  recorded_at: 2026-02-15 14:27:01
+- request:
+    method: GET
+    uri: https://kobo.unhcr.org/api/v2/assets/aYuTZn9vegi3Z49MXwKjep/data.json
+  response:
+    status: 200
+    headers:
+      status: 'HTTP/2 200 '
+      date: Sun, 15 Feb 2026 14:27:01 GMT
+      content-type: application/json
+      server: nginx
+      vary: Accept, origin, Accept-Language, Cookie
+      allow: GET, HEAD, OPTIONS
+      content-security-policy: 'connect-src ''self'' https://kobocat.unhcr.org https://enketo.unhcr.org
+        https://sentry.kbtdev.org https://sentry.kbtdev.org; frame-src ''self'' https://kobocat.unhcr.org
+        https://enketo.unhcr.org https://sentry.kbtdev.org https://sentry.kbtdev.org;
+        script-src ''self'' https://kobocat.unhcr.org https://enketo.unhcr.org https://sentry.kbtdev.org
+        https://sentry.kbtdev.org; default-src ''self'' https://kobocat.unhcr.org
+        https://enketo.unhcr.org https://sentry.kbtdev.org https://sentry.kbtdev.org;
+        style-src ''self'' https://kobocat.unhcr.org https://enketo.unhcr.org ''unsafe-inline'';
+        img-src ''self'' https://kobocat.unhcr.org https://enketo.unhcr.org data:
+        https://*.openstreetmap.org https://*.openstreetmap.fr https://*.opentopomap.org
+        https://*.arcgisonline.com'
+      x-kobonaut: dickoa
+      x-frame-options: DENY
+      content-language: en
+      x-content-type-options: nosniff
+      referrer-policy: same-origin
+      cross-origin-opener-policy: same-origin
+      set-cookie: django_language=en; expires=Sun, 22 Feb 2026 14:27:01 GMT; Max-Age=604800;
+        Path=/
+      content-encoding: gzip
+    body:
+      raw_gzip: |-
+        eJy91d1q1UAQAOB3mevscX+zP3eKCCoF0fqPhM3upI3kJCXZHC2llyL4HqK3vk37NpLoEVpB
+        Yz3tTUi
+        W2dmd2Y/sCYRubBM4lUGL7xO4dmyaDI563NTdOGy/exzGJg3gXp9AUUdwTGshrZUZ
+        VF2/PhzLW+M4jY
+        MSxoTc0Mgsk8Zwg14qy4SvDKeVoJDBkHyfwAGnnBPKCNX7jDqhnbArlStC
+        qaNTHLbx9yjjOF3luf4Vl
+        brojy/EQQbV2DRF69cIDm4frn2EDI4wFcc4tB04mCYWxQb7oe7a
+        ogAHm+d5tfdo//nDB+s7VXzyeE+/
+        jfIZZLDG5G/V7ZB8G/D+XXAwVerKYI3lwpAg0BPJIie+
+        UpJoLzgPVpUVzadF3k/9KepYDKmv2wNw4F+
+        O+69au8GDWrySdu/Fu4dv8WiK/dnCpal9Sj4c
+        rrGdD+ZNBsWQfJoODYaxXNcpYSw2tS/eYTnFH2DXdM
+        GnumvBvZ4PdnrME6f4YW5Gqueu/db2
+        +eiK5A+2i7Vdwu37xjd1nDP/2sPJ6TbvvI/yeGtpbmjfdenpj
+        3KXt/M0u6hP7VDf7EpPQ3/R
+        Z1dG8eX69upwiE2DlwCy/waYl9RSrSxhJkgiYxmIxSCJVpT5vGSh4vSK
+        AJemvmGA7DoBLqr5
+        AkBFKd0tQLsyufkzQOuEXlFulwM8+3z29ezb2Zfzj+efzj/snKHMY1QiVoSGSIm
+        0pSLGeE1Q
+        loprlaM2/ooMl6a+SYbWSX2dDBfVfJkh3yHDH8Ck/RtDqVeci+UMH6BvyaMa+x53fhdXIt
+        JK
+        ikCotEhkiYaU3krirfYaGWOKXfUuXpr6Zg2qazW4qObLBsVODU66JP2jQUkd5SvG/+EuvudT
+        vd75
+        H5AKakVESVDwQCQrJTGVyUkZraloqKJEdUV9S1PfoD5JHePXqW9RzadvTr8DShnYAA==
+  recorded_at: 2026-02-15 14:27:01
+- request:
+    method: GET
+    uri: https://kobo.unhcr.org/api/v2/assets/aYuTZn9vegi3Z49MXwKjep/versions/
+  response:
+    status: 200
+    headers:
+      status: 'HTTP/2 200 '
+      date: Sun, 15 Feb 2026 14:27:01 GMT
+      content-type: application/json
+      content-length: '855'
+      server: nginx
+      vary: Accept, origin, Accept-Language, Cookie
+      allow: GET, POST, HEAD, OPTIONS
+      content-security-policy: 'script-src ''self'' https://kobocat.unhcr.org https://enketo.unhcr.org
+        https://sentry.kbtdev.org https://sentry.kbtdev.org; style-src ''self'' https://kobocat.unhcr.org
+        https://enketo.unhcr.org ''unsafe-inline''; frame-src ''self'' https://kobocat.unhcr.org
+        https://enketo.unhcr.org https://sentry.kbtdev.org https://sentry.kbtdev.org;
+        default-src ''self'' https://kobocat.unhcr.org https://enketo.unhcr.org https://sentry.kbtdev.org
+        https://sentry.kbtdev.org; img-src ''self'' https://kobocat.unhcr.org https://enketo.unhcr.org
+        data: https://*.openstreetmap.org https://*.openstreetmap.fr https://*.opentopomap.org
+        https://*.arcgisonline.com; connect-src ''self'' https://kobocat.unhcr.org
+        https://enketo.unhcr.org https://sentry.kbtdev.org https://sentry.kbtdev.org'
+      x-kobonaut: dickoa
+      x-frame-options: DENY
+      content-language: en
+      x-content-type-options: nosniff
+      referrer-policy: same-origin
+      cross-origin-opener-policy: same-origin
+      set-cookie: django_language=en; expires=Sun, 22 Feb 2026 14:27:01 GMT; Max-Age=604800;
+        Path=/
+      accept-ranges: bytes
+    body:
+      raw_gzip: |-
+        eJyt0F1r2zAYBeD/8l67sb5sybpcxxjzMrIla7uMUWRLSpw4kmdJXpuS/z426GAQ2KC5PHDg
+        cJ4naH1
+        yESTNwJmHCNKlvs9gGM3U+RSe82hC6mMA+fUJUqdBwnRb2vlidVu/O7yyevlpznea
+        3UAGaexBwjbGIc
+        g83/vGz5LbtuPMj5tcDV0+kVyFYGLI1Ze0WrtqMpuOrlk1v/tR78yQT2YM
+        nXchP7+RQwatd9G4eL9VY
+        QsSypZyhXBRYI1sVVpeEdq0osKFohqzllS0LXHZQgZaRXOvzdD7
+        R/PrB0GEXCF8hfgKI0m5JGTGGWO8
+        Wj+3D153tvtn+5T9sXl7vfos9t1isyRp/2FnYv394fHC
+        Nmc3LmpjVR/MfxhgMRMcYVT8ZXB05uObul5
+        urg/25vVid3x/dwwXNji7ccaAccK0bhBHlBVF
+        pbltfr8XRAhtm1JQRTQS5EUGBeWsJGs4fTv9BLxVDZ
+        U=
+  recorded_at: 2026-02-15 14:27:01
+recorded_with: VCR-vcr/2.1.0

@@ -8,11 +8,12 @@ test_that("kobo_asset_file_list works", {
 
   kobo_setup(url = url, token = token)
   uid <- "aUJbF9hPVWfo3o83S8Ageq"
-  fl <- kobo_asset_file_list(uid)
+  vcr::use_cassette("kobo_asset_file_list", {
+    fl <- kobo_asset_file_list(uid)
+    fl_asset <- kobo_asset_file_list(kobo_asset(uid))
+  })
   expect_equal(class(fl),
                c("tbl_df", "tbl", "data.frame"))
-
-  fl_asset <- kobo_asset_file_list(kobo_asset(uid))
   expect_equal(fl, fl_asset)
 
   cn <- c("uid", "url", "asset", "user", "user__username", "file_type",
@@ -20,6 +21,9 @@ test_that("kobo_asset_file_list works", {
           "mimetype")
   expect_equal(names(fl), cn)
 
-  uid_no_file <- "aDdgw9sZZeRUcW7aWryQB6"
-  expect_equal(nrow(kobo_asset_file_list(uid_no_file)), 0)
+  vcr::use_cassette("kobo_asset_file_list_empty", {
+    uid_no_file <- "aDdgw9sZZeRUcW7aWryQB6"
+    fl_empty <- kobo_asset_file_list(uid_no_file)
+  })
+  expect_equal(nrow(fl_empty), 0)
 })

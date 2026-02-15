@@ -13,7 +13,7 @@ kobo_audit_ <- function(uid, progress = FALSE) {
   })
   sleep <- 0.05
   res <- AsyncQueue$new(.list = reqs,
-                        bucket_size = Inf,
+                        bucket_size = 15L,
                         sleep = sleep)
   res$request()
   cond <- res$status_code() >= 300L

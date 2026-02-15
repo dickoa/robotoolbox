@@ -31,19 +31,19 @@
 #' @export
 kobo_token <- function(username = NULL, password = NULL,
                        url = NULL, overwrite = FALSE) {
-  if (!is.null(url) & !nzchar(Sys.getenv("KOBOTOOLBOX_URL"))) {
+  if (!is.null(url) && !nzchar(Sys.getenv("KOBOTOOLBOX_URL"))) {
     if (!assert_url(url))
     abort(message = "Invalid URL")
     Sys.setenv("KOBOTOOLBOX_URL" = url)
   }
 
-  if (is.null(url) & nzchar(Sys.getenv("KOBOTOOLBOX_URL")))
+  if (is.null(url) && nzchar(Sys.getenv("KOBOTOOLBOX_URL")))
     url <- Sys.getenv("KOBOTOOLBOX_URL")
 
-  if (nzchar(Sys.getenv("KOBOTOOLBOX_TOKEN")) & !overwrite) {
+  if (nzchar(Sys.getenv("KOBOTOOLBOX_TOKEN")) && !overwrite) {
     token <- Sys.getenv("KOBOTOOLBOX_TOKEN")
   } else {
-    url_path <- file.path(url, "token/?format=json")
+    url_path <- paste0(sub("/$", "", url), "/token/?format=json")
     cli <- HttpClient$new(url = url_path,
                           auth = auth(user = username,
                                       pwd = password))

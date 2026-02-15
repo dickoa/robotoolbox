@@ -106,14 +106,25 @@ kobo_form_api_ <- function(x, version = NULL) {
     x
   })
   survey <- rbindlist(drop_nulls(survey), fill = TRUE)
-  survey <- select(.data = survey,
-                   name = "$autoname",
-                   list_name = contains("select_from_list_name"),
-                   type = "type",
-                   label = "label",
-                   lang = "lang",
-                   everything(),
-                   -"name")
+  has_autoname <- "$autoname" %in% names(survey)
+  if (has_autoname) {
+    survey <- select(.data = survey,
+                     name = "$autoname",
+                     list_name = contains("select_from_list_name"),
+                     type = "type",
+                     label = "label",
+                     lang = "lang",
+                     everything(),
+                     -"name")
+  } else {
+    survey <- select(.data = survey,
+                     name = "name",
+                     list_name = contains("select_from_list_name"),
+                     type = "type",
+                     label = "label",
+                     lang = "lang",
+                     everything())
+  }
   cols_to_unnest <- is_list_cols_names(survey)
   survey <- setNames(unnest(survey,
                             cols = all_of(cols_to_unnest),
@@ -135,11 +146,20 @@ kobo_form_api_ <- function(x, version = NULL) {
     })
     choices <- drop_nulls(choices)
     choices <- rbindlist(choices, fill = TRUE)
-    choices <- select(.data = choices,
-                      list_name = "list_name",
-                      value_name = "$autovalue",
-                      value_label = "label",
-                      value_lang = "lang")
+    has_autovalue <- "$autovalue" %in% names(choices)
+    if (has_autovalue) {
+      choices <- select(.data = choices,
+                        list_name = "list_name",
+                        value_name = "$autovalue",
+                        value_label = "label",
+                        value_lang = "lang")
+    } else {
+      choices <- select(.data = choices,
+                        list_name = "list_name",
+                        value_name = "name",
+                        value_label = "label",
+                        value_lang = "lang")
+    }
     choices <- drop_na(choices, "value_label")
     choices$value_label <- stri_trans_general(choices$value_label,
                                               id = "latin-ascii")

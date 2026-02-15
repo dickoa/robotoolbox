@@ -2,7 +2,7 @@
 % Please edit documentation in R/kobo_data.R
 \name{kobo_attachment_download}
 \alias{kobo_attachment_download}
-\title{Download submitted files associatted to KoboToolbox API asset}
+\title{Download submitted files associated to KoboToolbox API asset}
 \usage{
 kobo_attachment_download(x, folder, progress, overwrite, n_retry)
 }
@@ -25,7 +25,7 @@ Default to 3L.}
 Silently returns a vector of files paths.
 }
 \description{
-Download submitted files associatted to a KoboToolbox API asset
+Download submitted files associated to a KoboToolbox API asset
 }
 \examples{
 \dontrun{

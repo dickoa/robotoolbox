@@ -1,4 +1,6 @@
 test_that("with kobo_audit you can read your audit log data", {
+  skip_on_cran()
+  skip_if(!has_live_api(), message = "Requires live API (async requests)")
   url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
   token <- Sys.getenv("KOBOTOOLBOX_PROD_TOKEN")
   skip <-  url == "" & token == ""
@@ -26,6 +28,7 @@ test_that("with kobo_audit you can read your audit log data", {
 
 test_that("kobo_audit has a progress parameter", {
   skip_on_cran()
+  skip_if(!has_live_api(), message = "Requires live API (async requests)")
   url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
   token <- Sys.getenv("KOBOTOOLBOX_PROD_TOKEN")
   skip <-  url == "" & token == ""

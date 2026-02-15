@@ -8,8 +8,10 @@ test_that("kobo_asset_version_list works", {
 
   kobo_setup(url = url, token = token)
   uid <- "aANhxwX9S6BCsiYMgQj9kV"
-  al1 <- kobo_asset_version_list(uid)
-  al2 <- kobo_asset_version_list(kobo_asset(uid))
+  vcr::use_cassette("kobo_asset_version_list", {
+    al1 <- kobo_asset_version_list(uid)
+    al2 <- kobo_asset_version_list(kobo_asset(uid))
+  })
 
   expect_equal(al1, al2)
   expect_error(kobo_asset_version_list(1L))

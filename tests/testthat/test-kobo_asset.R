@@ -7,9 +7,11 @@ test_that("kobo_asset works", {
           message = "Test server not configured")
   kobo_setup(url = url, token = token)
   uid <- "aANhxwX9S6BCsiYMgQj9kV"
-  asset1 <- kobo_asset(uid)
-  asset2 <- kobo_asset(asset1)
-  asset3 <- kobo_asset(asset2)
+  vcr::use_cassette("kobo_asset", {
+    asset1 <- kobo_asset(uid)
+    asset2 <- kobo_asset(asset1)
+    asset3 <- kobo_asset(asset2)
+  })
   expect_equal(asset1, asset2)
   expect_equal(asset1, asset3)
   expect_is(asset1, class = "kobo_asset")

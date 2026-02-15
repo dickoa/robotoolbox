@@ -155,7 +155,7 @@ Now that we understand how `robotoolbox` stores spatial question types, we can c
 The standard approach to manipulate spatial vector data in `R` involves using the `sf` package. `sf` stands for Simple Features and it extends a `data.frame` by adding a geometry list-column. It creates a spatially enabled `data.frame`.
 It provides an interface to the popular [GDAL](https://gdal.org/), [GEOS](https://libgeos.org/), [PRØJ](https://proj.org/) and [S2](http://s2geometry.io/) libraries. It can be used to efficiently manipulate and visualize spatial vector data.
 
-Creating an `sf` object from a text column that contains  [`WKT`](https://libgeos.org/specifications/wkt/) characters is straightforward. The `sf::st_as_sf` function can be used to turn the `data.frame` with a `WKT` column into an `sf` object.
+Creating an `sf` object from a text column that contains [`WKT`](https://libgeos.org/specifications/wkt/) characters is straightforward. The `sf::st_as_sf` function can be used to turn the `data.frame` with a `WKT` column into an `sf` object.
 
 ```{r}
 point_sf <- st_as_sf(data_spatial,

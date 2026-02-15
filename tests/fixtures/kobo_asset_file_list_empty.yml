@@ -1,0 +1,36 @@
+http_interactions:
+- request:
+    method: GET
+    uri: https://kobo-trn.unhcr.org/api/v2/assets/aDdgw9sZZeRUcW7aWryQB6/files/
+  response:
+    status: 200
+    headers:
+      status: 'HTTP/2 200 '
+      date: Sun, 15 Feb 2026 14:26:24 GMT
+      content-type: application/json
+      content-length: '52'
+      server: nginx
+      vary: Accept, origin, Accept-Language, Cookie
+      allow: GET, POST, HEAD, OPTIONS
+      content-security-policy: 'connect-src ''self'' https://kobocat-trn.unhcr.org
+        https://enketo-trn.unhcr.org; default-src ''self'' https://kobocat-trn.unhcr.org
+        https://enketo-trn.unhcr.org; frame-src ''self'' https://kobocat-trn.unhcr.org
+        https://enketo-trn.unhcr.org; script-src ''self'' https://kobocat-trn.unhcr.org
+        https://enketo-trn.unhcr.org; style-src ''self'' https://kobocat-trn.unhcr.org
+        https://enketo-trn.unhcr.org ''unsafe-inline''; img-src ''self'' https://kobocat-trn.unhcr.org
+        https://enketo-trn.unhcr.org data: https://*.openstreetmap.org https://*.openstreetmap.fr
+        https://*.opentopomap.org https://*.arcgisonline.com'
+      x-kobonaut: dickoa
+      x-frame-options: DENY
+      content-language: en
+      x-content-type-options: nosniff
+      referrer-policy: same-origin
+      cross-origin-opener-policy: same-origin
+      set-cookie: django_language=en; expires=Sun, 22 Feb 2026 14:26:24 GMT; Max-Age=604800;
+        Path=/
+      accept-ranges: bytes
+      strict-transport-security: max-age=31536000; includeSubDomains; preload
+    body:
+      raw_gzip: eJyrVkrOL80rUbIy0FHKS60AMvJKc3J0lAqKUssy80uLYfyi1OLSnBIgNzq2FgDZzxJK
+  recorded_at: 2026-02-15 14:26:24
+recorded_with: VCR-vcr/2.1.0

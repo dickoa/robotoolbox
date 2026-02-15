@@ -170,15 +170,28 @@ kobo_asset_version_list <- function(x) {
 kobo_asset_version_list.character <- function(x) {
   if (!assert_uid(x))
     abort(message = "Invalid asset uid")
-  res <- xget(path = paste0("/api/v2/assets/",
-                            x, "/versions/"))
-  res <- fparse(res, max_simplify_lvl = "list")
-  res <- res$results
-  tibble(uid = map_chr2(res, "uid"),
-         url = map_chr2(res, "url"),
-         deployed = is.na(as.logical(map_chr2(res,
+  path <- paste0("/api/v2/assets/", x, "/versions/")
+  res <- xget(path = path)
+  parsed <- fparse(res, max_simplify_lvl = "list")
+
+  if (!is.null(parsed$`next`) && !is.null(parsed$count)) {
+    res <- xget(path = path, args = list(limit = parsed$count))
+    parsed <- fparse(res, max_simplify_lvl = "list")
+  }
+
+  results <- parsed$results
+  if (length(results) == 0)
+    return(tibble(uid = character(), url = character(),
+                  deployed = logical(), date_modified = character()))
+
+  # date_deployed is "FALSE" when undeployed, a datetime string when deployed.
+  # as.logical("FALSE") -> FALSE, as.logical("2024-...") -> NA,
+  # so is.na() gives TRUE for deployed versions.
+  tibble(uid = map_chr2(results, "uid"),
+         url = map_chr2(results, "url"),
+         deployed = is.na(as.logical(map_chr2(results,
                                               "date_deployed"))),
-         date_modified = parse_kobo_datetime(map_chr2(res, "date_modified")))
+         date_modified = parse_kobo_datetime(map_chr2(results, "date_modified")))
 }
 
 #' @export

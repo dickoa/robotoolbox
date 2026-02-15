@@ -7,7 +7,9 @@ test_that("kobo_asset_list works", {
           message = "Test server not configured")
 
   kobo_setup(url = url, token = token)
-  al <- kobo_asset_list()
+  vcr::use_cassette("kobo_asset_list", {
+    al <- kobo_asset_list()
+  })
   expect_equal(class(al),
                          c("tbl_df", "tbl", "data.frame"))
 
@@ -26,7 +28,9 @@ test_that("kobo_asset_list works even if the number of assets exceed limit", {
           message = "Test server not configured")
 
   kobo_setup(url = url, token = token)
-  al <- kobo_asset_list(limit = 5)
+  vcr::use_cassette("kobo_asset_list_limit", {
+    al <- kobo_asset_list(limit = 5)
+  })
   expect_equal(class(al),
                c("tbl_df", "tbl", "data.frame"))
   expect_equal(nrow(al), 5L)

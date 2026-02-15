@@ -1,5 +1,6 @@
 test_that("kobo_token works", {
   skip_on_cran()
+  skip_if(!has_live_api(), message = "Requires live API")
   url <- Sys.getenv("KOBOTOOLBOX_PROD_URL")
   user <- Sys.getenv("KOBOTOOLBOX_PROD_USER")
   pwd <- Sys.getenv("KOBOTOOLBOX_PROD_PWD")

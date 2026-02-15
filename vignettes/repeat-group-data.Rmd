@@ -99,7 +99,7 @@ l <- asset_list
 
 ### Loading the survey
 
-The aforementioned survey, named `nested_roster`, was uploaded to the server. It can be accessed from the list of asset `asset_list`.
+The aforementioned survey, named `nested_roster`, was uploaded to the server. It can be accessed from the list of assets `asset_list`.
 
 ```{r, eval = FALSE}
 library(robotoolbox)
@@ -131,7 +131,7 @@ In this code:
 
 ### Extracting the data
 
-The output here deviates from a standard `data.frame`. It consists of a listing of each `repeat group` loop present in our form.
+The output here deviates from a standard `data.frame`. It contains a table for each `repeat group` in the form.
 
 ```{r, eval = FALSE}
 df <- kobo_data(asset)
@@ -184,7 +184,7 @@ dm_nrow(df)
 ### A `dm` object is a list of `data.frame`
 
 A `dm` object is a `list` of `data.frame`. Similar to any list of `data.frame`, you can extract each table (`data.frame`), and analyze it separately.
-The principal table, where you have the first `repeat group`, named `main`.
+The principal table, containing the data outside any `repeat group`, is named `main`.
 
 ```{r access_specific1}
 glimpse(df$main)

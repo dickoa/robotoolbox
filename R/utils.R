@@ -23,6 +23,29 @@ assert_token <- function(x) {
 }
 
 #' @noRd
+validate_query_ <- function(query) {
+  if (is.null(query)) return(invisible(NULL))
+  if (!is.character(query) || length(query) != 1)
+    abort("`query` must be a single character string", call = NULL)
+  q <- trimws(query)
+  if (!startsWith(q, "{") || !endsWith(q, "}"))
+    abort(
+      c("`query` must be a valid JSON object string",
+        i = 'Example: \'{"field_name": "value"}\''),
+      call = NULL
+    )
+  invisible(NULL)
+}
+
+#' @noRd
+validate_fields_ <- function(fields) {
+  if (is.null(fields)) return(invisible(NULL))
+  if (!is.character(fields) || length(fields) == 0)
+    abort("`fields` must be a non-empty character vector", call = NULL)
+  invisible(NULL)
+}
+
+#' @noRd
 clean_urls <- function(x) {
   gsub("/$", "", x)
 }
@@ -68,22 +91,18 @@ error_msg <- function(x) {
   if (is.null(msg)) {
     return(setNames(check_uid_info, "i"))
   }
-  info <- case_when(
-    grepl("not found", msg, ignore.case = TRUE) ~ c(
-      "uid (project) not found in this account/server",
-      i = check_uid_info
-    ),
-    grepl("invalid token", msg, ignore.case = TRUE) ~ c(
-      "Invalid API token",
-      i = check_token_info
-    ),
-    grepl("invalid username/password", msg, ignore.case = TRUE) ~ c(
-      "Invalid username or password",
-      i = check_cred_info
-    ),
-    .default = setNames(check_default, "i")
-  )
-  info
+  if (grepl("not found", msg, ignore.case = TRUE)) {
+    c("uid (project) not found in this account/server",
+      i = check_uid_info)
+  } else if (grepl("invalid token", msg, ignore.case = TRUE)) {
+    c("Invalid API token",
+      i = check_token_info)
+  } else if (grepl("invalid username/password", msg, ignore.case = TRUE)) {
+    c("Invalid username or password",
+      i = check_cred_info)
+  } else {
+    setNames(check_default, "i")
+  }
 }
 
 #' @importFrom rlang abort
@@ -217,8 +236,10 @@ dt2tibble <- function(x) {
 
 #' @importFrom RcppSimdJson fparse
 #' @noRd
-get_subs <- function(uid, args = list(), ...) {
+get_subs <- function(uid, args = list(), query = NULL, fields = NULL, ...) {
   path <- paste0("api/v2/assets/", uid, "/data.json")
+  if (!is.null(query)) args$query <- query
+  if (!is.null(fields)) args$fields <- fields
   res <- xget(path = path, args = args, ...)
   res <- fparse(res, max_simplify_lvl = "data_frame", query = "/results")
   as_tibble(res)
@@ -226,10 +247,22 @@ get_subs <- function(uid, args = list(), ...) {
 
 #' @importFrom glue glue glue_data
 #' @importFrom tibble tibble
+#' @importFrom utils URLencode
 #' @noRd
-build_subs_urls <- function(uid, size, chunk_size = NULL) {
+build_subs_urls <- function(uid, size, chunk_size = NULL,
+                            query = NULL, fields = NULL) {
+  extra_args <- c()
+  if (!is.null(query))
+    extra_args <- c(extra_args,
+                    paste0("query=", URLencode(query, reserved = TRUE)))
+  if (!is.null(fields))
+    extra_args <- c(extra_args,
+                    paste0("fields=", URLencode(fields, reserved = TRUE)))
+  extra <- paste(extra_args, collapse = "&")
+
   if (chunk_size >= size || is.null(chunk_size)) {
     urls <- glue("api/v2/assets/{uid}/data.json", uid = uid)
+    if (nzchar(extra)) urls <- paste0(urls, "?", extra)
   } else {
     start <- seq(0, size, by = chunk_size)
     limit <- rep(chunk_size, length(start) - 1)
@@ -243,6 +276,7 @@ build_subs_urls <- function(uid, size, chunk_size = NULL) {
     )
     template <- "api/v2/assets/{uid}/data.json?start={start}&limit={limit}"
     urls <- glue_data(df, template)
+    if (nzchar(extra)) urls <- paste0(urls, "&", extra)
   }
   file.path(Sys.getenv("KOBOTOOLBOX_URL"), urls)
 }
@@ -254,11 +288,13 @@ build_subs_urls <- function(uid, size, chunk_size = NULL) {
 #' @importFrom dplyr case_when
 #' @importFrom rlang abort
 #' @noRd
-get_subs_async <- function(uid, size, chunk_size = NULL, n_retry = 3L, ...) {
+get_subs_async <- function(uid, size, chunk_size = NULL, n_retry = 3L,
+                           query = NULL, fields = NULL, ...) {
   headers <- list(
     Authorization = paste("Token", Sys.getenv("KOBOTOOLBOX_TOKEN"))
   )
-  urls <- build_subs_urls(uid, size, chunk_size)
+  urls <- build_subs_urls(uid, size, chunk_size,
+                          query = query, fields = fields)
   reqs <- lapply(urls, function(url) {
     req <- HttpRequest$new(url, headers = headers, opts = list(...))
     req$retry(
@@ -275,7 +311,7 @@ get_subs_async <- function(uid, size, chunk_size = NULL, n_retry = 3L, ...) {
     size > 1000 ~ 0.1,
     .default = 0.05
   )
-  res <- AsyncQueue$new(.list = reqs, bucket_size = Inf, sleep = sleep)
+  res <- AsyncQueue$new(.list = reqs, bucket_size = 15L, sleep = sleep)
   res$request()
   cond <- res$status_code() >= 300L
   if (any(cond)) {
@@ -290,17 +326,51 @@ get_subs_async <- function(uid, size, chunk_size = NULL, n_retry = 3L, ...) {
 }
 
 #' @importFrom RcppSimdJson fparse
-#' @importFrom purrr list_rbind
+#' @importFrom tibble tibble
 #' @importFrom dplyr select filter
 #' @noRd
-get_audit_url_ <- function(uid) {
+get_subs_fields_ <- function(uid, fields) {
   path <- paste0("api/v2/assets/", uid, "/data.json")
+  count_res <- xget(path = path, args = list(limit = 1, fields = fields))
+  parsed <- fparse(count_res, max_simplify_lvl = "list")
+  count <- parsed$count
+  if (is.null(count) || count == 0) return(NULL)
+  if (count <= 1) {
+    return(as_tibble(rbindlist(parsed$results, fill = TRUE)))
+  }
   res <- xget(
     path = path,
-    args = list(fields = '["_attachments", "formhub/uuid", "_uuid"]')
+    args = list(
+      fields = fields,
+      limit = count
+    )
   )
   res <- fparse(res, max_simplify_lvl = "data_frame")
-  res <- res$results
+  res$results
+}
+
+#' @noRd
+format_fields_ <- function(fields) {
+  if (is.null(fields)) return(NULL)
+  if (!"__version__" %in% fields)
+    fields <- c(fields, "__version__")
+  paste0('["', paste(fields, collapse = '","'), '"]')
+}
+
+#' @noRd
+get_filtered_count_ <- function(uid, query) {
+  path <- paste0("api/v2/assets/", uid, "/data.json")
+  args <- list(limit = 1, query = query)
+  res <- xget(path = path, args = args)
+  parsed <- fparse(res, max_simplify_lvl = "list")
+  count <- parsed$count
+  if (is.null(count)) 0L else as.integer(count)
+}
+
+#' @noRd
+get_audit_url_ <- function(uid) {
+  res <- get_subs_fields_(uid, '["_attachments", "formhub/uuid", "_uuid"]')
+  if (is.null(res)) return(tibble(`_id` = integer(), download_url = character()))
   unnest(res[c("_id", "_attachments")], "_attachments") |>
     filter(.data$media_file_basename %in% "audit.csv") |>
     select("_id", "download_url")
@@ -309,13 +379,8 @@ get_audit_url_ <- function(uid) {
 #' @importFrom RcppSimdJson fparse
 #' @noRd
 get_attachment_url_ <- function(uid) {
-  path <- paste0("api/v2/assets/", uid, "/data.json")
-  res <- xget(
-    path = path,
-    args = list(fields = '["_attachments", "formhub/uuid", "_uuid"]')
-  )
-  res <- fparse(res, max_simplify_lvl = "data_frame")
-  res <- res$results
+  res <- get_subs_fields_(uid, '["_attachments", "formhub/uuid", "_uuid"]')
+  if (is.null(res)) return(tibble(`_id` = integer()))
   unnest(res[c("_id", "_attachments")], "_attachments")
 }
 
@@ -351,16 +416,6 @@ is_list_cols <- function(x) {
 #' @noRd
 is_list_cols_names <- function(x) {
   names(is_list_cols(x))
-}
-
-#' @noRd
-is_null_recursive <- function(x) {
-  is.null(x) | all(vapply(x, is.null, logical(1)))
-}
-
-#' @noRd
-is_null_recursive <- function(x) {
-  is.null(x) | any(vapply(x, is.null, logical(1)))
 }
 
 #' @noRd
@@ -406,14 +461,10 @@ hide_token <- function(x) {
   paste(c(a, b), collapse = "")
 }
 
-#' @importFrom data.table as.data.table alloc.col := chmatch set .SD
-#' @importFrom stringi stri_detect_regex
-#' @importFrom tibble as_tibble
-#' @importFrom stats na.omit
+#' @importFrom data.table chmatch
 #' @importFrom rlang names_inform_repair
 #' @noRd
 fast_dummy_cols <- function(x, form, cols, sep) {
-  x <- as.data.table(x)
   for (col in cols) {
     y <- x[[col]]
     uv <- col2choices(x, form, col)
@@ -426,20 +477,29 @@ fast_dummy_cols <- function(x, form, cols, sep) {
         new_names
       )
       names_inform_repair(old_cols, new_cols)
-      x[, (new_cols) := .SD, .SDcols = old_cols]
-      x[, (old_cols) := NULL]
+      for (i in seq_along(old_cols))
+        x[[new_cols[i]]] <- x[[old_cols[i]]]
+      x[old_cols] <- NULL
     }
-    alloc.col(x, ncol(x) + length(uv))
-    x[, (new_names) := 0L]
-    x[which(is.na(y)), (new_names) := NA_integer_]
-    for (iter in seq_along(uv)) {
-      a <- gsub("([[:punct:]])", "\\\\\\1", uv[iter])
-      j <- paste0(col, sep, uv[iter])
-      i <- which(stri_detect_regex(y, paste0("\\b", a, "(\\s|$)")))
-      set(x, i = i, j = j, value = 1L)
+    na_idx <- is.na(y)
+    init <- ifelse(na_idx, NA_integer_, 0L)
+    for (nm in new_names)
+      x[[nm]] <- init
+    non_na_idx <- which(!na_idx)
+    if (length(non_na_idx) > 0) {
+      splits <- strsplit(y[non_na_idx], " ", fixed = TRUE)
+      rids <- rep.int(non_na_idx, lengths(splits))
+      vals <- unlist(splits, use.names = FALSE)
+      midx <- chmatch(vals, uv)
+      valid <- !is.na(midx)
+      if (any(valid)) {
+        rids_by_col <- split(rids[valid], midx[valid])
+        for (k in names(rids_by_col))
+          x[[new_names[as.integer(k)]]][rids_by_col[[k]]] <- 1L
+      }
     }
   }
-  as_tibble(x)
+  x
 }
 
 #' @importFrom stringi stri_detect_regex
@@ -543,88 +603,49 @@ kobo_extract_repeat_tbl <- function(x, form, all_versions) {
   res
 }
 
-#' @importFrom dplyr mutate across filter group_by distinct bind_rows ungroup slice
-#' @importFrom tidyselect all_of
+#' @importFrom data.table rbindlist
 #' @importFrom stats setNames
 #' @importFrom labelled set_value_labels
 #' @importFrom stringi stri_detect_regex
-#' @importFrom rlang .data
 #' @noRd
 val_labels_from_form_ <- function(x, form, lang) {
-  form <- filter(
-    form,
-    .data$lang %in% !!lang,
-    stri_detect_regex(.data$type, "select_one")
-  )
+  form <- form[form$lang %in% lang &
+                 grepl("select_one", form$type, fixed = TRUE), ]
   nm <- unique(form$name)
   nm <- intersect(names(x), nm)
   if (length(nm) > 0) {
-    form <- form |>
-      filter(.data$name %in% nm) |>
-      distinct(.data$name, .data$choices) |>
-      group_by(.data$name) |>
-      mutate(
-        choices = list(distinct(select(
-          bind_rows(choices),
-          -any_of("value_version")
-        )))
-      ) |>
-      ungroup()
-    choices <- form$choices
-    names(choices) <- form$name
     choices <- lapply(nm, function(n) {
-      ch <- choices[[n]]
-      ch <- filter(ch, .data$value_lang %in% !!lang)
+      ch <- rbindlist(form$choices[form$name == n], fill = TRUE)
+      if ("value_version" %in% names(ch)) ch$value_version <- NULL
+      ch <- unique(ch)
+      ch <- ch[ch$value_lang %in% lang, ]
       ch$value_label <- make.unique(ch$value_label, sep = "_")
-      ch <- setNames(ch$value_name, ch$value_label)
-      ch[!duplicated(ch)]
+      vals <- setNames(ch$value_name, ch$value_label)
+      vals[!duplicated(vals)]
     })
     names(choices) <- nm
-    labels <- choices[nm]
-    x <- set_value_labels(
-      mutate(x, across(all_of(nm), as.character)),
-      .labels = labels,
-      .strict = FALSE
-    )
-  } else {
-    x
+    for (n in nm) x[[n]] <- as.character(x[[n]])
+    x <- set_value_labels(x, .labels = choices, .strict = FALSE)
   }
   x
 }
 
-#' @importFrom dplyr mutate across filter group_by distinct bind_rows ungroup slice
-#' @importFrom tidyselect all_of
-#' @importFrom stats setNames
-#' @importFrom labelled set_value_labels var_label<-
-#' @importFrom rlang .data
+#' @importFrom data.table rbindlist
+#' @importFrom labelled var_label<-
 #' @importFrom stringi stri_replace_all_regex
 #'
 #' @noRd
 val_labels_sm_from_form_ <- function(x, form, lang) {
-  form <- filter(
-    form,
-    .data$lang %in% !!lang,
-    stri_detect_regex(.data$type, "select_multiple")
-  )
+  form <- form[form$lang %in% lang &
+                 grepl("select_multiple", form$type, fixed = TRUE), ]
   nm <- unique(form$name)
   nm <- intersect(names(x), nm)
   if (length(nm) > 0) {
-    form <- form |>
-      filter(.data$name %in% nm) |>
-      distinct(.data$name, .data$choices) |>
-      group_by(.data$name) |>
-      mutate(
-        choices = list(distinct(select(
-          bind_rows(choices),
-          -any_of("value_version")
-        )))
-      ) |>
-      ungroup()
-    choices <- form$choices
-    names(choices) <- form$name
     choices <- lapply(nm, function(n) {
-      ch <- choices[[n]]
-      ch <- filter(ch, .data$value_lang %in% !!lang)
+      ch <- rbindlist(form$choices[form$name == n], fill = TRUE)
+      if ("value_version" %in% names(ch)) ch$value_version <- NULL
+      ch <- unique(ch)
+      ch <- ch[ch$value_lang %in% lang, ]
       ch$value_label <- make.unique(ch$value_label, sep = "_")
       ch
     })
@@ -641,18 +662,6 @@ val_labels_sm_from_form_ <- function(x, form, lang) {
       )
       var_label(x[[n]]) <- vl
     }
-  } else {
-    x
-  }
-  x
-}
-
-#' @noRd
-replace_na_list_ <- function(x) {
-  b <- is.na(x)
-  v <- names(x)[b]
-  for (i in seq_along(v)) {
-    x[b][[i]] <- v[i]
   }
   x
 }
@@ -723,7 +732,7 @@ var_labels_from_form_ <- function(x, form, lang) {
 }
 
 #' @noRd
-#' @importFrom dplyr rename_with
+#' @importFrom dplyr rename_with across mutate
 #' @importFrom tidyr separate_wider_delim
 #' @importFrom tidyselect all_of
 #' @importFrom labelled set_variable_labels var_label
@@ -1152,6 +1161,8 @@ kobo_type_cols_ <- function(x, form) {
   time_q <- "time"
   datetime_q <- c("start", "end", "datetime", "dateTime")
   date_q <- c("today", "date")
+  int_q <- "integer"
+  dbl_q <- c("decimal", "range")
   char_q <- c(
     "device_id",
     "phonenumber",
@@ -1163,16 +1174,38 @@ kobo_type_cols_ <- function(x, form) {
     "select_one_from_file",
     "select_multiple_from_file",
     "rank",
-    "text"
+    "text",
+    "note",
+    "barcode",
+    "acknowledge",
+    "hidden",
+    "geopoint",
+    "geotrace",
+    "geoshape",
+    "image",
+    "audio",
+    "background-audio",
+    "video",
+    "file"
   )
   form$cols <- case_when(
     form$type %in% datetime_q ~ "T",
     form$type %in% date_q ~ "D",
     form$type %in% time_q ~ "c",
+    form$type %in% int_q ~ "i",
+    form$type %in% dbl_q ~ "d",
     form$type %in% char_q ~ "c",
     .default = "?"
   )
   v <- form$cols[match(names(x), form$name)]
+  sys_types <- c(
+    `_id` = "i", `formhub/uuid` = "c", `__version__` = "c",
+    `meta/instanceID` = "c", `meta/deprecatedID` = "c",
+    `meta/rootUuid` = "c", `_xform_id_string` = "c",
+    `_uuid` = "c", `_status` = "c", `_submitted_by` = "c",
+    `_submission_time` = "T"
+  )
+  v <- coalesce(v, unname(sys_types[names(x)]))
   paste(coalesce(v, "?"), collapse = "")
 }
 
@@ -1260,7 +1293,7 @@ external_files_choice_ <- function(
       terminate_on = 404
     )
   })
-  res <- AsyncQueue$new(.list = reqs, bucket_size = Inf, sleep = 0.01)
+  res <- AsyncQueue$new(.list = reqs, bucket_size = 15L, sleep = 0.01)
   res$request()
   cond <- res$status_code() >= 300L
   if (any(cond)) {
