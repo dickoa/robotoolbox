@@ -13,30 +13,50 @@ kobo_data_ <- function(
   query = NULL,
   fields = NULL
 ) {
-  if (isTRUE(progress)) cli_progress_step("Downloading data")
+  if (isTRUE(progress)) {
+    cli_progress_step("Downloading data")
+  }
 
-  if (!is.null(page_size) && (!is.numeric(page_size) || page_size < 1))
+  if (!is.null(page_size) && (!is.numeric(page_size) || page_size < 1)) {
     abort("`page_size` must be a positive integer", call = NULL)
+  }
 
   fields_json <- format_fields_(fields)
 
-  if (is.null(paginate) && !is.null(page_size)) paginate <- TRUE
+  if (is.null(paginate) && !is.null(page_size)) {
+    paginate <- TRUE
+  }
 
-  if (size >= 1000 && is.null(paginate)) paginate <- TRUE
+  psize <- 100
+
+  if (size > 100 && is.null(paginate)) {
+    paginate <- TRUE
+  }
 
   if (isTRUE(paginate)) {
-    if (is.null(page_size)) page_size <- min(max(size %/% 5, 1), 1000)
-    subs <- get_subs_async(x$uid, size, page_size,
-                           query = query, fields = fields_json)
+    if (is.null(page_size)) {
+      page_size <- min(max(size %/% 3, 1), psize)
+    }
+    subs <- get_subs_async(
+      x$uid,
+      size,
+      page_size,
+      query = query,
+      fields = fields_json
+    )
   } else {
     subs <- get_subs(x$uid, query = query, fields = fields_json)
   }
 
-  if (isTRUE(progress)) cli_progress_step("Processing data")
+  if (isTRUE(progress)) {
+    cli_progress_step("Processing data")
+  }
   form <- kobo_form_version_(subs, x, all_versions = all_versions)
   cn <- kobo_form_names_(form, sep = select_multiple_sep)
   klang <- kobo_lang(x)
-  if (is.null(lang) || !lang %in% klang) lang <- klang[1]
+  if (is.null(lang) || !lang %in% klang) {
+    lang <- klang[1]
+  }
 
   if ("begin_repeat" %in% form$type) {
     names_list <- kobo_form_name_to_list_(
@@ -192,7 +212,9 @@ kobo_submissions <- function(
   page_size,
   query,
   fields
-) UseMethod("kobo_submissions")
+) {
+  UseMethod("kobo_submissions")
+}
 
 #' @export
 kobo_data.kobo_asset <- function(
@@ -208,12 +230,15 @@ kobo_data.kobo_asset <- function(
   query = NULL,
   fields = NULL
 ) {
-  if (x$asset_type != "survey") abort("You can only read data from a survey")
+  if (x$asset_type != "survey") {
+    abort("You can only read data from a survey")
+  }
   validate_query_(query)
   validate_fields_(fields)
   size <- x$deployment__submission_count
-  if (!is.null(query) && !is.null(size) && size > 0)
+  if (!is.null(query) && !is.null(size) && size > 0) {
     size <- get_filtered_count_(x$uid, query)
+  }
   if (!is.null(size) && size > 0) {
     res <- kobo_data_(
       x = x,
@@ -255,7 +280,9 @@ kobo_data.character <- function(
   query = NULL,
   fields = NULL
 ) {
-  if (!assert_uid(x)) abort(message = "Invalid asset uid")
+  if (!assert_uid(x)) {
+    abort(message = "Invalid asset uid")
+  }
   kobo_data(
     kobo_asset(x),
     lang = lang,
@@ -298,7 +325,7 @@ kobo_submissions.default <- kobo_data.default
 
 #' @noRd
 kobo_attachment_download_ <- function(attachments, folder, overwrite, n_retry) {
-  if (!dir.exists(folder))
+  if (!dir.exists(folder)) {
     abort(
       paste(
         folder,
@@ -306,7 +333,10 @@ kobo_attachment_download_ <- function(attachments, folder, overwrite, n_retry) {
       ),
       call = NULL
     )
-  if (nrow(attachments) == 0) return(invisible(character()))
+  }
+  if (nrow(attachments) == 0) {
+    return(invisible(character()))
+  }
 
   urls <- attachments |>
     mutate(
@@ -327,11 +357,12 @@ kobo_attachment_download_ <- function(attachments, folder, overwrite, n_retry) {
     )
   )
 
-  if (isFALSE(overwrite))
+  if (isFALSE(overwrite)) {
     urls <- filter(
       urls,
       !.data$fname_id %in% list.files(folder)
     )
+  }
 
   if (nrow(urls) > 0) {
     reqs <- lapply(urls$url, function(url) {
@@ -404,9 +435,13 @@ kobo_attachment_download.character <- function(
   overwrite = TRUE,
   n_retry = 3L
 ) {
-  if (isTRUE(progress)) cli_progress_step("Listing files")
+  if (isTRUE(progress)) {
+    cli_progress_step("Listing files")
+  }
   subs <- get_attachment_url_(x)
-  if (isTRUE(progress)) cli_progress_step("Downloading files")
+  if (isTRUE(progress)) {
+    cli_progress_step("Downloading files")
+  }
   kobo_attachment_download_(
     subs,
     folder = folder,
@@ -423,9 +458,13 @@ kobo_attachment_download.kobo_asset <- function(
   overwrite = TRUE,
   n_retry = 3L
 ) {
-  if (isTRUE(progress)) cli_progress_step("Listing files")
+  if (isTRUE(progress)) {
+    cli_progress_step("Listing files")
+  }
   subs <- get_attachment_url_(x$uid)
-  if (isTRUE(progress)) cli_progress_step("Downloading files")
+  if (isTRUE(progress)) {
+    cli_progress_step("Downloading files")
+  }
   kobo_attachment_download_(
     subs,
     folder = folder,
