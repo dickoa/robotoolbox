@@ -73,7 +73,6 @@ kobo_settings()
 ## <robotoolbox settings>
 ##    KoboToolbox URL: https://kobo.unhcr.org/
 ##    KoboToolbox API Token: xxxxxxxxxxxxxxxxxxxxxxxxxx
-##    Max page size: 1000
 ```
 
 # KoboToolbox API assets
@@ -196,6 +195,22 @@ data_ml |>
   select(start:uuid) |>
   slice_head(n = 3) |>
   knitr::kable()
+```
+
+## Filtering and selecting fields
+
+You can filter submissions server-side using the `query` parameter, which accepts a MongoDB-style query string. This avoids downloading the full dataset when you only need a subset.
+
+```{r, eval = FALSE}
+## Only submissions where pet_yesno is "1" (Yes)
+data_pet <- kobo_data(asset_ml, query = '{"pet_yesno": "1"}')
+```
+
+You can also select specific fields to reduce data transfer using the `fields` parameter.
+
+```{r, eval = FALSE}
+## Fetch only name and pet_yesno columns
+data_partial <- kobo_data(asset_ml, fields = c("full_name", "pet_yesno"))
 ```
 
 # KoboToolbox form

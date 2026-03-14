@@ -3,7 +3,7 @@ robotoolbox 1.5.0 (2026-03-14)
 
 ### BREAKING CHANGES
 - **Default pagination limit reduced from 30,000 to 1,000** to comply with KoboToolbox API changes
-  effective January 2026 on public servers (see https://community.kobotoolbox.org/t/important-changes-to-api-v2-assets-uid-asset-data-result-limits/74610).
+  effective with KoboToolbox KPI version 2.026.03 (March 2026) on public servers (see https://community.kobotoolbox.org/t/important-changes-to-api-v2-assets-uid-asset-data-result-limits/74610).
 - Auto-pagination now triggers at 1,000 submissions (previously 10,000).
 - **Attachment filenames now include attachment UID** for uniqueness. Files are now named
   `{att_uid}_{filename}` instead of `{submission_id}_{filename}` to handle cases where the same
@@ -18,6 +18,10 @@ robotoolbox 1.5.0 (2026-03-14)
     language using cached form metadata.
   - `kobo_lang_get(data, asset)` detects the current language applied to a dataset.
   - Works with both simple `data.frame` and complex `dm` objects (nested forms).
+- **Server-side filtering with `query` parameter** in `kobo_data()`: pass a MongoDB-style query
+  string to filter submissions before download, e.g. `kobo_data(asset, query = '{"status": "approved"}')`.
+- **Field selection with `fields` parameter** in `kobo_data()`: fetch only specific fields to
+  reduce data transfer, e.g. `kobo_data(asset, fields = c("name", "age"))`.
 
 ### BUG FIXES
 - Fixed `kobo_audit()` and `kobo_attachment_download()` to handle API changes where the
