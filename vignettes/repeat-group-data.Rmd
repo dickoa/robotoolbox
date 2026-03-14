@@ -8,12 +8,14 @@ vignette: >
 ---
 
 ```{r, include = FALSE}
+has_dm_draw <- requireNamespace("DiagrammeR", quietly = TRUE)
 knitr::opts_chunk$set(
   collapse = TRUE,
   message = FALSE,
   warning = FALSE,
   echo = TRUE,
-  comment = "#>"
+  comment = "#>",
+  eval = has_dm_draw
 )
 ```
 

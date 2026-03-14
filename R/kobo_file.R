@@ -63,3 +63,8 @@ kobo_asset_file_list.character <- function(x) {
 kobo_asset_file_list.kobo_asset <- function(x) {
   kobo_asset_file_list.character(x$uid)
 }
+
+#' @export
+kobo_asset_file_list.default <- function(x) {
+  abort("You need to use a 'kobo_asset' or a valid asset uid")
+}

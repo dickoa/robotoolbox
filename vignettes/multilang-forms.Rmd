@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 During data collection, it is often necessary to translate survey forms into multiple languages. `KoboToolbox` forms allow users to easily add translations, which can be used to label questions and choice values in either single or multiple-choice questions.
 
-`robotoolbox` provides the capability to access these labels used in the form. The [`labelled`](https://cran.r-project.org/package=labelled/vignettes/intro_labelled.html) package is used to encode variable labels for question labels and value labels for choice labels.
+`robotoolbox` provides the capability to access these labels used in the form. The [`labelled`](https://CRAN.R-project.org/package=labelled) package is used to encode variable labels for question labels and value labels for choice labels.
 
 The following example showcases a project in `KoboToolbox` that employs three languages: English, French, and Arabic.
 

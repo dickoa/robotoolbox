@@ -8,7 +8,7 @@ test_that("kobo_setup and kobo_settings are working", {
 
   kobo_setup(url = url, token = token)
   settings <- kobo_settings()
-  expect_is(settings, "kobo_settings")
+  expect_s3_class(settings, "kobo_settings")
   expect_error(kobo_setup(url = "is_it_an_url",
                           token = token))
   expect_error(kobo_setup(url = url,

@@ -113,7 +113,7 @@ kobo_lang_get.data.frame <- function(data, asset) {
   available_langs <- kobo_lang(asset)
 
   current_labels <- var_label(data)
-  current_labels <- current_labels[!sapply(current_labels, is.null)]
+  current_labels <- current_labels[!vapply(current_labels, is.null, logical(1))]
 
   if (length(current_labels) == 0) return(NA_character_)
 

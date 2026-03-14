@@ -18,8 +18,7 @@ if (!has_prod && !has_training) {
       "KOBOTOOLBOX_TRAINING_URL" = "https://kobo-trn.unhcr.org"
     )
   } else {
-    stop("No API key nor cassettes, tests cannot be run.",
-         call. = FALSE)
+    testthat::skip("No API key nor cassettes, tests cannot be run.")
   }
 }
 

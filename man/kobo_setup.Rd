@@ -6,16 +6,23 @@
 \usage{
 kobo_setup(
   url = Sys.getenv("KOBOTOOLBOX_URL", ""),
-  token = Sys.getenv("KOBOTOOLBOX_TOKEN", "")
+  token = Sys.getenv("KOBOTOOLBOX_TOKEN", ""),
+  page_size = 1000L
 )
 }
 \arguments{
 \item{url}{character, the base URL of the KoboToolbox server.}
 
 \item{token}{character, the API token.}
+
+\item{page_size}{integer, the maximum number of submissions per API request.
+Default to \code{1000L}, which is the limit enforced by public KoboToolbox
+servers since KoboToolbox KPI version 2.026.03 (March 2026). Users with private servers that allow higher
+limits can set this to a larger value (e.g., \code{30000L}) to fetch more
+data per request and reduce the number of paginated calls.}
 }
 \value{
-A \code{kobo_settings} object pritting the server URL and the API token.
+A \code{kobo_settings} object printing the server URL and the API token.
 }
 \description{
 Set the KoboToolbox server URL, API token and return invisibly
@@ -23,9 +30,14 @@ a \code{kobo_settings} object.
 }
 \examples{
 \dontrun{
- # use your own URL and token
+ # Public server (default page_size = 1000)
  kobo_setup(url = "https://kf.kobotoolbox.org/",
             token = "9et1814c285w094f6v9bd629df47a1a0e81x53a0")
+
+ # Private server with higher limit
+ kobo_setup(url = "https://myserver.org/",
+            token = "9et1814c285w094f6v9bd629df47a1a0e81x53a0",
+            page_size = 30000)
  kobo_settings()
 }
 

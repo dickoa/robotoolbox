@@ -25,8 +25,8 @@ test_that("kobo_token works", {
                        url = url)
 
   expect_equal(token, token2)
-  expect_is(token, class = "character")
-  expect_is(token2, class = "character")
+  expect_type(token, "character")
+  expect_type(token2, "character")
   expect_equal(Sys.getenv("KOBOTOOLBOX_URL"),
                Sys.getenv("KOBOTOOLBOX_PROD_URL"))
   expect_equal(Sys.getenv("KOBOTOOLBOX_TOKEN"),

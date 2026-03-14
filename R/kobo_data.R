@@ -1,3 +1,4 @@
+#' @importFrom rlang warn
 #' @noRd
 kobo_data_ <- function(
   x,
@@ -21,21 +22,24 @@ kobo_data_ <- function(
     abort("`page_size` must be a positive integer", call = NULL)
   }
 
+  if (!is.null(page_size) && page_size > api_max_limit_()) {
+    warn(
+      paste0(
+        "`page_size` exceeds the API maximum of ", api_max_limit_(),
+        "; capping at ", api_max_limit_()
+      ),
+      call = NULL
+    )
+    page_size <- api_max_limit_()
+  }
+
   fields_json <- format_fields_(fields)
 
-  if (is.null(paginate) && !is.null(page_size)) {
-    paginate <- TRUE
-  }
+  paginate <- isTRUE(paginate) || !is.null(page_size) || size > api_max_limit_()
 
-  psize <- 100
-
-  if (size > 100 && is.null(paginate)) {
-    paginate <- TRUE
-  }
-
-  if (isTRUE(paginate)) {
+  if (paginate) {
     if (is.null(page_size)) {
-      page_size <- min(max(size %/% 3, 1), psize)
+      page_size <- ifelse(size > api_max_limit_(), api_max_limit_(), size %/% 2)
     }
     subs <- get_subs_async(
       x$uid,
@@ -471,4 +475,15 @@ kobo_attachment_download.kobo_asset <- function(
     overwrite = overwrite,
     n_retry = n_retry
   )
+}
+
+#' @export
+kobo_attachment_download.default <- function(
+  x,
+  folder,
+  progress = FALSE,
+  overwrite = TRUE,
+  n_retry = 3L
+) {
+  abort("You need to use a 'kobo_asset' or a valid asset uid")
 }

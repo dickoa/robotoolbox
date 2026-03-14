@@ -14,7 +14,7 @@ test_that("kobo_asset works", {
   })
   expect_equal(asset1, asset2)
   expect_equal(asset1, asset3)
-  expect_is(asset1, class = "kobo_asset")
+  expect_s3_class(asset1, class = "kobo_asset")
   expect_error(kobo_asset(1L))
   expect_error(kobo_asset("bad_uid"))
 

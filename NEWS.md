@@ -1,4 +1,4 @@
-robotoolbox 1.5 (2026-01-17)
+robotoolbox 1.5.0 (2026-03-14)
 ======================
 
 ### BREAKING CHANGES
@@ -33,10 +33,11 @@ robotoolbox 1.5 (2026-01-17)
 - Removed deprecated `vcr::check_cassette_names()` from test setup.
 
 ### NOTES
-- The default `page_size` is now capped at 1,000 for safety on public KoboToolbox servers.
-- **Performance tip for private instances:** Users with private servers that allow higher limits
-  can explicitly set `page_size` (e.g., `kobo_data(asset, page_size = 30000)`) for significantly
-  better performance on large datasets.
+- `kobo_setup()` now accepts a `page_size` parameter (default `1000`) to configure the maximum
+  number of submissions per API request. Users with private servers that allow higher limits
+  can set this to a larger value (e.g., `kobo_setup(..., page_size = 30000)`) to fetch more
+  data per request and avoid unnecessary pagination.
+- The default `page_size` is capped at 1,000 for safety on public KoboToolbox servers.
 - **Known limitation:** `kobo_audit()` and `kobo_attachment_download()` currently fetch
   attachments from the first 1,000 submissions only. Full pagination support for these
   functions is planned for a future release.

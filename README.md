@@ -68,7 +68,7 @@ function.
 
 The following examples will utilize UNHCR `KoboToolbox` server url
 (<https://kobo.unhcr.org/>). You can replace this URL with
-<https://kf.kobotoolbox.org/>, <https://kobo.humanitarianresponse.info/>
+<https://kf.kobotoolbox.org/>, <https://eu.kobotoolbox.org/>
 or any other `KoboToolbox` server URL you typically use.
 
     kobo_token(username = "xxxxxxxxx",

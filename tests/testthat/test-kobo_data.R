@@ -55,11 +55,11 @@ test_that("kobo_data with multiple languages", {
     raw_ar <- kobo_data(uid, lang = "Arabic (ar)")
   })
 
-  expect_is(raw_en,
+  expect_s3_class(raw_en,
             c("tbl_df", "tbl", "data.frame"))
-  expect_is(raw_fr,
+  expect_s3_class(raw_fr,
             c("tbl_df", "tbl", "data.frame"))
-  expect_is(raw_ar,
+  expect_s3_class(raw_ar,
             c("tbl_df", "tbl", "data.frame"))
 
 })
@@ -78,7 +78,7 @@ test_that("repeating groups use the dm package", {
   vcr::use_cassette("kobo_data_dm", {
     raw_uid <- kobo_data(uid)
   })
-  expect_is(raw_uid, "dm")
+  expect_s3_class(raw_uid, "dm")
 })
 
 test_that("kobo_submissions is similar to kobo_data", {
@@ -153,8 +153,8 @@ test_that("kobo_data parse geodata columns", {
 
   if (any(gp_exists)) {
     gp_nm <- form$name[form$type %in% "geopoint"][1]
-    expect_is(raw[[paste0(gp_nm, "_latitude")]], "numeric")
-    expect_is(raw[[paste0(gp_nm, "_longitude")]], "numeric")
+    expect_type(raw[[paste0(gp_nm, "_latitude")]], "double")
+    expect_type(raw[[paste0(gp_nm, "_longitude")]], "double")
     expect_match(raw[[paste0(gp_nm, "_wkt")]], "^POINT \\(.+")
   }
 

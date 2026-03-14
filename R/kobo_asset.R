@@ -216,6 +216,7 @@ print.kobo_asset <- function(x, ...) {
   cat("  Last modified: ",
       parse_kobo_datetime(x$date_modified), "\n", sep = "")
   cat("  Submissions: ", x$deployment__submission_count, "\n", sep = "")
+  invisible(x)
 }
 
 #' @noRd
@@ -227,4 +228,5 @@ print.kobo_asset_version <- function(x, ...) {
       is.na(as.logical(x$date_deployed)), "\n", sep = "")
   cat("  Date modified: ",
       parse_kobo_datetime(x$date_modified), "\n", sep = "")
+  invisible(x)
 }

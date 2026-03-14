@@ -226,7 +226,7 @@ http_interactions:
   recorded_at: 2026-02-15 14:26:45
 - request:
     method: GET
-    uri: https://kobo.unhcr.org/api/v2/assets/atbUaNGu5PWR2u4tNDsYaH/data.json
+    uri: https://kobo.unhcr.org/api/v2/assets/atbUaNGu5PWR2u4tNDsYaH/data.json?limit=1000
   response:
     status: 200
     headers:

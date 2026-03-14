@@ -28,7 +28,7 @@ In order to use `robotoolbox`, you need to configure and specify your **API toke
 
 We use the environment variables `KOBOTOOLBOX_URL` and `KOBOTOOLBOX_TOKEN` for the URL and the token, respectively. You can use the `usethis` package and the `usethis::edit_r_environ()` function to add these environment variables to your `.Renviron` file.
 
-The following examples will utilize UNHCR `KoboToolbox` server URL (https://kobo.unhcr.org/). You can replace this URL by the one you use, it can be https://kf.kobotoolbox.org/, https://kobo.humanitarianresponse.info/ or any other `KoboToolbox` server URL you typically use.
+The following examples will utilize UNHCR `KoboToolbox` server URL (https://kobo.unhcr.org/). You can replace this URL by the one you use, it can be https://kf.kobotoolbox.org/, https://eu.kobotoolbox.org/ or any other `KoboToolbox` server URL you typically use.
 
 ```{bash, eval = FALSE, engine = "sh"}
 KOBOTOOLBOX_URL="https://kobo.unhcr.org/"
@@ -41,6 +41,14 @@ In an interactive session, you can directly use the `kobo_setup` function.
 library(robotoolbox)
 kobo_setup(url = "https://kobo.unhcr.org",
            token = "xxxxxxxxxxxxxxxxxxxxxxxxxx")
+```
+
+By default, `kobo_setup` sets a maximum of 1,000 submissions per API request, matching the limit enforced by public KoboToolbox servers since KoboToolbox KPI version 2.026.03 (March 2026). If you use a private server with a higher limit, you can set the `page_size` parameter accordingly:
+
+```{r, eval = FALSE}
+kobo_setup(url = "https://my-private-server.org",
+           token = "xxxxxxxxxxxxxxxxxxxxxxxxxx",
+           page_size = 30000)
 ```
 
 You can manually retrieve your `token` through the `KoboToolbox` account settings in the web interface. There is also a `kobo_token` function to do the same thing automagically from `R`.
@@ -65,6 +73,7 @@ kobo_settings()
 ## <robotoolbox settings>
 ##    KoboToolbox URL: https://kobo.unhcr.org/
 ##    KoboToolbox API Token: xxxxxxxxxxxxxxxxxxxxxxxxxx
+##    Max page size: 1000
 ```
 
 # KoboToolbox API assets

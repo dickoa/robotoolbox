@@ -22,6 +22,13 @@ assert_token <- function(x) {
   grepl(pattern = token_pattern, x)
 }
 
+#' Maximum number of records per request for the /data endpoint
+#' @noRd
+api_max_limit_ <- function() {
+  val <- Sys.getenv("KOBOTOOLBOX_PAGE_SIZE", "1000")
+  as.integer(val)
+}
+
 #' @noRd
 validate_query_ <- function(query) {
   if (is.null(query)) return(invisible(NULL))
@@ -238,6 +245,7 @@ dt2tibble <- function(x) {
 #' @noRd
 get_subs <- function(uid, args = list(), query = NULL, fields = NULL, ...) {
   path <- paste0("api/v2/assets/", uid, "/data.json")
+  if (is.null(args$limit)) args$limit <- api_max_limit_()
   if (!is.null(query)) args$query <- query
   if (!is.null(fields)) args$fields <- fields
   res <- xget(path = path, args = args, ...)
@@ -261,8 +269,10 @@ build_subs_urls <- function(uid, size, chunk_size = NULL,
   extra <- paste(extra_args, collapse = "&")
 
   if (chunk_size >= size || is.null(chunk_size)) {
-    urls <- glue("api/v2/assets/{uid}/data.json", uid = uid)
-    if (nzchar(extra)) urls <- paste0(urls, "?", extra)
+    limit_val <- min(size, api_max_limit_())
+    urls <- glue("api/v2/assets/{uid}/data.json?limit={limit_val}",
+                 uid = uid, limit_val = limit_val)
+    if (nzchar(extra)) urls <- paste0(urls, "&", extra)
   } else {
     start <- seq(0, size, by = chunk_size)
     limit <- rep(chunk_size, length(start) - 1)
@@ -338,15 +348,23 @@ get_subs_fields_ <- function(uid, fields) {
   if (count <= 1) {
     return(as_tibble(rbindlist(parsed$results, fill = TRUE)))
   }
-  res <- xget(
-    path = path,
-    args = list(
-      fields = fields,
-      limit = count
+  if (count <= api_max_limit_()) {
+    res <- xget(
+      path = path,
+      args = list(fields = fields, limit = count)
     )
-  )
-  res <- fparse(res, max_simplify_lvl = "data_frame")
-  res$results
+    res <- fparse(res, max_simplify_lvl = "data_frame")
+    return(res$results)
+  }
+  starts <- seq(0, count - 1, by = api_max_limit_())
+  res_list <- lapply(starts, function(s) {
+    r <- xget(
+      path = path,
+      args = list(fields = fields, start = s, limit = api_max_limit_())
+    )
+    fparse(r, max_simplify_lvl = "data_frame")$results
+  })
+  as_tibble(rbindlist(res_list, fill = TRUE))
 }
 
 #' @noRd
