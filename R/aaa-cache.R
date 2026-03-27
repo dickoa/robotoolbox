@@ -29,7 +29,7 @@ NULL
 #' @param uid Optional asset uid. If provided, clears cache for that asset only.
 #' @param type Character, which cache to clear: "all" (default), "forms", or "langs".
 #'
-#' @return Invisibly returns TRUE
+#' @returns Invisibly returns TRUE
 #'
 #' @examples
 #' \dontrun{
@@ -67,7 +67,7 @@ kobo_cache_clear <- function(uid = NULL, type = c("all", "forms", "langs")) {
 
 #' Get cache statistics
 #'
-#' @return A list with cache statistics
+#' @returns A list with cache statistics
 #'
 #' @examples
 #' \dontrun{

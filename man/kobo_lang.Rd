@@ -46,8 +46,8 @@ a \code{kobo_asset} object.}
 \item{data}{For \code{kobo_lang_get()} and \code{kobo_lang_set()}: a \code{data.frame} or \code{dm} object
 returned by \code{kobo_data()}.}
 
-\item{asset}{For \code{kobo_lang_get()} and \code{kobo_lang_set()}: the \code{kobo_asset} object
-used to fetch the data.}
+\item{asset}{For \code{kobo_lang_get()} and \code{kobo_lang_set()}: a \code{kobo_asset} object
+or the unique identifier of a specific asset (\code{character}).}
 
 \item{lang}{For \code{kobo_lang_set()}: character, the target language.
 Use \code{kobo_lang(asset)} to see available languages.}
@@ -91,8 +91,9 @@ kobo_lang(asset)
 # Fetch data in English
 df <- kobo_data(asset, lang = "English (en)")
 
-# Check current language
+# Check current language (using asset object or uid)
 kobo_lang_get(df, asset)
+kobo_lang_get(df, "aYuTZn9vegi3Z49MXwKjep")
 
 # Switch to French instantly (no API call)
 df_fr <- kobo_lang_set(df, asset, lang = "Francais (fr)")

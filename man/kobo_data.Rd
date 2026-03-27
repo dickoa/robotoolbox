@@ -102,11 +102,20 @@ Default to \code{FALSE}.}
 
 \item{query}{character, a MongoDB-style query string to filter submissions
 server-side. For example, \code{'{"field_name": "value"}'} to return only
-submissions where \code{field_name} equals \code{"value"}. Default to \code{NULL} (no filtering).}
+submissions where \code{field_name} equals \code{"value"}. The query filters
+submissions (main table rows) based on top-level fields only. You cannot
+filter on fields inside a repeat group. All repeat group rows belonging to
+matching submissions are returned. Default to \code{NULL} (no filtering).}
 
 \item{fields}{character vector of field names to return. When provided, only
-these fields (plus \verb{__version__}) are fetched from the server. The server always
-includes \verb{_id} and \verb{_uuid}. Default to \code{NULL} (all fields).}
+these fields (plus \verb{__version__}) are fetched from the server. The server
+also includes system fields (\verb{_id}, \verb{_uuid}, etc.) regardless. For forms
+with repeat groups: use the repeat group name as a field to include or
+exclude it. A repeat group is always fetched in full — you cannot select
+individual columns within a child table (e.g. \code{"my_repeat/age"} is not
+supported). If all repeat groups are omitted from \code{fields}, a plain
+\code{data.frame} is returned instead of a \code{dm} object.
+Default to \code{NULL} (all fields).}
 }
 \value{
 A \code{data.frame} or A \code{dm} object if you have a repeating

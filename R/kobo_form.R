@@ -91,7 +91,7 @@ kobo_form_api_ <- function(x, version = NULL) {
   }
 
   asset <- x
-  if (!is.null(version))
+  if (!is.null(version) && !inherits(x, "kobo_asset_version"))
     asset <- kobo_asset_version(x, version)
   asset_content_nm <- names(asset$content)
   cond <- "translations" %in% asset_content_nm &

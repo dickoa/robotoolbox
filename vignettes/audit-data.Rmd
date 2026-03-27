@@ -126,4 +126,4 @@ Using the parameter `track-changes-reasons=on-form-edit` prevents editing of fil
 You can learn how to use audit logging in the documentation of `KoboToolbox` and `ODK`.
 
 - ODK's guide on audit logging: https://docs.getodk.org/form-audit-log/
-- KoboToolbox's guide on audit logging: https://support.kobotoolbox.org/audit_logging.html
+- KoboToolbox's guide on audit logging: https://support.kobotoolbox.org/form_meta.html

@@ -25,8 +25,10 @@ kobo_data_ <- function(
   if (!is.null(page_size) && page_size > api_max_limit_()) {
     warn(
       paste0(
-        "`page_size` exceeds the API maximum of ", api_max_limit_(),
-        "; capping at ", api_max_limit_()
+        "`page_size` exceeds the API maximum of ",
+        api_max_limit_(),
+        "; capping at ",
+        api_max_limit_()
       ),
       call = NULL
     )
@@ -62,11 +64,17 @@ kobo_data_ <- function(
     lang <- klang[1]
   }
 
-  if ("begin_repeat" %in% form$type) {
+  repeat_in_data <- "begin_repeat" %in%
+    form$type &&
+    any(unique(form$name[form$type %in% "begin_repeat"]) %in% names(subs))
+
+  if (repeat_in_data) {
     names_list <- kobo_form_name_to_list_(
       filter(form, .data$lang == lang),
       sep = select_multiple_sep
     )
+    pc_choices <- precompute_val_labels_(form, lang)
+    pc_var_labels <- precompute_var_labels_(form, lang)
     subs <- dedup_vars_(subs, all_versions = all_versions)
     subs <- set_names(subs, make_unique_names_)
     subs <- c(
@@ -88,25 +96,32 @@ kobo_data_ <- function(
         lang = lang,
         select_multiple_label = select_multiple_label,
         select_multiple_sep = select_multiple_sep,
-        cn = cn_list
+        cn = cn_list,
+        precomputed_choices = pc_choices,
+        precomputed_var_labels = pc_var_labels,
+        fields = fields
       )
     })
     subs <- setNames(subs, nm)
     subs <- as_dm(subs)
     subs <- dm_add_pk(subs, "main", "_index")
     p <- length(subs)
-    for (j in 2:p) {
-      tbl_nm <- names(subs)[j]
-      ref_tbl_nm <- unique(subs[[j]][["_parent_table_name"]])
-      subs <- dm_add_pk(subs, {{ tbl_nm }}, "_index")
-      subs <- dm_add_fk(
-        subs,
-        {{ tbl_nm }},
-        "_parent_index",
-        {{ ref_tbl_nm }}
-      )
+    if (p >= 2) {
+      for (j in 2:p) {
+        tbl_nm <- names(subs)[j]
+        ref_tbl_nm <- unique(subs[[j]][["_parent_table_name"]])
+        subs <- dm_add_pk(subs, {{ tbl_nm }}, "_index")
+        subs <- dm_add_fk(
+          subs,
+          {{ tbl_nm }},
+          "_parent_index",
+          {{ ref_tbl_nm }}
+        )
+      }
     }
-    if (isTRUE(colnames_label)) subs <- set_names_from_varlabel_dm_(subs)
+    if (isTRUE(colnames_label)) {
+      subs <- set_names_from_varlabel_dm_(subs)
+    }
   } else {
     subs <- dedup_vars_(subs, all_versions = all_versions)
     subs <- set_names(subs, make_unique_names_)
@@ -116,9 +131,12 @@ kobo_data_ <- function(
       lang = lang,
       select_multiple_label = select_multiple_label,
       select_multiple_sep = select_multiple_sep,
-      cn = cn
+      cn = cn,
+      fields = fields
     )
-    if (isTRUE(colnames_label)) subs <- set_names_from_varlabel_(subs)
+    if (isTRUE(colnames_label)) {
+      subs <- set_names_from_varlabel_(subs)
+    }
   }
   subs
 }
@@ -151,10 +169,19 @@ kobo_data_ <- function(
 #' @param page_size integer, number of submissions per page.
 #' @param query character, a MongoDB-style query string to filter submissions
 #'   server-side. For example, `'{"field_name": "value"}'` to return only
-#'   submissions where `field_name` equals `"value"`. Default to `NULL` (no filtering).
+#'   submissions where `field_name` equals `"value"`. The query filters
+#'   submissions (main table rows) based on top-level fields only. You cannot
+#'   filter on fields inside a repeat group. All repeat group rows belonging to
+#'   matching submissions are returned. Default to `NULL` (no filtering).
 #' @param fields character vector of field names to return. When provided, only
-#'   these fields (plus `__version__`) are fetched from the server. The server always
-#'   includes `_id` and `_uuid`. Default to `NULL` (all fields).
+#'   these fields (plus `__version__`) are fetched from the server. The server
+#'   also includes system fields (`_id`, `_uuid`, etc.) regardless. For forms
+#'   with repeat groups: use the repeat group name as a field to include or
+#'   exclude it. A repeat group is always fetched in full — you cannot select
+#'   individual columns within a child table (e.g. `"my_repeat/age"` is not
+#'   supported). If all repeat groups are omitted from `fields`, a plain
+#'   `data.frame` is returned instead of a `dm` object.
+#'   Default to `NULL` (all fields).
 #'
 #' @details \code{\link{kobo_data}} is the main function of \code{robotoolbox}, it is used
 #' pull submissions from your Kobotoolbox survey. The main result is a \code{data.frame}

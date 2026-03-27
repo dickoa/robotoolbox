@@ -11,8 +11,8 @@
 #'   a `kobo_asset` object.
 #' @param data For `kobo_lang_get()` and `kobo_lang_set()`: a `data.frame` or `dm` object
 #'   returned by `kobo_data()`.
-#' @param asset For `kobo_lang_get()` and `kobo_lang_set()`: the `kobo_asset` object
-#'   used to fetch the data.
+#' @param asset For `kobo_lang_get()` and `kobo_lang_set()`: a `kobo_asset` object
+#'   or the unique identifier of a specific asset (`character`).
 #' @param lang For `kobo_lang_set()`: character, the target language.
 #'   Use `kobo_lang(asset)` to see available languages.
 #'
@@ -46,8 +46,9 @@
 #' # Fetch data in English
 #' df <- kobo_data(asset, lang = "English (en)")
 #'
-#' # Check current language
+#' # Check current language (using asset object or uid)
 #' kobo_lang_get(df, asset)
+#' kobo_lang_get(df, "aYuTZn9vegi3Z49MXwKjep")
 #'
 #' # Switch to French instantly (no API call)
 #' df_fr <- kobo_lang_set(df, asset, lang = "Francais (fr)")
@@ -109,6 +110,7 @@ kobo_lang_get <- function(data, asset) {
 #' @importFrom labelled var_label
 #' @export
 kobo_lang_get.data.frame <- function(data, asset) {
+  asset <- as_kobo_asset_(asset)
   form <- kobo_form(asset)
   available_langs <- kobo_lang(asset)
 
@@ -137,6 +139,7 @@ kobo_lang_get.data.frame <- function(data, asset) {
 #' @importFrom dm dm_get_tables
 #' @export
 kobo_lang_get.dm <- function(data, asset) {
+  asset <- as_kobo_asset_(asset)
   tbls <- dm_get_tables(data)
   if ("main" %in% names(tbls)) {
     kobo_lang_get.data.frame(tbls$main, asset)
@@ -160,6 +163,7 @@ kobo_lang_set <- function(data, asset, lang) {
 #' @rdname kobo_lang
 #' @export
 kobo_lang_set.data.frame <- function(data, asset, lang) {
+  asset <- as_kobo_asset_(asset)
   available_langs <- kobo_lang(asset)
   if (!lang %in% available_langs) {
     abort(
@@ -183,6 +187,7 @@ kobo_lang_set.data.frame <- function(data, asset, lang) {
 #' @importFrom dm dm_get_tables dm_add_pk dm_add_fk
 #' @export
 kobo_lang_set.dm <- function(data, asset, lang) {
+  asset <- as_kobo_asset_(asset)
   available_langs <- kobo_lang(asset)
   if (!lang %in% available_langs) {
     abort(

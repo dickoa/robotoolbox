@@ -1,4 +1,4 @@
-robotoolbox 1.5.0 (2026-03-14)
+robotoolbox 1.6.0 (2026-03-27)
 ======================
 
 ### BREAKING CHANGES
@@ -32,6 +32,11 @@ robotoolbox 1.5.0 (2026-03-14)
 - Fixed documentation typos in README and vignettes.
 
 ### IMPROVEMENTS
+- **Significant performance gains for forms with repeat groups**: parallel form version
+  fetching (3x faster) and precomputed label application (5x faster processing) reduce
+  end-to-end time by ~40% on complex forms.
+- `kobo_lang_get()` and `kobo_lang_set()` now accept an asset uid string in addition
+  to a `kobo_asset` object, consistent with other package functions.
 - Simplified internal attachment processing using `tidyr::unnest()` for cleaner code.
 - Reduced sleep times between paginated API requests for better performance with 1,000 record limit.
 - Removed deprecated `vcr::check_cassette_names()` from test setup.

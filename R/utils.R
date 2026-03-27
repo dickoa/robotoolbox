@@ -22,6 +22,22 @@ assert_token <- function(x) {
   grepl(pattern = token_pattern, x)
 }
 
+#' Resolve an asset argument to a kobo_asset object
+#' @importFrom rlang abort
+#' @noRd
+as_kobo_asset_ <- function(x) {
+  if (inherits(x, "kobo_asset")) {
+    return(x)
+  }
+  if (is.character(x) && length(x) == 1 && assert_uid(x)) {
+    return(kobo_asset(x))
+  }
+  abort(
+    "'asset' must be a 'kobo_asset' object or a valid asset uid",
+    call = NULL
+  )
+}
+
 #' Maximum number of records per request for the /data endpoint
 #' @noRd
 api_max_limit_ <- function() {
@@ -31,24 +47,48 @@ api_max_limit_ <- function() {
 
 #' @noRd
 validate_query_ <- function(query) {
-  if (is.null(query)) return(invisible(NULL))
-  if (!is.character(query) || length(query) != 1)
+  if (is.null(query)) {
+    return(invisible(NULL))
+  }
+  if (!is.character(query) || length(query) != 1) {
     abort("`query` must be a single character string", call = NULL)
+  }
   q <- trimws(query)
-  if (!startsWith(q, "{") || !endsWith(q, "}"))
+  if (!startsWith(q, "{") || !endsWith(q, "}")) {
     abort(
-      c("`query` must be a valid JSON object string",
-        i = 'Example: \'{"field_name": "value"}\''),
+      c(
+        "`query` must be a valid JSON object string",
+        i = 'Example: \'{"field_name": "value"}\''
+      ),
       call = NULL
     )
+  }
   invisible(NULL)
 }
 
+#' @importFrom rlang warn
 #' @noRd
 validate_fields_ <- function(fields) {
-  if (is.null(fields)) return(invisible(NULL))
-  if (!is.character(fields) || length(fields) == 0)
+  if (is.null(fields)) {
+    return(invisible(NULL))
+  }
+  if (!is.character(fields) || length(fields) == 0) {
     abort("`fields` must be a non-empty character vector", call = NULL)
+  }
+  has_slash <- grepl("/", fields, fixed = TRUE)
+  if (any(has_slash)) {
+    abort(
+      c(
+        paste0(
+          "Nested field selection is not supported: ",
+          paste0("`", fields[has_slash], "`", collapse = ", ")
+        ),
+        i = "Use the repeat group name to fetch the entire group.",
+        i = 'Example: fields = c("name", "my_repeat_group")'
+      ),
+      call = NULL
+    )
+  }
   invisible(NULL)
 }
 
@@ -99,14 +139,11 @@ error_msg <- function(x) {
     return(setNames(check_uid_info, "i"))
   }
   if (grepl("not found", msg, ignore.case = TRUE)) {
-    c("uid (project) not found in this account/server",
-      i = check_uid_info)
+    c("uid (project) not found in this account/server", i = check_uid_info)
   } else if (grepl("invalid token", msg, ignore.case = TRUE)) {
-    c("Invalid API token",
-      i = check_token_info)
+    c("Invalid API token", i = check_token_info)
   } else if (grepl("invalid username/password", msg, ignore.case = TRUE)) {
-    c("Invalid username or password",
-      i = check_cred_info)
+    c("Invalid username or password", i = check_cred_info)
   } else {
     setNames(check_default, "i")
   }
@@ -245,9 +282,15 @@ dt2tibble <- function(x) {
 #' @noRd
 get_subs <- function(uid, args = list(), query = NULL, fields = NULL, ...) {
   path <- paste0("api/v2/assets/", uid, "/data.json")
-  if (is.null(args$limit)) args$limit <- api_max_limit_()
-  if (!is.null(query)) args$query <- query
-  if (!is.null(fields)) args$fields <- fields
+  if (is.null(args$limit)) {
+    args$limit <- api_max_limit_()
+  }
+  if (!is.null(query)) {
+    args$query <- query
+  }
+  if (!is.null(fields)) {
+    args$fields <- fields
+  }
   res <- xget(path = path, args = args, ...)
   res <- fparse(res, max_simplify_lvl = "data_frame", query = "/results")
   as_tibble(res)
@@ -257,21 +300,35 @@ get_subs <- function(uid, args = list(), query = NULL, fields = NULL, ...) {
 #' @importFrom tibble tibble
 #' @importFrom utils URLencode
 #' @noRd
-build_subs_urls <- function(uid, size, chunk_size = NULL,
-                            query = NULL, fields = NULL) {
+build_subs_urls <- function(
+  uid,
+  size,
+  chunk_size = NULL,
+  query = NULL,
+  fields = NULL
+) {
   extra_args <- c()
-  if (!is.null(query))
-    extra_args <- c(extra_args,
-                    paste0("query=", URLencode(query, reserved = TRUE)))
-  if (!is.null(fields))
-    extra_args <- c(extra_args,
-                    paste0("fields=", URLencode(fields, reserved = TRUE)))
+  if (!is.null(query)) {
+    extra_args <- c(
+      extra_args,
+      paste0("query=", URLencode(query, reserved = TRUE))
+    )
+  }
+  if (!is.null(fields)) {
+    extra_args <- c(
+      extra_args,
+      paste0("fields=", URLencode(fields, reserved = TRUE))
+    )
+  }
   extra <- paste(extra_args, collapse = "&")
 
   if (chunk_size >= size || is.null(chunk_size)) {
     limit_val <- min(size, api_max_limit_())
-    urls <- glue("api/v2/assets/{uid}/data.json?limit={limit_val}",
-                 uid = uid, limit_val = limit_val)
+    urls <- glue(
+      "api/v2/assets/{uid}/data.json?limit={limit_val}",
+      uid = uid,
+      limit_val = limit_val
+    )
     if (nzchar(extra)) urls <- paste0(urls, "&", extra)
   } else {
     start <- seq(0, size, by = chunk_size)
@@ -298,13 +355,19 @@ build_subs_urls <- function(uid, size, chunk_size = NULL,
 #' @importFrom dplyr case_when
 #' @importFrom rlang abort
 #' @noRd
-get_subs_async <- function(uid, size, chunk_size = NULL, n_retry = 3L,
-                           query = NULL, fields = NULL, ...) {
+get_subs_async <- function(
+  uid,
+  size,
+  chunk_size = NULL,
+  n_retry = 3L,
+  query = NULL,
+  fields = NULL,
+  ...
+) {
   headers <- list(
     Authorization = paste("Token", Sys.getenv("KOBOTOOLBOX_TOKEN"))
   )
-  urls <- build_subs_urls(uid, size, chunk_size,
-                          query = query, fields = fields)
+  urls <- build_subs_urls(uid, size, chunk_size, query = query, fields = fields)
   reqs <- lapply(urls, function(url) {
     req <- HttpRequest$new(url, headers = headers, opts = list(...))
     req$retry(
@@ -344,7 +407,9 @@ get_subs_fields_ <- function(uid, fields) {
   count_res <- xget(path = path, args = list(limit = 1, fields = fields))
   parsed <- fparse(count_res, max_simplify_lvl = "list")
   count <- parsed$count
-  if (is.null(count) || count == 0) return(NULL)
+  if (is.null(count) || count == 0) {
+    return(NULL)
+  }
   if (count <= 1) {
     return(as_tibble(rbindlist(parsed$results, fill = TRUE)))
   }
@@ -369,9 +434,12 @@ get_subs_fields_ <- function(uid, fields) {
 
 #' @noRd
 format_fields_ <- function(fields) {
-  if (is.null(fields)) return(NULL)
-  if (!"__version__" %in% fields)
+  if (is.null(fields)) {
+    return(NULL)
+  }
+  if (!"__version__" %in% fields) {
     fields <- c(fields, "__version__")
+  }
   paste0('["', paste(fields, collapse = '","'), '"]')
 }
 
@@ -388,7 +456,9 @@ get_filtered_count_ <- function(uid, query) {
 #' @noRd
 get_audit_url_ <- function(uid) {
   res <- get_subs_fields_(uid, '["_attachments", "formhub/uuid", "_uuid"]')
-  if (is.null(res)) return(tibble(`_id` = integer(), download_url = character()))
+  if (is.null(res)) {
+    return(tibble(`_id` = integer(), download_url = character()))
+  }
   unnest(res[c("_id", "_attachments")], "_attachments") |>
     filter(.data$media_file_basename %in% "audit.csv") |>
     select("_id", "download_url")
@@ -398,7 +468,9 @@ get_audit_url_ <- function(uid) {
 #' @noRd
 get_attachment_url_ <- function(uid) {
   res <- get_subs_fields_(uid, '["_attachments", "formhub/uuid", "_uuid"]')
-  if (is.null(res)) return(tibble(`_id` = integer()))
+  if (is.null(res)) {
+    return(tibble(`_id` = integer()))
+  }
   unnest(res[c("_id", "_attachments")], "_attachments")
 }
 
@@ -495,14 +567,16 @@ fast_dummy_cols <- function(x, form, cols, sep) {
         new_names
       )
       names_inform_repair(old_cols, new_cols)
-      for (i in seq_along(old_cols))
+      for (i in seq_along(old_cols)) {
         x[[new_cols[i]]] <- x[[old_cols[i]]]
+      }
       x[old_cols] <- NULL
     }
     na_idx <- is.na(y)
     init <- ifelse(na_idx, NA_integer_, 0L)
-    for (nm in new_names)
+    for (nm in new_names) {
       x[[nm]] <- init
+    }
     non_na_idx <- which(!na_idx)
     if (length(non_na_idx) > 0) {
       splits <- strsplit(y[non_na_idx], " ", fixed = TRUE)
@@ -512,8 +586,9 @@ fast_dummy_cols <- function(x, form, cols, sep) {
       valid <- !is.na(midx)
       if (any(valid)) {
         rids_by_col <- split(rids[valid], midx[valid])
-        for (k in names(rids_by_col))
+        for (k in names(rids_by_col)) {
           x[[new_names[as.integer(k)]]][rids_by_col[[k]]] <- 1L
+        }
       }
     }
   }
@@ -567,7 +642,6 @@ make_unique_names_ <- function(x) {
   make.unique(basename(x), sep = "_")
 }
 
-#' @importFrom purrr modify_if
 #' @importFrom tibble tibble rowid_to_column
 #' @importFrom data.table rbindlist
 #' @noRd
@@ -576,12 +650,16 @@ extract_repeat_tbl <- function(x, form, all_versions) {
   nm <- unique(form$name[form$type %in% "begin_repeat"])
   nm <- intersect(names(x), nm)
   if (length(nm) > 0) {
+    empty <- tibble()
     res <- setNames(
       lapply(nm, function(n) {
         res <- x[[n]]
-        res <- modify_if(res, ~ !is.data.frame(.), ~ tibble())
+        is_not_df <- !vapply(res, is.data.frame, logical(1))
+        if (any(is_not_df)) {
+          res[is_not_df] <- list(empty)
+        }
         res <- rbindlist(res, idcol = "_parent_index", fill = TRUE)
-        res <- tibble(res)
+        res <- dt2tibble(res)
         res <- dedup_vars_(res, all_versions = all_versions)
         res <- set_names(res, make_unique_names_)
         rowid_to_column(res, "_index")
@@ -623,26 +701,41 @@ kobo_extract_repeat_tbl <- function(x, form, all_versions) {
 
 #' @importFrom data.table rbindlist
 #' @importFrom stats setNames
-#' @importFrom labelled set_value_labels
-#' @importFrom stringi stri_detect_regex
 #' @noRd
-val_labels_from_form_ <- function(x, form, lang) {
-  form <- form[form$lang %in% lang &
-                 grepl("select_one", form$type, fixed = TRUE), ]
+precompute_val_labels_ <- function(form, lang) {
+  form <- form[
+    form$lang %in% lang & grepl("select_one", form$type, fixed = TRUE),
+  ]
   nm <- unique(form$name)
-  nm <- intersect(names(x), nm)
+  if (length(nm) == 0) {
+    return(list())
+  }
+  choices <- lapply(nm, function(n) {
+    ch <- rbindlist(form$choices[form$name == n], fill = TRUE)
+    if ("value_version" %in% names(ch)) {
+      ch$value_version <- NULL
+    }
+    ch <- unique(ch)
+    ch <- ch[ch$value_lang %in% lang, ]
+    ch$value_label <- make.unique(ch$value_label, sep = "_")
+    vals <- setNames(ch$value_name, ch$value_label)
+    vals[!duplicated(vals)]
+  })
+  setNames(choices, nm)
+}
+
+#' @importFrom labelled set_value_labels
+#' @noRd
+val_labels_from_form_ <- function(x, form, lang, precomputed_choices = NULL) {
+  if (is.null(precomputed_choices)) {
+    precomputed_choices <- precompute_val_labels_(form, lang)
+  }
+  nm <- intersect(names(x), names(precomputed_choices))
   if (length(nm) > 0) {
-    choices <- lapply(nm, function(n) {
-      ch <- rbindlist(form$choices[form$name == n], fill = TRUE)
-      if ("value_version" %in% names(ch)) ch$value_version <- NULL
-      ch <- unique(ch)
-      ch <- ch[ch$value_lang %in% lang, ]
-      ch$value_label <- make.unique(ch$value_label, sep = "_")
-      vals <- setNames(ch$value_name, ch$value_label)
-      vals[!duplicated(vals)]
-    })
-    names(choices) <- nm
-    for (n in nm) x[[n]] <- as.character(x[[n]])
+    choices <- precomputed_choices[nm]
+    for (n in nm) {
+      x[[n]] <- as.character(x[[n]])
+    }
     x <- set_value_labels(x, .labels = choices, .strict = FALSE)
   }
   x
@@ -654,14 +747,17 @@ val_labels_from_form_ <- function(x, form, lang) {
 #'
 #' @noRd
 val_labels_sm_from_form_ <- function(x, form, lang) {
-  form <- form[form$lang %in% lang &
-                 grepl("select_multiple", form$type, fixed = TRUE), ]
+  form <- form[
+    form$lang %in% lang & grepl("select_multiple", form$type, fixed = TRUE),
+  ]
   nm <- unique(form$name)
   nm <- intersect(names(x), nm)
   if (length(nm) > 0) {
     choices <- lapply(nm, function(n) {
       ch <- rbindlist(form$choices[form$name == n], fill = TRUE)
-      if ("value_version" %in% names(ch)) ch$value_version <- NULL
+      if ("value_version" %in% names(ch)) {
+        ch$value_version <- NULL
+      }
       ch <- unique(ch)
       ch <- ch[ch$value_lang %in% lang, ]
       ch$value_label <- make.unique(ch$value_label, sep = "_")
@@ -720,26 +816,42 @@ select_multiple_var_label <- function(x, form, lang) {
   labels
 }
 
+#' @importFrom stats setNames
+#' @noRd
+precompute_var_labels_ <- function(form, lang) {
+  form_lang <- form[form$lang %in% lang, ]
+  form_labels <- setNames(as.list(form_lang$label), form_lang$name)
+  sm_labels <- select_multiple_var_label(
+    x = NULL,
+    form = form_lang,
+    lang = lang
+  )
+  list(form_labels = form_labels, sm_labels = sm_labels)
+}
+
 #' @importFrom labelled set_variable_labels
 #' @importFrom stats setNames
 #' @noRd
-var_labels_from_form_ <- function(x, form, lang) {
-  cond <- form$lang %in% lang & form$name %in% names(x)
-  form <- form[cond, ]
-  nm <- unique(form$name)
-  labels_select_multiple <- select_multiple_var_label(
-    x = x,
-    form = form,
-    lang = lang
-  )
-  nm_select_multiple <- names(labels_select_multiple)
+var_labels_from_form_ <- function(
+  x,
+  form,
+  lang,
+  precomputed_var_labels = NULL
+) {
+  if (is.null(precomputed_var_labels)) {
+    precomputed_var_labels <- precompute_var_labels_(form, lang)
+  }
+  form_labels <- precomputed_var_labels$form_labels
+  sm_labels <- precomputed_var_labels$sm_labels
+  nm <- intersect(names(x), names(form_labels))
+  nm_sm <- names(sm_labels)
   nm_missing <- setdiff(names(x), nm)
-  nm_missing <- setdiff(nm_missing, nm_select_multiple)
-  nm <- intersect(names(x), nm)
+  nm_missing <- setdiff(nm_missing, nm_sm)
   if (length(nm) > 0) {
-    labels <- setNames(as.list(form$label), form$name)
+    labels <- form_labels[nm]
     labels_missing <- setNames(as.list(nm_missing), nm_missing)
-    labels <- c(labels, labels_missing, labels_select_multiple)
+    labels_sm <- sm_labels[intersect(names(x), nm_sm)]
+    labels <- c(labels, labels_missing, labels_sm)
     labels <- replace_na_list_efficient_(labels)
     x <- set_variable_labels(x, .labels = labels, .strict = FALSE)
   } else {
@@ -959,7 +1071,10 @@ postprocess_data_ <- function(
   lang,
   select_multiple_label = FALSE,
   cn,
-  select_multiple_sep = "_"
+  select_multiple_sep = "_",
+  precomputed_choices = NULL,
+  precomputed_var_labels = NULL,
+  fields = NULL
 ) {
   x <- dummy_from_form_(x, form, sep = select_multiple_sep)
   x <- extract_geopoint_(x, form)
@@ -967,9 +1082,23 @@ postprocess_data_ <- function(
   x <- extract_geoshape_(x, form)
   x <- type_convert_(x, form)
   x <- remove_list_cols(x)
-  x <- add_missing_cols_(x, cn)
-  x <- val_labels_from_form_(x = x, form = form, lang = lang)
-  x <- var_labels_from_form_(x = x, form = form, lang = lang)
+  if (!is.null(fields)) {
+    x <- add_missing_cols_(x, intersect(cn, fields))
+  } else {
+    x <- add_missing_cols_(x, cn)
+  }
+  x <- val_labels_from_form_(
+    x = x,
+    form = form,
+    lang = lang,
+    precomputed_choices = precomputed_choices
+  )
+  x <- var_labels_from_form_(
+    x = x,
+    form = form,
+    lang = lang,
+    precomputed_var_labels = precomputed_var_labels
+  )
   if (isTRUE(select_multiple_label)) {
     x <- val_labels_sm_from_form_(x = x, form = form, lang = lang)
   }
@@ -1217,13 +1346,33 @@ kobo_type_cols_ <- function(x, form) {
   )
   v <- form$cols[match(names(x), form$name)]
   sys_types <- c(
-    `_id` = "i", `formhub/uuid` = "c", `__version__` = "c",
-    `meta/instanceID` = "c", `meta/deprecatedID` = "c",
-    `meta/rootUuid` = "c", `_xform_id_string` = "c",
-    `_uuid` = "c", `_status` = "c", `_submitted_by` = "c",
-    `_submission_time` = "T"
+    `_id` = "i",
+    `formhub/uuid` = "c",
+    `__version__` = "c",
+    `meta/instanceID` = "c",
+    `meta/deprecatedID` = "c",
+    `meta/rootUuid` = "c",
+    `_xform_id_string` = "c",
+    `_uuid` = "c",
+    `_status` = "c",
+    `_submitted_by` = "c",
+    `_submission_time` = "T",
+    `_index` = "i",
+    `_parent_index` = "i",
+    `_parent_table_name` = "c",
+    `_validation_status` = "c"
   )
   v <- coalesce(v, unname(sys_types[names(x)]))
+  sm_names <- unique(form$name[grepl(
+    "select_multiple",
+    form$type,
+    fixed = TRUE
+  )])
+  if (length(sm_names) > 0) {
+    sm_pat <- paste0("^(", paste(sm_names, collapse = "|"), ")_")
+    is_dummy <- grepl(sm_pat, names(x)) & is.na(v)
+    v[is_dummy] <- "i"
+  }
   paste(coalesce(v, "?"), collapse = "")
 }
 
@@ -1247,14 +1396,79 @@ kobo_form_version_ <- function(x, asset, all_versions) {
   }
   cond <- cond1 & cond2 & cond3 & all_versions
   if (cond) {
-    # kobo_form() uses cache internally - avoids redundant API calls
-    form <- lapply(versions, \(v) kobo_form(uid, v))
+    uncached <- versions[
+      !vapply(
+        versions,
+        \(v) has_cached_form_(uid, v),
+        logical(1)
+      )
+    ]
+    if (length(uncached) > 1) {
+      asset_vers <- tryCatch(
+        fetch_asset_versions_async_(uid, uncached),
+        error = function(e) NULL
+      )
+      if (!is.null(asset_vers)) {
+        for (i in seq_along(uncached)) {
+          frm <- kobo_form_api_(asset_vers[[i]], uncached[i])
+          set_cached_form_(uid, uncached[i], frm)
+        }
+      } else {
+        for (v in uncached) {
+          kobo_form(uid, v)
+        }
+      }
+    } else if (length(uncached) == 1) {
+      kobo_form(uid, uncached)
+    }
+    form <- lapply(versions, \(v) get_cached_form_(uid, v))
     form <- dt2tibble(rbindlist(form, fill = TRUE))
   } else {
     v <- if (!cond2 & cond3) versions else NULL
     form <- kobo_form(uid, version = v)
   }
   form
+}
+
+#' @importFrom crul AsyncQueue HttpRequest
+#' @importFrom RcppSimdJson fparse
+#' @importFrom rlang abort
+#' @noRd
+fetch_asset_versions_async_ <- function(uid, versions) {
+  headers <- list(
+    Authorization = paste("Token", Sys.getenv("KOBOTOOLBOX_TOKEN"))
+  )
+  base_url <- Sys.getenv("KOBOTOOLBOX_URL")
+  reqs <- lapply(versions, function(v) {
+    url <- file.path(
+      base_url,
+      paste0("api/v2/assets/", uid, "/versions/", v)
+    )
+    HttpRequest$new(url, headers = headers)$retry(
+      "get",
+      times = 3L,
+      retry_only_on = c(500, 503),
+      terminate_on = 404
+    )
+  })
+  res <- AsyncQueue$new(
+    .list = reqs,
+    bucket_size = length(reqs),
+    sleep = 0.05
+  )
+  res$request()
+  status <- res$status_code()
+  cond <- status >= 300L
+  if (any(cond)) {
+    msg <- res$content()[cond]
+    abort(error_msg(msg[[1]]), call = NULL)
+  }
+  parsed <- res$parse(encoding = "UTF-8")
+  lapply(seq_along(versions), function(i) {
+    asset_ver <- fparse(parsed[[i]], max_simplify_lvl = "list")
+    asset_ver$asset_uid <- uid
+    structure(asset_ver, class = "kobo_asset_version")
+  })
 }
 
 #' @noRd

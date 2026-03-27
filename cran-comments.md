@@ -1,4 +1,4 @@
-## Submission 1.5.0
+## Submission 1.6.0
 
 This is a major update to comply with **breaking changes to the KoboToolbox
 API v2** introduced in KoboToolbox KPI version 2.026.03 (March 2026). The
@@ -10,7 +10,7 @@ receive truncated data.
 
 - Pagination logic updated: datasets with >1,000 submissions are automatically
   paginated in 1,000-record chunks.
-- Datasets with ≤1,000 submissions are fetched in a single request
+- Datasets with <= 1,000 submissions are fetched in a single request
   (`limit=1000`).
 - `kobo_setup()` now accepts a `page_size` parameter (default `1000`) to
   configure the maximum number of submissions per API request. Users with
@@ -19,6 +19,11 @@ receive truncated data.
 - Internal helpers now paginate to avoid silent data loss on large datasets.
 - New session-level caching and language switching features.
 - Bug fixes for attachment downloads and audit log retrieval.
+- Faster for forms with repeat groups.
+
+## Reverse dependencies
+
+Checked 0 reverse dependencies
 
 ## Test environments
 
