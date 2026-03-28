@@ -9,3 +9,6 @@ docs/
 reference/
 /doc/
 /Meta/
+build/
+.~undo-tree~
+*~undo-tree~

@@ -21,14 +21,15 @@ receive truncated data.
 - Bug fixes for attachment downloads and audit log retrieval.
 - Faster for forms with repeat groups.
 
-## Reverse dependencies
-
-Checked 0 reverse dependencies
-
 ## Test environments
 
 - Arch Linux x86_64 GNU/Linux, kernel 6.19.6, R 4.5.3 Patched (2026-03-11)
+- Win-builder (devel, release)
 
 ## R CMD check results
 
 0 errors | 0 warnings | 0 notes
+
+## Reverse dependencies
+
+Reverse dependencies: checked, 0 found.
