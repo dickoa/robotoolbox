@@ -57,7 +57,7 @@ pages:
   script:
     - Rscript -e 'install.packages(c("pak", "pkgdown", "DiagrammeR", "DiagrammeRsvg"))'
     - Rscript -e 'pak::local_install_dev_deps(dependencies = TRUE)'
-    - Rscript -e 'remotes::install_github("vidonne/unhcrtemplate")'
+    - Rscript -e 'pak::pak("vidonne/unhcrtemplate")'
     - Rscript -e 'install.packages("crul", repos = "https://packages.ropensci.org")'
     - Rscript -e 'devtools::install()'
     - Rscript -e 'pkgdown::build_site(override = list(destination = "public"))'
