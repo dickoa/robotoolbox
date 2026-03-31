@@ -19,10 +19,11 @@ test:
   stage: test
   before_script:
     - apt-get update -qq
-    - apt-get install --yes --no-install-recommends libssl-dev libssh2-1-dev libxml2-dev libcurl4-gnutls-dev libgit2-dev libmagick++-dev pandoc libudunits2-dev libgdal-dev libglpk-dev
+    - apt-get install --yes --no-install-recommends libssl-dev libssh2-1-dev libxml2-dev libcurl4-gnutls-dev libgit2-dev libmagick++-dev pandoc libudunits2-dev libgdal-dev libglpk-dev cmake libuv1-dev
     - mkdir -p $R_LIBS_USER
   script:
-    - Rscript -e 'devtools::install_deps(dependencies = TRUE)'
+    - Rscript -e 'install.packages("pak")'
+    - Rscript -e 'pak::local_install_deps()'
     - Rscript -e 'install.packages("crul", repos = "https://packages.ropensci.org")'
     - Rscript -e 'devtools::check(error_on = "error")'
   rules:
@@ -35,11 +36,11 @@ coverage:
   stage: test
   before_script:
     - apt-get update -qq
-    - apt-get install --yes --no-install-recommends libssl-dev libssh2-1-dev libxml2-dev libcurl4-gnutls-dev libgit2-dev libmagick++-dev pandoc libudunits2-dev libgdal-dev libglpk-dev
+    - apt-get install --yes --no-install-recommends libssl-dev libssh2-1-dev libxml2-dev libcurl4-gnutls-dev libgit2-dev libmagick++-dev pandoc libudunits2-dev libgdal-dev libglpk-dev cmake libuv1-dev
     - mkdir -p $R_LIBS_USER
   script:
-    - Rscript -e 'install.packages("covr")'
-    - Rscript -e 'devtools::install_deps(dependencies = TRUE)'
+    - Rscript -e 'install.packages(c("pak", "covr"))'
+    - Rscript -e 'pak::local_install_deps()'
     - Rscript -e 'install.packages("crul", repos = "https://packages.ropensci.org")'
     - Rscript -e 'covr::codecov()'
   rules:
@@ -51,11 +52,11 @@ pages:
   stage: deploy
   before_script:
     - apt-get update -qq
-    - apt-get install --yes --no-install-recommends libssl-dev libssh2-1-dev libxml2-dev libcurl4-gnutls-dev libgit2-dev libmagick++-dev pandoc libudunits2-dev libgdal-dev libglpk-dev
+    - apt-get install --yes --no-install-recommends libssl-dev libssh2-1-dev libxml2-dev libcurl4-gnutls-dev libgit2-dev libmagick++-dev pandoc libudunits2-dev libgdal-dev libglpk-dev cmake libuv1-dev
     - mkdir -p $R_LIBS_USER
   script:
-    - Rscript -e 'install.packages(c("pkgdown", "DiagrammeR", "DiagrammeRsvg"))'
-    - Rscript -e 'devtools::install_deps(dependencies = TRUE)'
+    - Rscript -e 'install.packages(c("pak", "pkgdown", "DiagrammeR", "DiagrammeRsvg"))'
+    - Rscript -e 'pak::local_install_deps()'
     - Rscript -e 'remotes::install_github("vidonne/unhcrtemplate")'
     - Rscript -e 'install.packages("crul", repos = "https://packages.ropensci.org")'
     - Rscript -e 'devtools::install()'
