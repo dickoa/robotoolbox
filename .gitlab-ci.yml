@@ -23,7 +23,7 @@ test:
     - mkdir -p $R_LIBS_USER
   script:
     - Rscript -e 'install.packages("pak")'
-    - Rscript -e 'pak::local_install_deps()'
+    - Rscript -e 'pak::local_install_dev_deps(dependencies = TRUE)'
     - Rscript -e 'install.packages("crul", repos = "https://packages.ropensci.org")'
     - Rscript -e 'devtools::check(error_on = "error")'
   rules:
@@ -40,7 +40,7 @@ coverage:
     - mkdir -p $R_LIBS_USER
   script:
     - Rscript -e 'install.packages(c("pak", "covr"))'
-    - Rscript -e 'pak::local_install_deps()'
+    - Rscript -e 'pak::local_install_dev_deps(dependencies = TRUE)'
     - Rscript -e 'install.packages("crul", repos = "https://packages.ropensci.org")'
     - Rscript -e 'covr::codecov()'
   rules:
@@ -56,7 +56,7 @@ pages:
     - mkdir -p $R_LIBS_USER
   script:
     - Rscript -e 'install.packages(c("pak", "pkgdown", "DiagrammeR", "DiagrammeRsvg"))'
-    - Rscript -e 'pak::local_install_deps()'
+    - Rscript -e 'pak::local_install_dev_deps(dependencies = TRUE)'
     - Rscript -e 'remotes::install_github("vidonne/unhcrtemplate")'
     - Rscript -e 'install.packages("crul", repos = "https://packages.ropensci.org")'
     - Rscript -e 'devtools::install()'
