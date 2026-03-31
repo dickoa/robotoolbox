@@ -21,7 +21,7 @@
 #' \dontrun{
 #' # use your own KoboToolbox URL, username and password
 #' if (require(askpass)) {
-#'  token <- kobo_setup(username = "cool_user_name",
+#'  token <- kobo_token(username = "cool_user_name",
 #'                      password = askpass::askpass(),
 #'                      url = "https://kf.kobotoolbox.org/")
 #'  token
@@ -31,14 +31,20 @@
 #' @export
 kobo_token <- function(username = NULL, password = NULL,
                        url = NULL, overwrite = FALSE) {
-  if (!is.null(url) && !nzchar(Sys.getenv("KOBOTOOLBOX_URL"))) {
+  if (is.null(url)) {
+    url <- Sys.getenv("KOBOTOOLBOX_URL", "")
+    if (!nzchar(url)) {
+      abort(
+        c("No KoboToolbox server URL provided.",
+          i = "Pass `url` or set the KOBOTOOLBOX_URL environment variable."),
+        call = NULL
+      )
+    }
+  } else {
     if (!assert_url(url))
-    abort(message = "Invalid URL")
+      abort("Invalid URL", call = NULL)
     Sys.setenv("KOBOTOOLBOX_URL" = url)
   }
-
-  if (is.null(url) && nzchar(Sys.getenv("KOBOTOOLBOX_URL")))
-    url <- Sys.getenv("KOBOTOOLBOX_URL")
 
   if (nzchar(Sys.getenv("KOBOTOOLBOX_TOKEN")) && !overwrite) {
     token <- Sys.getenv("KOBOTOOLBOX_TOKEN")

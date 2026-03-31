@@ -94,12 +94,18 @@ kobo_setup(url = "https://kobo.unhcr.org",
            token = "xxxxxxxxxxxxxxxxxxxxxxxxxx")
 ```
 
-By default, `kobo_setup` sets a maximum of 1,000 submissions per API request, matching the limit enforced by public KoboToolbox servers since KoboToolbox KPI version 2.026.03 (March 2026). If you use a private server with a higher limit, you can configure it with the `page_size` parameter:
+By default, `kobo_setup` sets a maximum of 1,000 submissions per API request, matching the limit enforced by public KoboToolbox servers since KoboToolbox KPI version 2.026.03 (March 2026). If you use a private server with a higher limit, you can configure it with the `page_size` parameter or by setting the `KOBOTOOLBOX_PAGE_SIZE` environment variable:
 
 ```{r, eval = FALSE}
 kobo_setup(url = "https://my-private-server.org",
            token = "xxxxxxxxxxxxxxxxxxxxxxxxxx",
            page_size = 30000)
+```
+
+Alternatively, you can set `KOBOTOOLBOX_PAGE_SIZE` in your `.Renviron`:
+
+```{bash, eval=FALSE, engine="sh"}
+KOBOTOOLBOX_PAGE_SIZE=30000
 ```
 
 You can check the settings using the `kobo_settings` function.

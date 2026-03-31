@@ -1,3 +1,32 @@
+robotoolbox 1.6.1 (2026-03-31)
+======================
+
+### BUG FIXES
+- **Fixed repeat group column assignment in `dm` objects**: child tables were inflated with
+  hundreds of spurious all-NA columns belonging to other tables. The internal scope tracking
+  (`kobo_form_name_to_list_()`) now correctly maps each field to its repeat group, producing
+  child tables that match the KoboToolbox Excel export.
+- **Fixed empty-result path in `kobo_data()`**: zero-submission assets now return the correct
+  structure (`dm` for repeat-group forms, filtered columns when `fields` is set, label-based
+  names when `colnames_label = TRUE`). A spurious `"NA"` column no longer appears.
+- **Fixed `kobo_lang_get()` and `kobo_lang_set()` with `colnames_label = TRUE` data**: both
+  functions now correctly detect and handle datasets where columns have been renamed to labels.
+- **Fixed pagination edge case** where `paginate = TRUE` with a single submission produced an
+  invalid `page_size` of 0.
+- **Fixed `build_subs_urls()` off-by-one** that generated an extra empty API request when
+  submission count was an exact multiple of `page_size`.
+- **Fixed `validate_query_()` JSON validation**: now uses `RcppSimdJson::fparse()` to actually
+  parse the query string instead of only checking `{`/`}` delimiters.
+- **Fixed `kobo_token()` error on missing URL**: now aborts early with a clear message instead
+  of a low-level curl error when no URL is provided and `KOBOTOOLBOX_URL` is unset.
+
+### DOCUMENTATION
+- Fixed `kobo_attachment_download()` roxygen: `overwrite` default corrected to `TRUE`,
+  `folder` description no longer claims a default that does not exist.
+- Fixed `kobo_token()` example to call `kobo_token()` instead of `kobo_setup()`.
+- `README` and intro vignette now mention the `KOBOTOOLBOX_PAGE_SIZE` environment variable
+  as an alternative to the `page_size` parameter.
+
 robotoolbox 1.6.0 (2026-03-27)
 ======================
 

@@ -9,14 +9,13 @@ kobo_attachment_download(x, folder, progress, overwrite, n_retry)
 \arguments{
 \item{x}{the asset uid or the \code{kobo_asset} object.}
 
-\item{folder}{character, the folder where you store the downloaded files.
-The working directory is the default folder.}
+\item{folder}{character, the folder where you store the downloaded files.}
 
 \item{progress}{logical, whether or not you want to see the progess via message.
 Default to \code{FALSE}.}
 
 \item{overwrite}{logical, whether or not you want to overwrite existing media files.
-Default to \code{FALSE}.}
+Default to \code{TRUE}.}
 
 \item{n_retry}{integer, Number of time you should retry the failed request.
 Default to 3L.}

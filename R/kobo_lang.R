@@ -119,19 +119,24 @@ kobo_lang_get.data.frame <- function(data, asset) {
 
   if (length(current_labels) == 0) return(NA_character_)
 
+  col_names <- names(current_labels)
+  is_label_cols <- has_label_colnames_(col_names, form)
+
   matches <- vapply(available_langs, function(lng) {
     form_lang <- form[form$lang == lng, ]
     form_labels <- setNames(form_lang$label, form_lang$name)
 
-    common_vars <- intersect(names(current_labels), names(form_labels))
-    if (length(common_vars) == 0)
-      return(0L)
-    sum(unlist(current_labels[common_vars]) == form_labels[common_vars], na.rm = TRUE)
+    if (is_label_cols) {
+      sum(col_names %in% form_labels, na.rm = TRUE)
+    } else {
+      common_vars <- intersect(col_names, names(form_labels))
+      if (length(common_vars) == 0) return(0L)
+      sum(unlist(current_labels[common_vars]) == form_labels[common_vars],
+          na.rm = TRUE)
+    }
   }, integer(1))
 
-  if (max(matches) == 0)
-    return(NA_character_)
-
+  if (max(matches) == 0) return(NA_character_)
   names(which.max(matches))
 }
 
@@ -141,11 +146,12 @@ kobo_lang_get.data.frame <- function(data, asset) {
 kobo_lang_get.dm <- function(data, asset) {
   asset <- as_kobo_asset_(asset)
   tbls <- dm_get_tables(data)
-  if ("main" %in% names(tbls)) {
-    kobo_lang_get.data.frame(tbls$main, asset)
-  } else {
-    kobo_lang_get.data.frame(tbls[[1]], asset)
+  order <- c("main", setdiff(names(tbls), "main"))
+  for (nm in order) {
+    res <- kobo_lang_get.data.frame(tbls[[nm]], asset)
+    if (!is.na(res)) return(res)
   }
+  NA_character_
 }
 
 #' @rdname kobo_lang
@@ -161,6 +167,8 @@ kobo_lang_set <- function(data, asset, lang) {
 }
 
 #' @rdname kobo_lang
+#' @importFrom dplyr rename
+#' @importFrom tidyselect all_of
 #' @export
 kobo_lang_set.data.frame <- function(data, asset, lang) {
   asset <- as_kobo_asset_(asset)
@@ -176,10 +184,20 @@ kobo_lang_set.data.frame <- function(data, asset, lang) {
   }
 
   form <- kobo_form(asset)
+  is_label_cols <- has_label_colnames_(names(data), form)
+
+  if (is_label_cols) {
+    cur_lang <- kobo_lang_get(data, asset)
+    if (!is.na(cur_lang)) {
+      reverse <- reverse_label_lookup_(names(data), form, cur_lang)
+      if (length(reverse) > 0) data <- rename(data, all_of(reverse))
+    }
+  }
 
   data <- val_labels_from_form_(data, form, lang)
   data <- var_labels_from_form_(data, form, lang)
 
+  if (is_label_cols) data <- set_names_from_varlabel_(data)
   data
 }
 
@@ -204,10 +222,20 @@ kobo_lang_set.dm <- function(data, asset, lang) {
   tbls <- dm_get_tables(data)
   tbl_names <- names(tbls)
 
+  all_col_names <- unlist(lapply(tbls, names), use.names = FALSE)
+  is_label_cols <- has_label_colnames_(all_col_names, form)
+  cur_lang <- NULL
+  if (is_label_cols) cur_lang <- kobo_lang_get(data, asset)
+
   tbls_updated <- lapply(tbl_names, function(nm) {
     tbl <- tbls[[nm]]
+    if (is_label_cols && !is.na(cur_lang)) {
+      reverse <- reverse_label_lookup_(names(tbl), form, cur_lang)
+      if (length(reverse) > 0) tbl <- rename(tbl, all_of(reverse))
+    }
     tbl <- val_labels_from_form_(tbl, form, lang)
     tbl <- var_labels_from_form_(tbl, form, lang)
+    if (is_label_cols) tbl <- set_names_from_varlabel_(tbl)
     tbl
   })
   names(tbls_updated) <- tbl_names

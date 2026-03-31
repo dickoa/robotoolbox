@@ -22,26 +22,28 @@ kobo_data_ <- function(
     abort("`page_size` must be a positive integer", call = NULL)
   }
 
-  if (!is.null(page_size) && page_size > api_max_limit_()) {
+  api_max_limit <- api_max_limit_()
+
+  if (!is.null(page_size) && page_size > api_max_limit) {
     warn(
       paste0(
         "`page_size` exceeds the API maximum of ",
-        api_max_limit_(),
+        api_max_limit,
         "; capping at ",
-        api_max_limit_()
+        api_max_limit
       ),
       call = NULL
     )
-    page_size <- api_max_limit_()
+    page_size <- api_max_limit
   }
 
   fields_json <- format_fields_(fields)
 
-  paginate <- isTRUE(paginate) || !is.null(page_size) || size > api_max_limit_()
+  paginate <- isTRUE(paginate) || !is.null(page_size) || size > api_max_limit
 
   if (paginate) {
     if (is.null(page_size)) {
-      page_size <- ifelse(size > api_max_limit_(), api_max_limit_(), size %/% 2)
+      page_size <- ifelse(size > api_max_limit, api_max_limit, max(size %/% 2, 1L))
     }
     subs <- get_subs_async(
       x$uid,
@@ -287,8 +289,34 @@ kobo_data.kobo_asset <- function(
     )
   } else {
     form <- kobo_form(x)
-    cn <- kobo_form_names_(form, sep = select_multiple_sep)
-    res <- empty_tibble_(cn)
+    klang <- kobo_lang(x)
+    if (is.null(lang) || !lang %in% klang) lang <- klang[1]
+    has_repeat <- "begin_repeat" %in% form$type
+
+    if (has_repeat) {
+      names_list <- kobo_form_name_to_list_(
+        filter(form, .data$lang == lang),
+        sep = select_multiple_sep
+      )
+      if (!is.null(fields)) {
+        names_list[["main"]] <- intersect(names_list[["main"]], fields)
+        keep <- c("main", intersect(names(names_list), fields))
+        names_list <- names_list[keep]
+      }
+      tbls <- lapply(names_list, empty_tibble_)
+      res <- as_dm(tbls)
+      if (isTRUE(colnames_label)) {
+        res <- set_names_from_varlabel_empty_dm_(res, form, lang)
+      }
+    } else {
+      cn <- kobo_form_names_(form, sep = select_multiple_sep)
+      if (!is.null(fields)) cn <- intersect(cn, fields)
+      cn <- na.omit(cn)
+      res <- empty_tibble_(cn)
+      if (isTRUE(colnames_label)) {
+        res <- set_names_from_varlabel_empty_(res, form, lang)
+      }
+    }
   }
   res
 }
@@ -436,11 +464,10 @@ kobo_attachment_download_ <- function(attachments, folder, overwrite, n_retry) {
 #'
 #' @param x the asset uid or the \code{kobo_asset} object.
 #' @param folder character, the folder where you store the downloaded files.
-#' The working directory is the default folder.
 #' @param progress logical, whether or not you want to see the progess via message.
 #' Default to `FALSE`.
 #' @param overwrite logical, whether or not you want to overwrite existing media files.
-#' Default to `FALSE`.
+#' Default to `TRUE`.
 #' @param n_retry integer, Number of time you should retry the failed request.
 #' Default to 3L.
 #'

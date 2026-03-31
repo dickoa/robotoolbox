@@ -28,7 +28,7 @@ Get your KoboToolbox API token from your username and password.
 \dontrun{
 # use your own KoboToolbox URL, username and password
 if (require(askpass)) {
- token <- kobo_setup(username = "cool_user_name",
+ token <- kobo_token(username = "cool_user_name",
                      password = askpass::askpass(),
                      url = "https://kf.kobotoolbox.org/")
  token

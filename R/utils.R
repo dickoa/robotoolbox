@@ -53,8 +53,8 @@ validate_query_ <- function(query) {
   if (!is.character(query) || length(query) != 1) {
     abort("`query` must be a single character string", call = NULL)
   }
-  q <- trimws(query)
-  if (!startsWith(q, "{") || !endsWith(q, "}")) {
+  parsed <- tryCatch(fparse(query), error = function(e) NULL)
+  if (is.null(parsed) || !is.list(parsed)) {
     abort(
       c(
         "`query` must be a valid JSON object string",
@@ -331,11 +331,8 @@ build_subs_urls <- function(
     )
     if (nzchar(extra)) urls <- paste0(urls, "&", extra)
   } else {
-    start <- seq(0, size, by = chunk_size)
-    limit <- rep(chunk_size, length(start) - 1)
-    last_limit <- size %% chunk_size
-    last_limit <- ifelse(last_limit, last_limit, chunk_size)
-    limit <- c(limit, last_limit)
+    start <- seq(0, size - 1L, by = chunk_size)
+    limit <- pmin(chunk_size, size - start)
     df <- tibble(
       start = sprintf("%d", start),
       limit = sprintf("%d", limit),
@@ -1164,46 +1161,119 @@ kobo_display_fields <- function() {
   )
 }
 
-#' @importFrom dplyr bind_rows
 #' @importFrom rlang set_names
 #' @noRd
 empty_tibble_ <- function(cnames) {
+  cnames <- cnames[!is.na(cnames)]
   tibble(!!!cnames, .rows = 0, .name_repair = ~cnames)
 }
 
+#' @noRd
+label_lookup_from_form_ <- function(col_names, form, lang) {
+  form_lang <- form[form$lang %in% lang, ]
+  lookup <- setNames(form_lang$label, form_lang$name)
+  lookup <- lookup[!duplicated(names(lookup))]
+  matched <- lookup[intersect(col_names, names(lookup))]
+  matched <- matched[!is.na(matched)]
+  setNames(names(matched), make.unique(unlist(matched), sep = "_"))
+}
+
+#' @noRd
+has_label_colnames_ <- function(col_names, form) {
+  form_labels <- unique(form$label[!is.na(form$label)])
+  any(col_names %in% form_labels)
+}
+
+#' Returns c("original_name" = "label_col", ...) for use with rename()
+#' @noRd
+reverse_label_lookup_ <- function(label_cols, form, lang) {
+  form_lang <- form[form$lang %in% lang, ]
+  name_to_lbl <- setNames(form_lang$label, form_lang$name)
+  name_to_lbl <- name_to_lbl[!duplicated(names(name_to_lbl)) & !is.na(name_to_lbl)]
+  in_data <- name_to_lbl[name_to_lbl %in% label_cols]
+  setNames(unname(in_data), names(in_data))
+}
+
+#' @importFrom dplyr rename
+#' @noRd
+set_names_from_varlabel_empty_ <- function(x, form, lang) {
+  lookup <- label_lookup_from_form_(names(x), form, lang)
+  if (length(lookup) > 0) rename(x, all_of(lookup)) else x
+}
+
+#' @importFrom dm dm_rename
+#' @noRd
+set_names_from_varlabel_empty_dm_ <- function(x, form, lang) {
+  for (nm in names(x)) {
+    lookup <- label_lookup_from_form_(names(x[[nm]]), form, lang)
+    if (length(lookup) > 0) x <- dm_rename(x, {{ nm }}, lookup)
+  }
+  x
+}
+
 #' @importFrom purrr map map_chr accumulate
-#' @importFrom dplyr mutate right_join arrange if_else
-#' @importFrom tibble rowid_to_column
+#' @importFrom dplyr distinct
+#' @importFrom purrr map
 #' @importFrom rlang set_names
-#' @importFrom tidyr fill
 #' @noRd
 kobo_form_name_to_list_ <- function(x, sep) {
   x <- kobo_form_extra_(x, sep)
-  x <- distinct(x, .data$name, .data$type, .data$cnames)
 
-  x <- x |>
-    rowid_to_column() |>
-    filter(grepl("repeat", .data$type)) |>
-    mutate(
-      scope = accumulate(
-        .data$name,
-        ~ if (!is.na(.y)) {
-          c(.x, .y)
-        } else {
-          head(.x, -1)
-        }
-      )
-    ) |>
-    select("rowid", "scope") |>
-    right_join(rowid_to_column(x), by = "rowid") |>
-    arrange(.data$rowid) |>
-    select(-"rowid") |>
-    fill("scope") |>
-    mutate(
-      scope = map_chr(.data$scope, paste, collapse = "/"),
-      scope = if_else(.data$scope == "", "main", .data$scope)
-    ) |>
-    filter(!grepl("repeat", .data$type))
+  first_ver <- na.omit(unique(x$version))[1]
+  struct <- if (!is.na(first_ver)) {
+    x[x$version %in% first_ver, ]
+  } else {
+    x
+  }
+
+  types <- struct$type
+  names_col <- struct$name
+  is_begin <- types == "begin_repeat" & !is.na(names_col)
+  is_end <- types == "end_repeat"
+  is_repeat <- is_begin | is_end
+
+  scope_vec <- character(nrow(struct))
+  stack <- character(0)
+  cur_scope <- "main"
+  for (i in which(is_repeat)) {
+    if (is_begin[i]) {
+      nm <- names_col[i]
+      if (length(stack) == 0L || stack[length(stack)] != nm) {
+        stack <- c(stack, nm)
+        cur_scope <- paste(stack, collapse = "/")
+      }
+    } else if (length(stack) > 0L) {
+      stack <- stack[-length(stack)]
+      cur_scope <- if (length(stack) > 0L) {
+        paste(stack, collapse = "/")
+      } else {
+        "main"
+      }
+    }
+    scope_vec[i] <- cur_scope
+  }
+
+  repeat_idx <- which(is_repeat)
+  if (length(repeat_idx) > 0L) {
+    breaks <- findInterval(seq_len(nrow(struct)), repeat_idx)
+    filled <- scope_vec[repeat_idx[pmax(breaks, 1L)]]
+    filled[breaks == 0L] <- "main"
+    scope_vec[!is_repeat] <- filled[!is_repeat]
+  } else {
+    scope_vec[] <- "main"
+  }
+
+  keep <- !is_repeat
+  cnames_struct <- struct$cnames[keep]
+  scope_struct <- scope_vec[keep]
+  dup <- duplicated(cnames_struct)
+  cname_scope <- setNames(scope_struct[!dup], cnames_struct[!dup])
+
+  is_repeat_all <- grepl("repeat", x$type, fixed = TRUE)
+  x <- x[!is_repeat_all, ]
+  x$scope <- cname_scope[x$cnames]
+  x$scope[is.na(x$scope)] <- "main"
+  x <- distinct(x, .data$cnames, .data$scope, .keep_all = TRUE)
 
   x |>
     split(x$scope) |>
