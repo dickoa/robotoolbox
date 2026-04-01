@@ -1,8 +1,8 @@
-## Submission 1.6.1
+## Submission 1.6.2
 
 Patch release fixing a regression introduced in 1.6.0 where `dm` child tables
 (repeat groups) were inflated with hundreds of spurious all-NA columns from
-unrelated tables. This also fixes several smaller bugs found during review.
+unrelated tables. This also fixes several smaller bugs found during review including a bug where forms with repeat groups were treated as single table.
 
 ### Key changes
 

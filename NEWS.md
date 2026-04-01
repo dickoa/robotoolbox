@@ -1,7 +1,18 @@
+robotoolbox 1.6.2 (2026-04-01)
+======================
+
+### BUG FIXES
+- **Revert to simpler way to identify repeat group forms**: A recent changes in how we enter the repeat group branch was introduced but it was too strict and excluded some real repeat group forms.
+
 robotoolbox 1.6.1 (2026-03-31)
 ======================
 
 ### BUG FIXES
+- **Fixed repeat group column assignment in `dm` objects**: child tables were inflated with
+  hundreds of spurious all-NA columns belonging to other tables. The internal scope tracking
+  (`kobo_form_name_to_list_()`) now correctly maps each field to its repeat group, producing
+  child tables that match the KoboToolbox Excel export.
+
 - **Fixed repeat group column assignment in `dm` objects**: child tables were inflated with
   hundreds of spurious all-NA columns belonging to other tables. The internal scope tracking
   (`kobo_form_name_to_list_()`) now correctly maps each field to its repeat group, producing

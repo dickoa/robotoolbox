@@ -31,4 +31,7 @@ test_that("kobo_setup max page size", {
   kobo_setup(url = url, token = token, page_size = 100)
   new_settings <- kobo_settings()
   expect_equal(new_settings$page_size, 100)
+
+  ## restore
+  kobo_setup(url = url, token = token, page_size = 1000)
 })

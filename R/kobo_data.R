@@ -43,7 +43,11 @@ kobo_data_ <- function(
 
   if (paginate) {
     if (is.null(page_size)) {
-      page_size <- ifelse(size > api_max_limit, api_max_limit, max(size %/% 2, 1L))
+      page_size <- ifelse(
+        size > api_max_limit,
+        api_max_limit,
+        max(size %/% 2, 1L)
+      )
     }
     subs <- get_subs_async(
       x$uid,
@@ -66,9 +70,7 @@ kobo_data_ <- function(
     lang <- klang[1]
   }
 
-  repeat_in_data <- "begin_repeat" %in%
-    form$type &&
-    any(unique(form$name[form$type %in% "begin_repeat"]) %in% names(subs))
+  repeat_in_data <- "begin_repeat" %in% form$type
 
   if (repeat_in_data) {
     names_list <- kobo_form_name_to_list_(
@@ -290,7 +292,9 @@ kobo_data.kobo_asset <- function(
   } else {
     form <- kobo_form(x)
     klang <- kobo_lang(x)
-    if (is.null(lang) || !lang %in% klang) lang <- klang[1]
+    if (is.null(lang) || !lang %in% klang) {
+      lang <- klang[1]
+    }
     has_repeat <- "begin_repeat" %in% form$type
 
     if (has_repeat) {
@@ -310,7 +314,9 @@ kobo_data.kobo_asset <- function(
       }
     } else {
       cn <- kobo_form_names_(form, sep = select_multiple_sep)
-      if (!is.null(fields)) cn <- intersect(cn, fields)
+      if (!is.null(fields)) {
+        cn <- intersect(cn, fields)
+      }
       cn <- na.omit(cn)
       res <- empty_tibble_(cn)
       if (isTRUE(colnames_label)) {
