@@ -179,13 +179,18 @@ kobo_data_ <- function(
 #'   matching submissions are returned. Default to `NULL` (no filtering).
 #' @param fields character vector of field names to return. When provided, only
 #'   these fields (plus `__version__`) are fetched from the server. The server
-#'   also includes system fields (`_id`, `_uuid`, etc.) regardless. For forms
-#'   with repeat groups: use the repeat group name as a field to include or
-#'   exclude it. A repeat group is always fetched in full — you cannot select
-#'   individual columns within a child table (e.g. `"my_repeat/age"` is not
-#'   supported). If all repeat groups are omitted from `fields`, a plain
-#'   `data.frame` is returned instead of a `dm` object.
-#'   Default to `NULL` (all fields).
+#'   may still include system fields such as `_id` and `_uuid`.
+#'
+#'   For repeat-group forms, `fields` supports individual selection of
+#'   main-table columns and table-level selection of top-level repeat groups.
+#'   A selected repeat group is always returned in full. Selecting individual
+#'   child columns within a repeat group (for example, `"my_repeat/age"`) is
+#'   not supported. Nested repeat groups cannot be selected independently, you'll
+#'   need to include their ancestor repeat group instead.
+#'
+#'   Repeat-group forms always return a `dm` object. If no repeat group is
+#'   selected, the returned `dm` contains only the `main` table. Default to
+#'   `NULL` (all fields).
 #'
 #' @details \code{\link{kobo_data}} is the main function of \code{robotoolbox}, it is used
 #' pull submissions from your Kobotoolbox survey. The main result is a \code{data.frame}

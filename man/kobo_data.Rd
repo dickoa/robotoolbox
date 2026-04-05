@@ -109,13 +109,18 @@ matching submissions are returned. Default to \code{NULL} (no filtering).}
 
 \item{fields}{character vector of field names to return. When provided, only
 these fields (plus \verb{__version__}) are fetched from the server. The server
-also includes system fields (\verb{_id}, \verb{_uuid}, etc.) regardless. For forms
-with repeat groups: use the repeat group name as a field to include or
-exclude it. A repeat group is always fetched in full — you cannot select
-individual columns within a child table (e.g. \code{"my_repeat/age"} is not
-supported). If all repeat groups are omitted from \code{fields}, a plain
-\code{data.frame} is returned instead of a \code{dm} object.
-Default to \code{NULL} (all fields).}
+may still include system fields such as \verb{_id} and \verb{_uuid}.
+
+For repeat-group forms, \code{fields} supports individual selection of
+main-table columns and table-level selection of top-level repeat groups.
+A selected repeat group is always returned in full. Selecting individual
+child columns within a repeat group (for example, \code{"my_repeat/age"}) is
+not supported. Nested repeat groups cannot be selected independently, you'll
+need to include their ancestor repeat group instead.
+
+Repeat-group forms always return a \code{dm} object. If no repeat group is
+selected, the returned \code{dm} contains only the \code{main} table. Default to
+\code{NULL} (all fields).}
 }
 \value{
 A \code{data.frame} or A \code{dm} object if you have a repeating

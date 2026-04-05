@@ -1,21 +1,20 @@
 ## Submission 1.6.2
 
-Patch release fixing a regression introduced in 1.6.0 where `dm` child tables
-(repeat groups) were inflated with hundreds of spurious all-NA columns from
-unrelated tables. This also fixes several smaller bugs found during review including a bug where forms with repeat groups were treated as single table.
+Patch release fixing a regression introduced while tightening repeat-group
+detection after 1.6.1. The stricter check required repeat-group names to be
+present in the downloaded payload before entering the `dm` branch, which caused
+some genuine repeat-group forms to be returned as flat tables. Version 1.6.2
+restores the simpler form-structure-based check (`begin_repeat` in the form),
+so repeat-group forms are again returned as `dm` objects consistently.
 
 ### Key changes
 
-- Fixed repeat group scope tracking: child tables now contain only their own
-  columns, matching the KoboToolbox Excel export.
-- Empty-result path now returns the correct type (`dm` for repeat-group forms)
-  and respects `fields` and `colnames_label` parameters.
-- `kobo_lang_get()` and `kobo_lang_set()` now work on data created with
-  `colnames_label = TRUE`.
-- Pagination edge cases fixed (single-submission crash, off-by-one extra request).
-- `validate_query_()` now actually parses JSON via `RcppSimdJson::fparse()`.
-- `kobo_token()` validates URL before calling curl.
-- Documentation fixes for `kobo_attachment_download()` and `kobo_token()`.
+- Fixed repeat-group detection so genuine repeat-group surveys return `dm`
+  outputs again.
+- Clarified `fields` documentation for repeat-group forms:
+  main-table fields can be selected individually, top-level repeat groups are
+  selected at table level, selected repeat groups are returned in full, and
+  nested repeat groups / child columns are not independently selectable.
 
 ## Test environments
 

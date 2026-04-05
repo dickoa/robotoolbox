@@ -2,7 +2,17 @@ robotoolbox 1.6.2 (2026-04-01)
 ======================
 
 ### BUG FIXES
-- **Revert to simpler way to identify repeat group forms**: A recent changes in how we enter the repeat group branch was introduced but it was too strict and excluded some real repeat group forms.
+- **Fixed repeat-group detection regression**: a recent change made entry into the
+  repeat-group branch too strict and caused some genuine repeat-group forms to
+  be returned as flat tables. `kobo_data()` now again relies on the form
+  structure (`begin_repeat`) to identify repeat-group surveys and return `dm`
+  outputs consistently.
+
+### DOCUMENTATION
+- Clarified `fields` behavior for repeat-group forms: repeat-group surveys
+  always return a `dm`; main-table fields can be selected individually; top-level
+  repeat groups are selected at table level; repeat groups are returned in full;
+  nested repeat groups and child columns cannot be selected independently.
 
 robotoolbox 1.6.1 (2026-03-31)
 ======================
