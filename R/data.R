@@ -2,7 +2,8 @@
 #'
 #' Examples of KoboToolbox assets and list of assets.
 #'
-#' @rdname dummy_asset
+#' @name dummy_asset
+#' @aliases asset_list
 #' @format asset_list: a \code{data.frame} of 28 rows and 7 columns with a list of API assets
 "asset_list"
 
@@ -30,7 +31,8 @@
 #'
 #' Examples of KoboToolbox submissions data.
 #'
-#' @rdname dummy_data
+#' @name dummy_data
+#' @aliases data_ml_en
 #' @format data_ml: A \code{data.frame} with submissions from \code{\link{asset_ml}}
 #' in English.
 "data_ml_en"

@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# robotoolbox <img src="man/figures/robotoolbox_hex.png" align="right" width="140" />
+# robotoolbox <img src="man/figures/robotoolbox_hex.png" align="right" width="140" alt="robotoolbox logo" />
 
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![GitLab CI Build Status](https://gitlab.com/dickoa/robotoolbox/badges/master/pipeline.svg)](https://gitlab.com/dickoa/robotoolbox/-/pipelines)
