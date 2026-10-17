@@ -54,7 +54,8 @@ Use \code{kobo_lang(asset)} to see available languages.}
 }
 \value{
 \itemize{
-\item \code{kobo_lang()}: A character vector of available languages. Returns \code{"Labels"}
+\item \code{kobo_lang()}: A character vector of the languages of the deployed form
+version, or of the draft for a form never deployed. Returns \code{"Labels"}
 when no language is set.
 \item \code{kobo_lang_get()}: A character string of the current language, or \code{NA} if
 it cannot be determined.
@@ -79,6 +80,20 @@ work with data in multiple languages or export data with different label sets.
 
 \code{kobo_lang_get()} inspects the current variable labels in the data and matches
 them against the form to determine which language is currently applied.
+
+With data from \code{kobo_data(colnames_label = TRUE)}, \code{kobo_lang_set()} renames
+the columns to the labels of the new language. It finds the question of each
+column through the \code{kobo_name} attribute, so two questions with the same
+label keep their own columns.
+
+With data from \code{kobo_data(select_multiple_label = TRUE)}, \code{kobo_lang_set()}
+also translates the answers of select_multiple questions. It splits each
+answer into the labels of its question, and stops with an error when an
+answer splits in more than one way. This happens with "Red Blue" when
+"Red", "Blue" and "Red Blue" are all choices, or with a code kept without a
+label, such as \code{Red} from an older form version, when "Red" is also the
+label of another choice. Download the data in the new language with
+\code{kobo_data(lang = )} in that case.
 }
 \examples{
 \dontrun{

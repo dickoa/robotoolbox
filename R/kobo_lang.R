@@ -17,7 +17,8 @@
 #'   Use `kobo_lang(asset)` to see available languages.
 #'
 #' @returns
-#' - `kobo_lang()`: A character vector of available languages. Returns `"Labels"`
+#' - `kobo_lang()`: A character vector of the languages of the deployed form
+#'   version, or of the draft for a form never deployed. Returns `"Labels"`
 #'   when no language is set.
 #' - `kobo_lang_get()`: A character string of the current language, or `NA` if
 #'   it cannot be determined.
@@ -34,6 +35,20 @@
 #'
 #' `kobo_lang_get()` inspects the current variable labels in the data and matches
 #' them against the form to determine which language is currently applied.
+#'
+#' With data from `kobo_data(colnames_label = TRUE)`, `kobo_lang_set()` renames
+#' the columns to the labels of the new language. It finds the question of each
+#' column through the `kobo_name` attribute, so two questions with the same
+#' label keep their own columns.
+#'
+#' With data from `kobo_data(select_multiple_label = TRUE)`, `kobo_lang_set()`
+#' also translates the answers of select_multiple questions. It splits each
+#' answer into the labels of its question, and stops with an error when an
+#' answer splits in more than one way. This happens with "Red Blue" when
+#' "Red", "Blue" and "Red Blue" are all choices, or with a code kept without a
+#' label, such as `Red` from an older form version, when "Red" is also the
+#' label of another choice. Download the data in the new language with
+#' `kobo_data(lang = )` in that case.
 #'
 #' @examples
 #' \dontrun{
@@ -68,19 +83,15 @@ kobo_lang <- function(x) {
 #' @rdname kobo_lang
 #' @export
 kobo_lang.kobo_asset <- function(x) {
- uid <- x$uid
+  uid <- x$uid
+  version <- form_version_uid_(x)
 
- if (has_cached_lang_(uid)) {
-   return(get_cached_lang_(uid))
- }
+  if (has_cached_lang_(uid, version))
+    return(get_cached_lang_(uid, version))
 
- lng <- x$content$translations
- if (sum(lengths(lng)) <= 0)
-   lng <- "Labels"
- lng <- unlist(lng)
-
- set_cached_lang_(uid, lng)
- lng
+  lng <- content_langs_(form_source_(x, version)$content)
+  set_cached_lang_(uid, version, lng)
+  lng
 }
 
 #' @rdname kobo_lang
@@ -88,9 +99,6 @@ kobo_lang.kobo_asset <- function(x) {
 kobo_lang.character <- function(x) {
   if (!assert_uid(x))
     abort(message = "Invalid asset uid")
- if (has_cached_lang_(x)) {
-    return(get_cached_lang_(x))
-  }
   kobo_lang.kobo_asset(kobo_asset(x))
 }
 
@@ -115,12 +123,16 @@ kobo_lang_get.data.frame <- function(data, asset) {
   available_langs <- kobo_lang(asset)
 
   current_labels <- var_label(data)
-  current_labels <- current_labels[!vapply(current_labels, is.null, logical(1))]
+  has_label <- !vapply(current_labels, is.null, logical(1))
+  if (!any(has_label)) return(NA_character_)
 
-  if (length(current_labels) == 0) return(NA_character_)
-
+  is_label_cols <- is_label_cols_(list(data), form)
+  if (has_kobo_names_(list(data))) {
+    is_label_cols <- FALSE
+    names(current_labels) <- kobo_names_(data)
+  }
+  current_labels <- current_labels[has_label]
   col_names <- names(current_labels)
-  is_label_cols <- has_label_colnames_(col_names, form)
 
   matches <- vapply(available_langs, function(lng) {
     form_lang <- form[form$lang == lng, ]
@@ -184,25 +196,69 @@ kobo_lang_set.data.frame <- function(data, asset, lang) {
   }
 
   form <- kobo_form(asset)
-  is_label_cols <- has_label_colnames_(names(data), form)
+  is_label_cols <- is_label_cols_(list(data), form)
+  cur_lang <- legacy_label_lang_(list(data), data, asset, form, is_label_cols)
+  sep <- sm_sep_(kobo_names_(data), form)
+  lang_set_tbl_(data, form, lang, sep, is_label_cols, cur_lang)
+}
 
-  if (is_label_cols) {
-    cur_lang <- kobo_lang_get(data, asset)
-    if (!is.na(cur_lang)) {
-      reverse <- reverse_label_lookup_(names(data), form, cur_lang)
-      if (length(reverse) > 0) data <- rename(data, all_of(reverse))
-    }
+#' Language of label columns that do not record their question name
+#'
+#' Data from versions before 1.7.0 has no `kobo_name` attribute, so its label
+#' columns are mapped back through the labels of the current language.
+#' @noRd
+legacy_label_lang_ <- function(tbls, data, asset, form, is_label_cols) {
+  if (!is_label_cols || has_kobo_names_(tbls)) {
+    return(NA_character_)
   }
+  kobo_lang_get(data, asset)
+}
 
-  data <- val_labels_from_form_(data, form, lang)
-  data <- var_labels_from_form_(data, form, lang)
+#' @importFrom dplyr rename
+#' @importFrom tidyselect all_of
+#' @importFrom labelled remove_val_labels
+#' @noRd
+lang_set_tbl_ <- function(tbl, form, lang, sep, is_label_cols, cur_lang) {
+  if (is_label_cols) {
+    if (!is.na(cur_lang)) {
+      reverse <- reverse_label_lookup_(names(tbl), form, cur_lang)
+      if (length(reverse) > 0) tbl <- rename(tbl, all_of(reverse))
+    }
+    tbl <- rename_kobo_(tbl, kobo_names_(tbl))
+  }
+  tbl <- sm_labels_lang_set_(tbl, form, lang)
+  so <- unique(form$name[grepl("select_one", form$type, fixed = TRUE)])
+  for (n in intersect(names(tbl), so)) {
+    tbl[[n]] <- remove_val_labels(tbl[[n]])
+  }
+  tbl <- val_labels_from_form_(tbl, form, lang)
+  tbl <- var_labels_from_form_(tbl, form, lang, sep = sep)
+  if (is_label_cols) tbl <- set_names_from_varlabel_(tbl)
+  tbl
+}
 
-  if (is_label_cols) data <- set_names_from_varlabel_(data)
-  data
+#' Translate select_multiple answers written with labels
+#'
+#' `kobo_data(select_multiple_label = TRUE)` records the language of these
+#' answers in the `kobo_sm_lang` attribute, and the codes kept without a label
+#' in `kobo_sm_unlabeled`.
+#' @noRd
+sm_labels_lang_set_ <- function(tbl, form, lang) {
+  for (n in names(tbl)) {
+    old <- attr(tbl[[n]], "kobo_sm_lang", exact = TRUE)
+    if (is.null(old) || identical(old, lang)) next
+    unlabeled <- attr(tbl[[n]], "kobo_sm_unlabeled", exact = TRUE) %||% character()
+    codes <- sm_labels_to_codes_(tbl[[n]], sm_lookup_(form, n, old), n, unlabeled)
+    lookup <- sm_lookup_(form, n, lang)
+    tbl[[n]][] <- sm_codes_to_labels_(codes, lookup)
+    attr(tbl[[n]], "kobo_sm_lang") <- lang
+    attr(tbl[[n]], "kobo_sm_unlabeled") <- sm_unlabeled_(codes, lookup)
+  }
+  tbl
 }
 
 #' @rdname kobo_lang
-#' @importFrom dm dm_get_tables dm_add_pk dm_add_fk
+#' @importFrom dm dm_get_tables dm_add_pk dm_add_fk dm_get_all_pks dm_get_all_fks
 #' @export
 kobo_lang_set.dm <- function(data, asset, lang) {
   asset <- as_kobo_asset_(asset)
@@ -222,41 +278,28 @@ kobo_lang_set.dm <- function(data, asset, lang) {
   tbls <- dm_get_tables(data)
   tbl_names <- names(tbls)
 
-  all_col_names <- unlist(lapply(tbls, names), use.names = FALSE)
-  is_label_cols <- has_label_colnames_(all_col_names, form)
-  cur_lang <- NULL
-  if (is_label_cols) cur_lang <- kobo_lang_get(data, asset)
-
+  is_label_cols <- is_label_cols_(tbls, form)
+  cur_lang <- legacy_label_lang_(tbls, data, asset, form, is_label_cols)
+  sep <- sm_sep_(unlist(lapply(tbls, kobo_names_), use.names = FALSE), form)
   tbls_updated <- lapply(tbl_names, function(nm) {
-    tbl <- tbls[[nm]]
-    if (is_label_cols && !is.na(cur_lang)) {
-      reverse <- reverse_label_lookup_(names(tbl), form, cur_lang)
-      if (length(reverse) > 0) tbl <- rename(tbl, all_of(reverse))
-    }
-    tbl <- val_labels_from_form_(tbl, form, lang)
-    tbl <- var_labels_from_form_(tbl, form, lang)
-    if (is_label_cols) tbl <- set_names_from_varlabel_(tbl)
-    tbl
+    lang_set_tbl_(tbls[[nm]], form, lang, sep, is_label_cols, cur_lang)
   })
   names(tbls_updated) <- tbl_names
 
   result <- dm::dm(!!!tbls_updated)
-
-  if ("main" %in% tbl_names && "_index" %in% names(result[["main"]])) {
-    result <- dm_add_pk(result, "main", "_index")
+  pks <- dm_get_all_pks(data)
+  for (i in seq_len(nrow(pks))) {
+    result <- dm_add_pk(result, !!pks$table[i], !!unclass(pks$pk_col[[i]]))
   }
-
-  for (nm in setdiff(tbl_names, "main")) {
-    if ("_index" %in% names(result[[nm]])) {
-      result <- dm_add_pk(result, !!nm, "_index")
-    }
-    if ("_parent_index" %in% names(result[[nm]]) &&
-        "_parent_table_name" %in% names(result[[nm]])) {
-      parent <- unique(result[[nm]][["_parent_table_name"]])
-      if (length(parent) == 1 && parent %in% tbl_names) {
-        result <- dm_add_fk(result, !!nm, "_parent_index", !!parent)
-      }
-    }
+  fks <- dm_get_all_fks(data)
+  for (i in seq_len(nrow(fks))) {
+    result <- dm_add_fk(
+      result,
+      !!fks$child_table[i],
+      !!unclass(fks$child_fk_cols[[i]]),
+      !!fks$parent_table[i],
+      !!unclass(fks$parent_key_cols[[i]])
+    )
   }
   result
 }

@@ -4,22 +4,21 @@
 \alias{kobo_cache}
 \title{Session-level cache for KoboToolbox metadata}
 \description{
-Session-level caching for form metadata and languages. Form versions are
-immutable and languages don't change, so caching is safe and significantly
-improves performance.
+robotoolbox keeps form metadata and languages in memory for the rest of the
+R session, so that \code{kobo_data()}, \code{kobo_lang_set()} and \code{kobo_lang_get()} do
+not rebuild them on every call.
 }
 \details{
-Cached items:
-\itemize{
-\item \strong{Form metadata}: When \code{all_versions = TRUE} in \code{kobo_data()}, multiple
-API calls are made to fetch form schemas for each version. Caching
-eliminates redundant calls within a session.
-\item \strong{Languages}: \code{kobo_lang()} results are cached per asset, speeding up
-\code{kobo_lang_set()} and \code{kobo_lang_get()} operations.
-}
+A form and its languages are cached under the server URL, the asset uid and
+the form version. Without an explicit version, the version is the deployed
+one, or the draft for a form that was never deployed. A redeployed form has
+a new version, so the next call builds and caches the new form. The same
+uid on two servers gives two cache entries.
 
-Cache is stored in memory and cleared when R session ends.
+\code{kobo_data()} also records, per server URL, the number of submissions the
+server returns per request when it is lower than the number asked, and uses
+it for the following requests.
 
-Note: Version lists are NOT cached as they can change when users deploy
-new form versions, and the API call sequence is required by the server.
+The cache is cleared when the R session ends, or with
+\code{kobo_cache_clear()}.
 }

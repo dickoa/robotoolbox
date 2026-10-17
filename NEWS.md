@@ -1,3 +1,168 @@
+robotoolbox 1.8.0 (2026-10-17)
+======================
+
+### BUG FIXES
+- `kobo_data()` no longer loses submissions when `page_size` exceeds the limit
+  of the server. KoboToolbox servers return at most `MAX_API_PAGE_SIZE`
+  submissions per request (1,000 on public servers) and silently ignore larger
+  requests. With `kobo_setup(page_size = 5000)` on a public server, a form with
+  2,217 submissions returned only 1,000. `kobo_data()` now detects the limit from
+  the first response, requests the missing submissions in parallel, and uses
+  that limit for the rest of the session. No extra request is made when
+  `page_size` is within the limit.
+- `kobo_attachment_download()` and `kobo_audit()` had the same problem when
+  listing attachments, and are fixed the same way. Their listing step now also
+  fetches pages in parallel.
+- `kobo_data()` returned an empty table when the submission count stored in the
+  asset was 0 or missing, without asking the server. Some archived projects
+  report no count, so their data could never be read. On one server, 3 of 5
+  archived projects came back empty, two of them holding 4,088 and 4,371
+  submissions.
+  `kobo_data()` now always asks the server and uses the stored count only to
+  plan the requests. It also fetches submissions beyond an outdated count.
+- The server returns 404 for the data of some old archived projects.
+  `kobo_data()` now raises an error that says so, instead of returning an empty
+  table.
+- `kobo_data()` failed on a form with repeat groups that was never deployed, and
+  `kobo_form()` failed on a form whose questions have no label. Both now work.
+- `kobo_data()` dropped repeat groups nested more than two levels deep, with
+  their data, without a warning. A form with repeats `member`, `visit`,
+  `treatment` and `dose` returned only the `member` and `visit` tables. Repeat
+  tables are now extracted at every depth, and each one is linked to its parent
+  table in the `dm` object.
+- `kobo_data()` left a repeat group out of the `dm` when no downloaded
+  submission had data for it, so the tables returned depended on the data. A
+  `query` matching only households without members returned no `member` table.
+  Every repeat group of the form now gives a table, with zero rows when it has
+  no data, and tables are listed in form order. With `fields`, repeat tables
+  also keep the columns of questions without data. The empty `dm` returned for a
+  form without submissions now has its keys, and `kobo_lang_set()` keeps the
+  keys of the `dm` it receives, including those of empty tables.
+- With `all_versions = TRUE`, a field that only existed inside a repeat group
+  in an older form version was also added to the `main` table as an empty
+  column. Each field now goes to the table it had in its own form version.
+- `kobo_data(select_multiple_label = TRUE)` replaced choice codes with regular
+  expressions, one code after another. It failed on labels that refer to other
+  questions, such as `${member_1}`, and rewrote labels that contain another
+  code. With codes `I` and `E`, the label of `E`, "I don't have the necessary
+  documentation", became "I have no need for financial services ... don't have
+  the necessary documentation". On two large forms, 293 of 9,507 and 2,587 of
+  120,038 answers were affected. Each code is now looked up exactly.
+- With a `select_multiple_sep` other than `"_"`, the dummy columns of
+  `select_multiple` questions had no variable label, so `colnames_label = TRUE`
+  left their names unchanged. On one form, 2,121 dummy columns were affected.
+  Labels now follow the separator, and `kobo_lang_set()` detects it from the
+  column names.
+- `kobo_lang_set()` mapped label columns back to questions through their label
+  text. Two questions with the same label, renamed `Name` and `Name_1`, could
+  swap or keep the old language, and the `Question::Choice` columns of
+  `select_multiple` questions were never renamed. Data whose labels all equal
+  their question names was not recognized as named after labels, and kept the
+  old names. Every column of `colnames_label = TRUE` data now keeps its
+  question name in a `kobo_name` attribute, and `kobo_lang_set()` maps through
+  it. Switching language and back returns the original data, and on two
+  multilingual forms the result is the same as a new download in that
+  language.
+- `kobo_lang_set()` left the answers of `select_multiple_label = TRUE` data in
+  the old language. It now translates them. An answer that splits into the
+  labels of its question in more than one way is an error, since the codes it
+  came from cannot be recovered. So is a code kept without a label that is
+  spelled like the label of another choice.
+- `kobo_data(select_multiple_label = TRUE)` replaced a code by an empty string
+  when its choice had no label in the requested language, so `"g b"` became
+  `" Blue"`. The code is now kept, as for a code without a choice.
+- `kobo_lang_set()` treated data as named after labels when a single column
+  name matched any label, then renamed columns the user had not renamed, or
+  failed with "All renaming inputs must be named". It also kept value labels
+  of the old language for questions without choices in the new one.
+- Empty results from `kobo_data()` now have variable labels, and
+  `colnames_label = TRUE` renames all their columns as it does with data.
+- Without a `version`, `kobo_form()` and `kobo_lang()` read the last saved
+  version of the form, which may never have been deployed. On one server, 11 of
+  64 deployed forms had such a draft. Empty results from `kobo_data()` then had
+  the columns of the draft, and one form gained 25 columns that were not
+  deployed and lost 7 that were. Both functions now use the deployed version,
+  and the draft only for a form never deployed.
+- The form and language cache ignored the server URL and the form version, so
+  a form redeployed during the session kept its old schema. With
+  `all_versions = FALSE` or with zero rows, `kobo_data()` then dropped a new
+  repeat group with its data, and `kobo_lang()` missed a new language. Forms and
+  languages are now cached per server, asset and version.
+- `kobo_audit()` failed on a form with audit enabled when no submission had an
+  audit log. It reported a missing `media_file_basename` column when no
+  submission had any attachment, and "must pass in at least one request" for a
+  form without submissions or with other attachments only. It now returns a
+  table with zero rows and the usual columns.
+- `kobo_data()` rejected the empty query `'{}'`, which the server accepts and
+  which matches every submission. It accepted an array such as
+  `'[{"_id": 1}]'`, which the server answers with an error 500, reported after
+  several retries as a uid or credentials problem. `query` is now accepted
+  exactly when it is a JSON object.
+- `kobo_data(all_versions = FALSE)` was documented as using the data of the
+  latest form version, but it returned every submission, read with the form of
+  an older version when all submissions came from it. For a question moved to
+  another group between versions, it kept the column of the oldest version and
+  dropped the answers recorded under the other paths, including those of the
+  deployed version. With `FALSE`, every submission is now read with the
+  deployed form, and moved questions keep all their answers, as with `TRUE`.
+  The documentation says what the argument controls, and how to keep the
+  submissions of one version with `query`.
+- A question moved from the top level of the form into a group lost all its
+  answers with the default `all_versions = TRUE`. The merged column had the
+  name of one of the columns it replaced and was removed with them. This is
+  the geopoint reported on the KoboToolbox forum in June 2026.
+- With `all_versions = TRUE`, labels came from the newest form version that
+  had submissions, so labels corrected in a new deployment did not show until
+  someone submitted with it. The deployed form now always gives the labels,
+  and older versions only add the questions and choices it lacks. Questions
+  and repeat groups added in the deployed form appear before they have data.
+- With `all_versions = TRUE`, the dummy columns of a `select_multiple`
+  question were computed from the choices of the first form version only. A
+  choice removed from the deployed form got a column of `NA`, even in the
+  submissions that selected it. Dummy columns now cover the choices of every
+  form version read in which the question is a `select_multiple`.
+- A repeat group whose parent changed between form versions kept only its rows
+  under the parent of the deployed form, without a warning. On one form, a
+  renamed parent repeat group lost 13 of the 87 rows of its child. With
+  `all_versions = TRUE`, the table of such a repeat group now holds the rows
+  under every parent. `_parent_index` points to the parent of the deployed
+  form, each other parent gets a `_parent_index_<parent>` column with its own
+  foreign key, and `_parent_table_name` gives the parent of each row.
+- `kobo_asset_version_list()` returned at most 1,000 versions, and
+  `kobo_asset_file_list()` at most 100 files. Both now page through every
+  result. Since KoboToolbox KPI version 2.026.12, every API endpoint caps
+  `limit` at `MAX_API_PAGE_SIZE` and returns 100 results when no `limit` is
+  given.
+- `kobo_asset_list()` now asks for up to 1,000 assets per request instead of
+  100, pages with `start` instead of the deprecated `offset`, and no longer asks
+  for search metadata that it discarded.
+- `kobo_asset_list()` could list some assets twice and skip others when the
+  listing took more than one request. The server sorts assets by deployment
+  status and date of last change, and assets with the same values can move
+  between pages. On one server, 30 assets shared the same date of last change
+  after a migration. Assets are now sorted by date of last change, most recent
+  first, then by name, owner, type and deployment date, and duplicates are
+  removed. The full listing warns when it returns fewer assets than the server
+  reports, which can still happen when two assets match on all these fields.
+- `%||%` is now imported from `rlang`. The package relied on the base R
+  version, which only exists from R 4.4, whereas `DESCRIPTION` requires R 4.1.
+
+### NEW FEATURES
+- `kobo_asset_list()` gains a `minimal` argument. `minimal = TRUE` uses the
+  `/api/v2/assets/minimal-list/` endpoint (KoboToolbox KPI 2.026.21 or later)
+  and returns only `uid`, `name` and `deployment_status`. It was about seven
+  times faster than the full listing on a 92-asset account. Older servers, which
+  answer 404 for this endpoint, fall back to the full listing. Other errors are
+  reported.
+- `kobo_asset_list()` returns a new `created_by` column with the account that
+  created each asset (KoboToolbox KPI 2.026.23 or later).
+
+### OTHER CHANGES
+- KoboToolbox removed the legacy `/api/v1/` API in KPI version 2.026.23.
+  robotoolbox only uses `/api/v2/` and is not affected.
+- `glue` is no longer a dependency.
+- `BugReports` now points to the GitLab work items page.
+
 robotoolbox 1.6.2 (2026-04-01)
 ======================
 
@@ -18,11 +183,6 @@ robotoolbox 1.6.1 (2026-03-31)
 ======================
 
 ### BUG FIXES
-- **Fixed repeat group column assignment in `dm` objects**: child tables were inflated with
-  hundreds of spurious all-NA columns belonging to other tables. The internal scope tracking
-  (`kobo_form_name_to_list_()`) now correctly maps each field to its repeat group, producing
-  child tables that match the KoboToolbox Excel export.
-
 - **Fixed repeat group column assignment in `dm` objects**: child tables were inflated with
   hundreds of spurious all-NA columns belonging to other tables. The internal scope tracking
   (`kobo_form_name_to_list_()`) now correctly maps each field to its repeat group, producing

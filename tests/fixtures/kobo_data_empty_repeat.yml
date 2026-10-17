@@ -1,0 +1,606 @@
+http_interactions:
+- request:
+    method: GET
+    uri: https://kf.kobotoolbox.org/api/v2/assets/aoaErT8NRETaeDDaNuJSVz
+  response:
+    status: 200
+    headers:
+      status: 'HTTP/2 200 '
+      date: Fri, 16 Oct 2026 07:34:39 GMT
+      content-type: application/json
+      server: nginx
+      vary: Accept, origin, Accept-Language, Cookie
+      allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      content-security-policy: 'frame-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        https://js.stripe.com; script-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        https://*.googletagmanager.com https://sentry.kbtdev.org https://js.stripe.com;
+        style-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org ''unsafe-inline'';
+        img-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org data:
+        https://*.openstreetmap.org https://*.openstreetmap.fr https://*.opentopomap.org
+        https://*.arcgisonline.com https://*.google-analytics.com https://*.googletagmanager.com;
+        default-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org;
+        connect-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com
+        https://sentry.kbtdev.org; report-uri https://sentry.kbtdev.org/api/38/security/?glitchtip_key=dc86d21184204750950f9c3bf34b8cb4'
+      x-kobonaut: dickoa
+      x-frame-options: DENY
+      content-language: en
+      x-content-type-options: nosniff
+      referrer-policy: strict-origin-when-cross-origin
+      cross-origin-opener-policy: same-origin
+      content-encoding: gzip
+      strict-transport-security: max-age=15780000
+    body:
+      raw_gzip: |-
+        eJzNWltz2yoQ/isepo9qLN8vb2ku7SSnmTZOL0mno0ECWcQIVEC+JOP/fgaEZXxJ4uM6k/Nk
+        GZZvdz8
+        WdkF6BLmgoA8SpTLZr1ZH8dGIh1xxTkM+PeJiWIUZqY7rVSglVrIKOTwTN92r67Mb
+        iE9P4VV+Mfj+UA
+        Ue4BOGxU5QucRCVhGJRhyWI4NANzOYYtAHRR/wQAYFZgr0WU6pByRWirCh
+        BP1HIHGkuAD9x7kHIp4zJ
+        Wag/+u3BxCWkSCZIpyBPtDwYggZeYDLFisfRBxhqUfNPWD8C9Qs
+        0/plLsZ4BjwQE1pIeEDmaQq1kkcw
+        xBz0Y0gl9gCFIaZaBHziucQJp6hivPDANZcKC+CBL1hI
+        zvRDwpnuucrTEAvwW5tC85SZ8XaUMcHiagn
+        Ko1EAKV1qNA1s5pjAhjkcLgwVfBIYD0G/5RnU
+        4E8OKVHGdj4Cfd8DIUTmd8g5MnKKK0jNU0yEVJrj+V
+        yzGcOcqkAJyCS1HOrZ0H1Q4SASGCqM
+        QB/U/Xr7fc1/X2vf+J1+rdf3a0etRrfnN++AFU45IjF5Qrp+1
+        Oz6bb9RSiOcUT57Trrhd7T0
+        GAtJOAuIFh03vp08XDQkZmdh/uGnHJC4+3DpSAURZwozFSRQJqAPfL/X
+        hmGrF9eisFWDzbYP
+        exD7uBP2/FZca/SaYVTvIOxAWHprHkigtHamJlCVyLFmrbA82M2ydXET4EsdDE/
+        LJZAJPCY8
+        l4v/Asuc6tn69Qjy57UcZqUvTKxu11M1y2tffnea9k672dw9pErpxVSwYu31QQ3Mf88X5O
+        vZ
+        CwJK2MiQv8oVxhtcXbN2lKaTCfCAJGxIcfDikEJuy0jOot2H19qo3YQh6jTDdoz9sBH5CHW6
+        zW7H
+        D5thvak3vDimhO0AOXWNMZGFJy+PsoLuWBILvc28OJRs8X7XsdZ/8hSB/xnnRSbXggNG
+        iozx6hIvehB
+        UMEB8wiiHaBlEUyoDiocwmrnrLtqwyGZCPM24eHrhTak0i0uODwgaybEGfSDZ
+        AUEfSKZBpzot7oAm8L
+        NohbKjKZXTwv0Dgmq0tVmWeZgS6e7yrbU9AkrlSiliSpaNzafWPWo1
+        er1m7w6sAmAWiVlmcqZN4G5vX
+        uzisQ/rUa+Nfb+Omq04DJsxwnVUb9XrMKr7rVVMqaDSOaHM
+        JEBnBu1iINXMlDCPi1RelEwyw5HdNx9B
+        ZsoS077YHfVzVpQt5lkUtYx5TpKgqNP0n5OzTtZQ
+        0zov/l6yk+NRWmsltn4Y5QQZaekoAu1T/BArf6B
+        LvHI/9mk4bKGLiwwsVYM/x5fnN1/x+RVY
+        2gCOLzr0dHgGB8AxBhxff8S3kxPxA6xY5TyvmOc8a0MtXV
+        EuFU8LXyAaQxZhFMQYqlwULixy
+        dDHlLb9b93UIpTBbUm3/u1g2J5rKNUpwCk0C8haVpk7f1o2FQ7YS7
+        AOl078H3o2KyHDdLIrE
+        zdrztwfeTTOokhW8dzBXfE3L3CsVW3pLvSEeEhYInGG4ot8hv9RvS11Xbwnn
+        qrWNjlY70095
+        685/qc3W05vaqiWaq9Q2ukptHf68p26ULnWbodtUW8wVzabNUWyD/Slv3SVQalweFra
+        qrJaY
+        rmbbqFVbVZihTRedNfCC5HIVzfWxJeEkKk9Gy2PZ3AOLk4LeWn4tjzHOAUIP09Wrqb5s1iwq
+        2
+        JiLFCrQN7njQBXrkcbS3i3BU3o48JQaQnAa4ld0osj+q17op8Pha7SqcQUySGeSyEA3BfdF
+        CgAQIaIn
+        D9IgJpiixbnZDDQ1z+Gs8EDC+UgeCtWAaVQFh4FUgrBhcQ9QRPb2UcADI8JMvwYv
+        6plDWWRruXJTLCE
+        qCktVwWmmZpViCeoQglKSIYMhxUGGhS087Jlvx9l3xlVNmW8MrC73GfCd
+        4EnFxJQOs31wowSyId5EPk
+        NE/R1yChnchvzZtFcywe9xpPaGhwg5FZ10NRwjVHG69lZhOH9C
+        h2H+EEoyKBSB9Ak9TgUIjiNV4cxVW
+        uGMziqx4GnF1oZRxVzU6aPzmvFbbH5uuI2LVQATFDsC
+        IEyxWgc4NY07uwApMfcFa27Y5t1g5n+5Mp6Y
+        /3Uq9p7/TZ5cNZuE7R/NW9hciegttJrcsu/2
+        9fx2ukR9X2yV+lAkq5lMkkH+qT38/ONH+mEwjYi47Qy
+        0nXo697qqXmr6v2wy+zETfh19+cw/
+        /xx8CrMbNkwuL+BV562YOWze2I8QGDXr3Tb69o/88/H7Wf14nO
+        dZ440JeY3tYj92rnt31/X4
+        nkUfk++X6RcRnXYvT9+KnVfd5fbjR7CTM4Q+TAbXTf5V3N6kt+cnX9+Kn
+        1colvZj5UcyuYlP
+        zma3/8j7S3Y86R4P0MNbsbJfynp1juri6ubyW3J9fsfYOLxgmfoy5m/G0QEPBvvR
+        kfV48zwZ
+        3N/BnI+vZudXcSvBb0rHzjW7vgSIY2xeEmwc0/SbZnva21INa14dieU0rPe4S3u9b0uRvI6
+        7
+        rQZek3Fz8Va7nhm7VuE8YaCF1nQVrxEOEE6LFxJgARos76TMNwFQwQOo0TBaR5QQigRmzmta
+        X9+p5
+        6H+9CDEQgaLZg+Ud/OZIGOo9BUhjCIspfnYoHyRa94hyQQWtxPm+h0SgVFwINsLtPcL
+        F2wWCMy3FzIh
+        2cKO4mOMRZiXH2KYtx6Ld61BOHP77CcAK63zfwFjOgCh
+  recorded_at: 2026-10-16 07:34:39
+- request:
+    method: GET
+    uri: https://kf.kobotoolbox.org/api/v2/assets/aoaErT8NRETaeDDaNuJSVz/data.json?limit=1000
+  response:
+    status: 200
+    headers:
+      status: 'HTTP/2 200 '
+      date: Fri, 16 Oct 2026 07:34:41 GMT
+      content-type: application/json
+      server: nginx
+      vary: Accept, origin, Accept-Language, Cookie
+      allow: GET, HEAD, OPTIONS
+      content-security-policy: 'frame-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        https://js.stripe.com; connect-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com
+        https://sentry.kbtdev.org; img-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        data: https://*.openstreetmap.org https://*.openstreetmap.fr https://*.opentopomap.org
+        https://*.arcgisonline.com https://*.google-analytics.com https://*.googletagmanager.com;
+        style-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org ''unsafe-inline'';
+        default-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org;
+        script-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        https://*.googletagmanager.com https://sentry.kbtdev.org https://js.stripe.com;
+        report-uri https://sentry.kbtdev.org/api/38/security/?glitchtip_key=dc86d21184204750950f9c3bf34b8cb4'
+      x-kobonaut: dickoa
+      x-frame-options: DENY
+      content-language: en
+      x-content-type-options: nosniff
+      referrer-policy: strict-origin-when-cross-origin
+      cross-origin-opener-policy: same-origin
+      set-cookie: django_language=en; expires=Fri, 23 Oct 2026 07:34:41 GMT; Max-Age=604800;
+        Path=/
+      content-encoding: gzip
+      strict-transport-security: max-age=15780000
+    body:
+      raw_gzip: |-
+        eJzVlNFr2zAQxv+Xe7aIZTm2rLe1ycM66MPajkEJ5iSfG7HEKpacdQn534ddWrIRhpeMQV6M
+        Je6++/h
+        +h3ZgXNcEUNMIGnoJoJputYrguaWNdZ1/O7fku1XwoB53UNoKlCzSQuQxjyNYLssG
+        1wQKPkAEZbmh1l
+        vXlCUo2IiH6+2N8NTMdXf11d/ZWm4/QQRrCjixjQ/YGPo4AwVdZyulKaeC
+        Es1qTZqlUtZM8ipjU0HxN
+        OY6q7noh7zUrl2Xtip9aG3zBArQ4by9l7ef5/dIsxnedjd3X7Z9
+        bS8MCkZKD8Za58LDa9tf2cIQ0CzX
+        1AxRLSIofcDQxwi+02sbAlXlxmL5nXRf/0Ru5QwG6xpQ
+        j0PU/Wdo7Ov9EGSwQ7pJnGSMx4xn93GueKF
+        43mtscGWrQeJ92G7/JjAM1D9AQWXNN4ewj34D
+        mB4CvDoboKgQkyzPWMLzjKV9SNIknCUposxrXctEnw
+        hwpPRRgGNtXR7AhB8CvD4bYFwYyjka
+        hlwIlhojGGLNGRlBhaxkXej0RIAjpY8CHGvrAgFODwHOIILW+
+        UDt8Na+/k6eqfW9QZhZhP3i
+        XMaoOYrMVIymecxSGSdMxoVguk5SmQueS33qKztS+ijjsbb+M2P5DxgX
+        h4znf2Y839B7weR5
+        6Rr6pay/mDTdWvftwBMB+8X5K5HXWGWUFCwujGBplXGGJInJwhjKKRMxyhNXYqT
+        00ZUYa+sC
+        VmKx/wnS9QLx
+  recorded_at: 2026-10-16 07:34:41
+- request:
+    method: GET
+    uri: https://kf.kobotoolbox.org/api/v2/assets/aoaErT8NRETaeDDaNuJSVz/versions/?limit=1000
+  response:
+    status: 200
+    headers:
+      status: 'HTTP/2 200 '
+      date: Fri, 16 Oct 2026 07:34:41 GMT
+      content-type: application/json
+      content-length: '360'
+      server: nginx
+      vary: Accept, origin, Accept-Language, Cookie
+      allow: GET, POST, HEAD, OPTIONS
+      content-security-policy: 'default-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org;
+        connect-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com
+        https://sentry.kbtdev.org; frame-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        https://js.stripe.com; style-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        ''unsafe-inline''; script-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        https://*.googletagmanager.com https://sentry.kbtdev.org https://js.stripe.com;
+        img-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org data:
+        https://*.openstreetmap.org https://*.openstreetmap.fr https://*.opentopomap.org
+        https://*.arcgisonline.com https://*.google-analytics.com https://*.googletagmanager.com;
+        report-uri https://sentry.kbtdev.org/api/38/security/?glitchtip_key=dc86d21184204750950f9c3bf34b8cb4'
+      x-kobonaut: dickoa
+      x-frame-options: DENY
+      content-language: en
+      x-content-type-options: nosniff
+      referrer-policy: strict-origin-when-cross-origin
+      cross-origin-opener-policy: same-origin
+      set-cookie: django_language=en; expires=Fri, 23 Oct 2026 07:34:41 GMT; Max-Age=604800;
+        Path=/
+      strict-transport-security: max-age=15780000
+    body:
+      raw_gzip: |-
+        eJyNj8tOwzAQRf/F67a20zyaLKHZFKkLGhACochOJsRq6on8iEqq/jtGojsW3c3VnNGZeyEN
+        eu1IwRd
+        EwzkM2g/DgowGJoXe3rIB6wcX4seFeNWSgkzrl8d5t7agS+kf3uxBdZv5iSyIN0NY
+        986NtqD02K2OKN
+        EhDhLPKzRfVIyKThEV1oKzVKAoTbXZP5eVgO1W7P3u8DrTCYxVqC3930OD
+        qEHtQLu6F7YPRsbyVMgk7
+        3gjEy7ilIlcAINM5izp+DqPZRNlLYTLVjioWxgH/IbfLhGL0iVn
+        S55WLCt4XrBoFWdpHMfvN/qErerU
+        HfTf47X2Jwkm4JxcP68/Okdxng==
+  recorded_at: 2026-10-16 07:34:41
+- request:
+    method: GET
+    uri: https://kf.kobotoolbox.org/api/v2/assets/aoaErT8NRETaeDDaNuJSVz
+  response:
+    status: 200
+    headers:
+      status: 'HTTP/2 200 '
+      date: Fri, 16 Oct 2026 07:34:41 GMT
+      content-type: application/json
+      server: nginx
+      vary: Accept, origin, Accept-Language, Cookie
+      allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      content-security-policy: 'style-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        ''unsafe-inline''; default-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org;
+        frame-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org https://js.stripe.com;
+        script-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        https://*.googletagmanager.com https://sentry.kbtdev.org https://js.stripe.com;
+        connect-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com
+        https://sentry.kbtdev.org; img-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        data: https://*.openstreetmap.org https://*.openstreetmap.fr https://*.opentopomap.org
+        https://*.arcgisonline.com https://*.google-analytics.com https://*.googletagmanager.com;
+        report-uri https://sentry.kbtdev.org/api/38/security/?glitchtip_key=dc86d21184204750950f9c3bf34b8cb4'
+      x-kobonaut: dickoa
+      x-frame-options: DENY
+      content-language: en
+      x-content-type-options: nosniff
+      referrer-policy: strict-origin-when-cross-origin
+      cross-origin-opener-policy: same-origin
+      content-encoding: gzip
+      strict-transport-security: max-age=15780000
+    body:
+      raw_gzip: |-
+        eJzNWltz2yoQ/isepo9qLN8vb2ku7SSnmTZOL0mno0ECWcQIVEC+JOP/fgaEZXxJ4uM6k/Nk
+        GZZvdz8
+        WdkF6BLmgoA8SpTLZr1ZH8dGIh1xxTkM+PeJiWIUZqY7rVSglVrIKOTwTN92r67Mb
+        iE9P4VV+Mfj+UA
+        Ue4BOGxU5QucRCVhGJRhyWI4NANzOYYtAHRR/wQAYFZgr0WU6pByRWirCh
+        BP1HIHGkuAD9x7kHIp4zJ
+        Wag/+u3BxCWkSCZIpyBPtDwYggZeYDLFisfRBxhqUfNPWD8C9Qs
+        0/plLsZ4BjwQE1pIeEDmaQq1kkcw
+        xBz0Y0gl9gCFIaZaBHziucQJp6hivPDANZcKC+CBL1hI
+        zvRDwpnuucrTEAvwW5tC85SZ8XaUMcHiagn
+        Ko1EAKV1qNA1s5pjAhjkcLgwVfBIYD0G/5RnU
+        4E8OKVHGdj4Cfd8DIUTmd8g5MnKKK0jNU0yEVJrj+V
+        yzGcOcqkAJyCS1HOrZ0H1Q4SASGCqM
+        QB/U/Xr7fc1/X2vf+J1+rdf3a0etRrfnN++AFU45IjF5Qrp+1
+        Oz6bb9RSiOcUT57Trrhd7T0
+        GAtJOAuIFh03vp08XDQkZmdh/uGnHJC4+3DpSAURZwozFSRQJqAPfL/X
+        hmGrF9eisFWDzbYP
+        exD7uBP2/FZca/SaYVTvIOxAWHprHkigtHamJlCVyLFmrbA82M2ydXET4EsdDE/
+        LJZAJPCY8
+        l4v/Asuc6tn69Qjy57UcZqUvTKxu11M1y2tffnea9k672dw9pErpxVSwYu31QQ3Mf88X5O
+        vZ
+        CwJK2MiQv8oVxhtcXbN2lKaTCfCAJGxIcfDikEJuy0jOot2H19qo3YQh6jTDdoz9sBH5CHW6
+        zW7H
+        D5thvak3vDimhO0AOXWNMZGFJy+PsoLuWBILvc28OJRs8X7XsdZ/8hSB/xnnRSbXggNG
+        iozx6hIvehB
+        UMEB8wiiHaBlEUyoDiocwmrnrLtqwyGZCPM24eHrhTak0i0uODwgaybEGfSDZ
+        AUEfSKZBpzot7oAm8L
+        NohbKjKZXTwv0Dgmq0tVmWeZgS6e7yrbU9AkrlSiliSpaNzafWPWo1
+        er1m7w6sAmAWiVlmcqZN4G5vX
+        uzisQ/rUa+Nfb+Omq04DJsxwnVUb9XrMKr7rVVMqaDSOaHM
+        JEBnBu1iINXMlDCPi1RelEwyw5HdNx9B
+        ZsoS077YHfVzVpQt5lkUtYx5TpKgqNP0n5OzTtZQ
+        0zov/l6yk+NRWmsltn4Y5QQZaekoAu1T/BArf6B
+        LvHI/9mk4bKGLiwwsVYM/x5fnN1/x+RVY
+        2gCOLzr0dHgGB8AxBhxff8S3kxPxA6xY5TyvmOc8a0MtXV
+        EuFU8LXyAaQxZhFMQYqlwULixy
+        dDHlLb9b93UIpTBbUm3/u1g2J5rKNUpwCk0C8haVpk7f1o2FQ7YS7
+        AOl078H3o2KyHDdLIrE
+        zdrztwfeTTOokhW8dzBXfE3L3CsVW3pLvSEeEhYInGG4ot8hv9RvS11Xbwnn
+        qrWNjlY70095
+        685/qc3W05vaqiWaq9Q2ukptHf68p26ULnWbodtUW8wVzabNUWyD/Slv3SVQalweFra
+        qrJaY
+        rmbbqFVbVZihTRedNfCC5HIVzfWxJeEkKk9Gy2PZ3AOLk4LeWn4tjzHOAUIP09Wrqb5s1iwq
+        2
+        JiLFCrQN7njQBXrkcbS3i3BU3o48JQaQnAa4ld0osj+q17op8Pha7SqcQUySGeSyEA3BfdF
+        CgAQIaIn
+        D9IgJpiixbnZDDQ1z+Gs8EDC+UgeCtWAaVQFh4FUgrBhcQ9QRPb2UcADI8JMvwYv
+        6plDWWRruXJTLCE
+        qCktVwWmmZpViCeoQglKSIYMhxUGGhS087Jlvx9l3xlVNmW8MrC73GfCd
+        4EnFxJQOs31wowSyId5EPk
+        NE/R1yChnchvzZtFcywe9xpPaGhwg5FZ10NRwjVHG69lZhOH9C
+        h2H+EEoyKBSB9Ak9TgUIjiNV4cxVW
+        uGMziqx4GnF1oZRxVzU6aPzmvFbbH5uuI2LVQATFDsC
+        IEyxWgc4NY07uwApMfcFa27Y5t1g5n+5Mp6Y
+        /3Uq9p7/TZ5cNZuE7R/NW9hciegttJrcsu/2
+        9fx2ukR9X2yV+lAkq5lMkkH+qT38/ONH+mEwjYi47Qy
+        0nXo697qqXmr6v2wy+zETfh19+cw/
+        /xx8CrMbNkwuL+BV562YOWze2I8QGDXr3Tb69o/88/H7Wf14nO
+        dZ440JeY3tYj92rnt31/X4
+        nkUfk++X6RcRnXYvT9+KnVfd5fbjR7CTM4Q+TAbXTf5V3N6kt+cnX9+Kn
+        1colvZj5UcyuYlP
+        zma3/8j7S3Y86R4P0MNbsbJfynp1juri6ubyW3J9fsfYOLxgmfoy5m/G0QEPBvvR
+        kfV48zwZ
+        3N/BnI+vZudXcSvBb0rHzjW7vgSIY2xeEmwc0/SbZnva2yimNatO/5ZqeU1iay27JrOlZN4
+        u
+        UZxut9uwtc/dXtb71mqcDcPL+CroKl4jHCCcFi8kwAI0WN5JmW8CoIIHUKNhtI4oIRQJzJzX
+        tL6+U
+        89D/elBiIUMFs0eKO/mM0HGUOkrQhhFWErzsUH5Ite8Q5IJLG4nzPU7JAKj4EC2F2jv
+        Fy7YLBCYby9k
+        QrKFHcXHGIswLz/EMG89Fu9ag3Dm9tlPAFZa5/8CyvIAoQ==
+  recorded_at: 2026-10-16 07:34:41
+- request:
+    method: GET
+    uri: https://kf.kobotoolbox.org/api/v2/assets/aoaErT8NRETaeDDaNuJSVz/versions/v3UCzJ3senEbuBXsSif8zK
+  response:
+    status: 200
+    headers:
+      status: 'HTTP/2 200 '
+      date: Fri, 16 Oct 2026 07:34:42 GMT
+      content-type: application/json
+      server: nginx
+      vary: Accept, origin, Accept-Language, Cookie
+      allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      content-security-policy: 'default-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org;
+        img-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org data:
+        https://*.openstreetmap.org https://*.openstreetmap.fr https://*.opentopomap.org
+        https://*.arcgisonline.com https://*.google-analytics.com https://*.googletagmanager.com;
+        connect-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com
+        https://sentry.kbtdev.org; script-src ''self'' https://kc.kobotoolbox.org
+        https://ee.kobotoolbox.org https://*.googletagmanager.com https://sentry.kbtdev.org
+        https://js.stripe.com; frame-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        https://js.stripe.com; style-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        ''unsafe-inline''; report-uri https://sentry.kbtdev.org/api/38/security/?glitchtip_key=dc86d21184204750950f9c3bf34b8cb4'
+      x-kobonaut: dickoa
+      x-frame-options: DENY
+      content-language: en
+      x-content-type-options: nosniff
+      referrer-policy: strict-origin-when-cross-origin
+      cross-origin-opener-policy: same-origin
+      content-encoding: gzip
+      strict-transport-security: max-age=15780000
+    body:
+      raw_gzip: |-
+        eJyN09uO2jAQBuBXqUZcZsmBkGx8R4FtBRJqgR4RQk4yIRHGTm2HchDvXgVSCLuLdu+iXzPz
+        eaz4AEU
+        WA4FN61t3P2gp5P2w+PhTTbLkcT8EAwrJgECqda6Iaa6S5kqEQgvBQrFtCrk0aZ6Z
+        G8ekSqFWJhW0L6
+        ePo3F/SrHXo6NiMPm+NzcoVSa4Ml93TDAgElwj14uUqhQIWFbg0bAdJHYU
+        tm3qehYNKFroh4HVTuxW4
+        IaR48cIBsRU4yLGnIkdlrs4luM92NaD7U0tn9gBsZym63uu6/7+
+        X70WcZZk76iuDr7gxTpECQTs61GB
+        HEBFKa5platCbnAHZHYATtdY3lu6OH0ZoHd5GWjcajCg
+        sTpfe2f8CX/97cofYACjITIgM/gsCoWpYPG
+        HU+/cgMY2pzq9mdeghRbPlKNxgaVQGuXVDXGZ
+        8YXEHOmNP/BZb9mnk7o/PvfW3cu4OluFNTVHqQS/u+
+        2fzvBp+hWfRnXty7nnpWZeptXRKqyj
+        qeD45qZeD/eJtib0xj61vkZXM2/kU1aDq3/i3rYWC5fteDDI6
+        +Lo3HOPNC8z63IVlnRFIY9f
+        rjjk3c5qbbfTNyu7fT9v6a0j4Dg3IEpFFqECMpsboFDrjC8VkMPRAC0p
+        V4zq8qXMqi3m17h8
+        0kBmvGBsfjz+A/ajYi4=
+  recorded_at: 2026-10-16 07:34:42
+- request:
+    method: GET
+    uri: https://kf.kobotoolbox.org/api/v2/assets/aoaErT8NRETaeDDaNuJSVz
+  response:
+    status: 200
+    headers:
+      status: 'HTTP/2 200 '
+      date: Fri, 16 Oct 2026 07:34:42 GMT
+      content-type: application/json
+      server: nginx
+      vary: Accept, origin, Accept-Language, Cookie
+      allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      content-security-policy: 'connect-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com
+        https://sentry.kbtdev.org; default-src ''self'' https://kc.kobotoolbox.org
+        https://ee.kobotoolbox.org; style-src ''self'' https://kc.kobotoolbox.org
+        https://ee.kobotoolbox.org ''unsafe-inline''; frame-src ''self'' https://kc.kobotoolbox.org
+        https://ee.kobotoolbox.org https://js.stripe.com; script-src ''self'' https://kc.kobotoolbox.org
+        https://ee.kobotoolbox.org https://*.googletagmanager.com https://sentry.kbtdev.org
+        https://js.stripe.com; img-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        data: https://*.openstreetmap.org https://*.openstreetmap.fr https://*.opentopomap.org
+        https://*.arcgisonline.com https://*.google-analytics.com https://*.googletagmanager.com;
+        report-uri https://sentry.kbtdev.org/api/38/security/?glitchtip_key=dc86d21184204750950f9c3bf34b8cb4'
+      x-kobonaut: dickoa
+      x-frame-options: DENY
+      content-language: en
+      x-content-type-options: nosniff
+      referrer-policy: strict-origin-when-cross-origin
+      cross-origin-opener-policy: same-origin
+      content-encoding: gzip
+      strict-transport-security: max-age=15780000
+    body:
+      raw_gzip: |-
+        eJzNWtlu2zoQ/RWD6KMay/vylmZpkdwGbZwuSVEIlEhZjClSJSkvCfzvF6RomV6S+LoOcp8s
+        czkzczi
+        cGVJ6BLmgoA8SpTLZr1ZH8dGIh1xxTkM+PeJiWIUZqY7rVSglVrIKOTwTN92r67Mb
+        iE9P4VV+Mfj+UA
+        Ue4BOGxU5QucRCVhGJRhyWM4NANzOYYtAHRR/wQAYFZgr0WU6pByRWirCh
+        BP1HIHGkuAD9x7kHIp4zJ
+        Wag/+u3BxCWkSCZIpyBPtDwYggZeYDLFjs+iDjCUs+ae8DYF6hZ
+        puXLXIzxDHggJrQY4QGZpynUQh7B
+        EHPQjyGV2AMUhpjqIeATzyVOOEUVY4UHrrlUWAAPfMFC
+        cqYfEs50z1WehliA31oVmqfMzLezjAoWV4+
+        gPBoFkNKlRNPAZo4KbJjD4UJRwSeBsRD0W55B
+        Df7kkBJldOcj0Pc9EEJkfoecIzNOcQWpeYqJkEpzPJ
+        9rNmOYUxUoAZmklkO9GroPKhxEAkOF
+        EeiDul9vv6/572vtG7/Tr/X6fu2o1ej2/OYdsINTjkhMnhhdP
+        2p2/bbfKEcjnFE+e250w+/o
+        0WMsJOEsIHrouPHt5OGiITE7C/MPP+WAxN2HS2dUEHGmMFNBAmUC+sD3
+        e20YtnpxLQpbNdhs
+        +7AHsY87Yc9vxbVGrxlG9Q7CDoSlt+aBBEqrZ2ocVYkca9YKzYPdNFsfbhx8KYP
+        habkFMoHH
+        hOdy8V9gmVO9Wr8eQf68lMPs9IWK1e1yqmZ77cvvTsveaTebu7tUOXqxFKzYe31QA/Pf8w
+        X5
+        evWCgBI2MuSvcoXxBlfXrB2l6WQCPCAJG1IcvDilGLdlJmfR7tNrbdRuwhB1mmE7xn7YiHyE
+        Ot1m
+        t+OHzbDe1AEvjilhO0BOXWWMZ+HJy7PsQHcuiYUOMy9OJVus33WutZ88ReB/xnmRyTXn
+        gJEiY7y6xYs
+        eBBUMEJ8wyiFaOtGUyoDiIYxm7r6LNjSymRBPMy6e3nhTKs3mkuMDgkZyrEEf
+        SHZA0AeSadCpTos7oA
+        n8LFoh7GhK5bQw/4CgGm1tlWUepkS6Ub61FiOgVO4oRUzJshF8at2j
+        VqPXa/buwCoAZpGYZSZn2gTu9
+        uZFFI99WI96bez7ddRsxWHYjBGuo3qrXodR3W+tYkoFlc4J
+        ZSYBOjNoEwOpZqaEeVyk8qJkkhmObNx8
+        BJkpS0z7Ijrq56woW8yzKGoZ85wkQVGn6T8nZ52s
+        oaZ1Xvy9ZCfHo7TWSmz9MMoJMqOlIwi0T/FDrPy
+        BLvHKeOzTcNhCFxcZWIoGf44vz2++4vMr
+        sNQBHF906OnwDA6Aoww4vv6Ibycn4gdY0cp5XlHPedaKWr
+        qiXCqeFrZANIYswiiIMVS5KExY
+        5OhiyVt+t+5rF0phtqTa/nexbE40lWuU4BSaBOQtKk2dvq0ZC4NsJ
+        dgHSqd/D7wbFZ7hmlkU
+        iZu1528PvJtmUCUreO9grvialLlXCrb0lnJDPCQsEDjDcEW+Q34p35a6rtwS
+        zhVrGx2pdqWf
+        stZd/1Karac3pVVLNFeobXSF2jr8eUtdL13KNlO3ibaYK5JNmyPYOvtT1rpboJS4PCx
+        sFVkt
+        MV3JtlGLtqIwQ5smOnvghZHLXTTXx5aEk6g8GS2PZXMPLE4KOrT8Wh5jnAOEnqarV1N92axZ
+        V
+        LAxFylUoG9yx4Eq1iONpa1bgqf0cOApNYTgNMSvaESR/Vet0E+Hw9doVWMKZJDOJJGBbgru
+        ixQAIEJE
+        Lx6kQUwwRYtzs5loap7DaeGBhPORPBSqAdOoCg4DqQRhw+IeoPDs7bOAB0aEmX4N
+        XtQzh9LI1nJlUCw
+        hKgpLVcFppmaVYgtqF4JSkiGDIcVBhoUtPOyZb8fVd+ZVTZlvFKwu4wz4
+        TvCkYnxKu9k+uFEC2RBvIp
+        8hov4OOYUMbkP+bNormeD3OFJ7w0OEnIpOuhKOEao4XXuLMJw/
+        IcMwfwghGRSKQPqEHKcCBMeRqnDmC
+        q1wRmeVWPC0YmvDqGIu6vTReU35LTo/N936xSqAcYod
+        ARCmWK0DnJrGnU2AlJj7gjUzbPNuMPO/3BlP
+        rP86FXuv/yZPrphNwvb35i1srnj0FlpNbtk3
+        fD0fTpeo74tQqQ9FsprJJBnkn9rDzz9+pB8G04iI285
+        A66mXc6+r6qWk/0uQ2Y+Z8Ovoy2f+
+        +efgU5jdsGFyeQGvOm/FzGHzxn6EwKhZ77bRt3/kn4/fz+rH4z
+        zPGm9MyGuEi/3Yue7dXdfj
+        exZ9TL5fpl9EdNq9PH0rdl41yu3Hj2AnZwh9mAyum/yruL1Jb89Pvr4VP
+        69QLO3Hyo9kchOf
+        nM1u/5H3l+x40j0eoIe3YmW/lPXqHNXF1c3lt+T6/I6xcXjBMvVlzN+MowMeDPaj
+        I+vx5nky
+        uL+DOR9fzc6v4laC35SOnWt2fQkQx9i8JNg4puk3zfa0t1FMa1adfjcbrvfZ0Pdc38vIz4x
+        Y
+        q1HWu5f+sd7jxpyNWdtKb0NX8RrhAO60eCEBFqDB8k7KfBMAFTyAGA2jZUQJoUhg5rym9fWd
+        eh7qT
+        w9CLGSwaPZAeTefCTKGSl8RwijCUpqPDcoXueYdkkxgcTthrt8hERgFB9K9QHu/MMFm
+        gcB8eyETki30
+        KD7GWLh5+SGGeeuxeNcahDO3z34CsNI6/xdRBACh
+  recorded_at: 2026-10-16 07:34:42
+- request:
+    method: GET
+    uri: https://kf.kobotoolbox.org/api/v2/assets/aoaErT8NRETaeDDaNuJSVz/data.json?limit=1&query=%7B%22hh_name%22%3A+%22A%22%7D
+  response:
+    status: 200
+    headers:
+      status: 'HTTP/2 200 '
+      date: Fri, 16 Oct 2026 07:34:42 GMT
+      content-type: application/json
+      content-length: '500'
+      server: nginx
+      vary: Accept, origin, Accept-Language, Cookie
+      allow: GET, HEAD, OPTIONS
+      content-security-policy: 'frame-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        https://js.stripe.com; style-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        ''unsafe-inline''; img-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        data: https://*.openstreetmap.org https://*.openstreetmap.fr https://*.opentopomap.org
+        https://*.arcgisonline.com https://*.google-analytics.com https://*.googletagmanager.com;
+        default-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org;
+        script-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        https://*.googletagmanager.com https://sentry.kbtdev.org https://js.stripe.com;
+        connect-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com
+        https://sentry.kbtdev.org; report-uri https://sentry.kbtdev.org/api/38/security/?glitchtip_key=dc86d21184204750950f9c3bf34b8cb4'
+      x-kobonaut: dickoa
+      x-frame-options: DENY
+      content-language: en
+      x-content-type-options: nosniff
+      referrer-policy: strict-origin-when-cross-origin
+      cross-origin-opener-policy: same-origin
+      set-cookie: django_language=en; expires=Fri, 23 Oct 2026 07:34:42 GMT; Max-Age=604800;
+        Path=/
+      strict-transport-security: max-age=15780000
+    body:
+      raw_gzip: |-
+        eJyVkMtuwjAQRf/F60S1CeS1awuLUolFgapShSw7mYDVxK78SCmIf6/tiq7LxvKMzr0zc8+o
+        UU5aVJM
+        ESTj6j3R9n6BPDaNQzlxrDcb11pfvZ0RFi+qymlZZgQlO0OFAJRsA1egeJYjSEbQR
+        SlLqO2O2fTwtMw
+        Nywd3Dm1mLrjw9e2wAy+6ENJbJBp7mHnVOtDWHAiqY8LTjwNNpWXZpSdo8
+        nWWAZ5jwvCNZGHLslB78I
+        tRYLeTey5liC70pVy+LDYP5nK3ccv16Cmww9sA/reNiWim7/ZXd
+        tBazljWHAWSMauc7/kAbYkTG8UFY
+        Cy0dBaNfwAO/B9Wrhlkfl+dj1OGJwsCbGKQVMd0JnuQp
+        wSnJN7ioSVWTIniMrBdttPgbdr5cDeJA/u3
+        VrWg+FEOX3eUH6eShMw==
+  recorded_at: 2026-10-16 07:34:43
+- request:
+    method: GET
+    uri: https://kf.kobotoolbox.org/api/v2/assets/aoaErT8NRETaeDDaNuJSVz/data.json?limit=1000&query=%7B%22hh_name%22%3A+%22A%22%7D
+  response:
+    status: 200
+    headers:
+      status: 'HTTP/2 200 '
+      date: Fri, 16 Oct 2026 07:34:43 GMT
+      content-type: application/json
+      content-length: '500'
+      server: nginx
+      vary: Accept, origin, Accept-Language, Cookie
+      allow: GET, HEAD, OPTIONS
+      content-security-policy: 'script-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        https://*.googletagmanager.com https://sentry.kbtdev.org https://js.stripe.com;
+        connect-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com
+        https://sentry.kbtdev.org; style-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        ''unsafe-inline''; frame-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        https://js.stripe.com; default-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org;
+        img-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org data:
+        https://*.openstreetmap.org https://*.openstreetmap.fr https://*.opentopomap.org
+        https://*.arcgisonline.com https://*.google-analytics.com https://*.googletagmanager.com;
+        report-uri https://sentry.kbtdev.org/api/38/security/?glitchtip_key=dc86d21184204750950f9c3bf34b8cb4'
+      x-kobonaut: dickoa
+      x-frame-options: DENY
+      content-language: en
+      x-content-type-options: nosniff
+      referrer-policy: strict-origin-when-cross-origin
+      cross-origin-opener-policy: same-origin
+      set-cookie: django_language=en; expires=Fri, 23 Oct 2026 07:34:43 GMT; Max-Age=604800;
+        Path=/
+      strict-transport-security: max-age=15780000
+    body:
+      raw_gzip: |-
+        eJyVkMtuwjAQRf/F60S1CeS1awuLUolFgapShSw7mYDVxK78SCmIf6/tiq7LxvKMzr0zc8+o
+        UU5aVJM
+        ESTj6j3R9n6BPDaNQzlxrDcb11pfvZ0RFi+qymlZZgQlO0OFAJRsA1egeJYjSEbQR
+        SlLqO2O2fTwtMw
+        Nywd3Dm1mLrjw9e2wAy+6ENJbJBp7mHnVOtDWHAiqY8LTjwNNpWXZpSdo8
+        nWWAZ5jwvCNZGHLslB78I
+        tRYLeTey5liC70pVy+LDYP5nK3ccv16Cmww9sA/reNiWim7/ZXd
+        tBazljWHAWSMauc7/kAbYkTG8UFY
+        Cy0dBaNfwAO/B9Wrhlkfl+dj1OGJwsCbGKQVMd0JnuQp
+        wSnJN7ioSVWTIniMrBdttPgbdr5cDeJA/u3
+        VrWg+FEOX3eUH6eShMw==
+  recorded_at: 2026-10-16 07:34:43
+- request:
+    method: GET
+    uri: https://kf.kobotoolbox.org/api/v2/assets/aoaErT8NRETaeDDaNuJSVz/versions/?limit=1000
+  response:
+    status: 200
+    headers:
+      status: 'HTTP/2 200 '
+      date: Fri, 16 Oct 2026 07:34:43 GMT
+      content-type: application/json
+      content-length: '360'
+      server: nginx
+      vary: Accept, origin, Accept-Language, Cookie
+      allow: GET, POST, HEAD, OPTIONS
+      content-security-policy: 'img-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        data: https://*.openstreetmap.org https://*.openstreetmap.fr https://*.opentopomap.org
+        https://*.arcgisonline.com https://*.google-analytics.com https://*.googletagmanager.com;
+        default-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org;
+        connect-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com
+        https://sentry.kbtdev.org; style-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        ''unsafe-inline''; script-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org
+        https://*.googletagmanager.com https://sentry.kbtdev.org https://js.stripe.com;
+        frame-src ''self'' https://kc.kobotoolbox.org https://ee.kobotoolbox.org https://js.stripe.com;
+        report-uri https://sentry.kbtdev.org/api/38/security/?glitchtip_key=dc86d21184204750950f9c3bf34b8cb4'
+      x-kobonaut: dickoa
+      x-frame-options: DENY
+      content-language: en
+      x-content-type-options: nosniff
+      referrer-policy: strict-origin-when-cross-origin
+      cross-origin-opener-policy: same-origin
+      set-cookie: django_language=en; expires=Fri, 23 Oct 2026 07:34:43 GMT; Max-Age=604800;
+        Path=/
+      strict-transport-security: max-age=15780000
+    body:
+      raw_gzip: |-
+        eJyNj8tOwzAQRf/F67a20zyaLKHZFKkLGhACochOJsRq6on8iEqq/jtGojsW3c3VnNGZeyEN
+        eu1IwRd
+        EwzkM2g/DgowGJoXe3rIB6wcX4seFeNWSgkzrl8d5t7agS+kf3uxBdZv5iSyIN0NY
+        986NtqD02K2OKN
+        EhDhLPKzRfVIyKThEV1oKzVKAoTbXZP5eVgO1W7P3u8DrTCYxVqC3930OD
+        qEHtQLu6F7YPRsbyVMgk7
+        3gjEy7ilIlcAINM5izp+DqPZRNlLYTLVjioWxgH/IbfLhGL0iVn
+        S55WLCt4XrBoFWdpHMfvN/qErerU
+        HfTf47X2Jwkm4JxcP68/Okdxng==
+  recorded_at: 2026-10-16 07:34:43
+recorded_with: VCR-vcr/2.1.0

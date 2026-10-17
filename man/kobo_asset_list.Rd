@@ -4,10 +4,14 @@
 \alias{kobo_asset_list}
 \title{List all available KoboToolbox API assets}
 \usage{
-kobo_asset_list(limit = 100L)
+kobo_asset_list(limit = 100L, minimal = FALSE)
 }
 \arguments{
-\item{limit}{integer, the number of API assets to display per page. Default to 100.}
+\item{limit}{integer, the maximum number of assets to return. Default to 100.}
+
+\item{minimal}{logical, whether to return only the asset uid, name and
+deployment status. The minimal listing is much faster on accounts with many
+assets. Default to \code{FALSE}.}
 }
 \value{
 A \code{data.frame} containing the list of all your KoboToolbox API assets
@@ -15,13 +19,26 @@ and the following metadata:
 \itemize{
 \item \code{uid} the asset unique identifier
 \item \code{name} the name of the asset
-\item \code{asset_type} the type of asset (\code{block}, \code{survey}, \code{question}, or \code{template})
-\item \code{owner_userame} the user account of the owner of the asset
-\item \code{date_create} when the asset was created
+\item \code{asset_type} the type of asset (\code{block}, \code{survey}, \code{question}, \code{template}, or \code{empty})
+\item \code{owner_username} the user account of the owner of the asset
+\item \code{date_created} when the asset was created
 \item \code{date_modified} when the asset was last modified
 \item \code{deployed} whether or not the asset is currently deployed
 \item \code{submissions} the number of submissions for the asset (\code{survey})
+\item \code{created_by} the user account that created the asset. It differs from the
+owner after a project transfer. It is \code{NA} when the server does not report
+it, which is the case for some older assets and for all assets on servers
+older than KoboToolbox KPI version 2.026.23.
 }
+
+Assets are sorted by date of last modification, most recent first, so
+\code{limit} keeps the most recently modified assets.
+
+With \code{minimal = TRUE}, the \code{data.frame} has the columns \code{uid}, \code{name}
+and \code{deployment_status} (\code{draft}, \code{deployed}, \code{archived}, or \code{-} for empty
+assets). The minimal
+listing needs KoboToolbox KPI version 2.026.21 or later. On older servers,
+the same columns are taken from the full listing.
 }
 \description{
 List all available KoboToolbox API assets and their metadata.
@@ -31,6 +48,7 @@ List all available KoboToolbox API assets and their metadata.
 kobo_setup()
 asset_list <- kobo_asset_list(limit = 10L)
 asset_list
+kobo_asset_list(minimal = TRUE)
 }
 
 }

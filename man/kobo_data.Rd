@@ -83,13 +83,26 @@ kobo_submissions(
 
 \item{lang}{character, form language used for the variable and value labels.}
 
-\item{all_versions}{logical, whether or not to include submissions from all form versions.
-Default to \code{TRUE}. If \code{FALSE}, it uses the data from the latest version of the form.}
+\item{all_versions}{logical, whether to use the forms of older versions
+too. The deployed form always gives the labels. With \code{TRUE}, the forms
+of the older versions found in the submissions add the questions the
+deployed form lacks, with their labels and repeat groups. With \code{FALSE},
+only the deployed form is used, which is faster on forms with many
+versions. Questions it lacks then get their name as label. Rows of a
+repeat group it lacks, or recorded under a parent the repeat group no
+longer has, are dropped. Both return every submission, and keep the
+values of a question moved to another group. To keep the submissions of
+one version, use \code{query}, for example
+\code{'{"__version__": "vZpLmSfX3dfu6gTXtGPcS8"}'}. Default to \code{TRUE}.}
 
 \item{colnames_label}{logical, whether or not to use variable labels
-in lieu of column names based on form question names. Default to \code{FALSE}.}
+in lieu of column names based on form question names. Each column keeps
+its question name in the \code{kobo_name} attribute. Default to \code{FALSE}.}
 
-\item{select_multiple_label}{logical, whether or not to replace select_multiple columns values by labels. Default to \code{FALSE}.}
+\item{select_multiple_label}{logical, whether or not to replace
+select_multiple columns values by labels. The labels of an answer are
+separated by spaces, and \code{kobo_lang_set()} translates them. Default to
+\code{FALSE}.}
 
 \item{select_multiple_sep}{character, column and choices separator for newly created dummy variables. Default to "_".}
 
@@ -98,7 +111,11 @@ Default to \code{FALSE}.}
 
 \item{paginate}{logical, split submissions by page_size. Default to \code{NULL}.}
 
-\item{page_size}{integer, number of submissions per page.}
+\item{page_size}{integer, number of submissions per request. Default to the
+value set with \code{kobo_setup(page_size = )}, 1000 unless changed. Servers may
+return fewer submissions per request than asked. \code{kobo_data()} detects this
+limit and requests the missing submissions, so no submission is lost when
+\code{page_size} exceeds it.}
 
 \item{query}{character, a MongoDB-style query string to filter submissions
 server-side. For example, \code{'{"field_name": "value"}'} to return only
@@ -125,6 +142,13 @@ selected, the returned \code{dm} contains only the \code{main} table. Default to
 \value{
 A \code{data.frame} or A \code{dm} object if you have a repeating
 group of questions. It contains the responses from the Kobotoolbox survey.
+The \code{dm} has a \code{main} table and one table for each repeat group,
+in form order, linked to its parent table. A repeat group without data gives
+a table with zero rows. \verb{_parent_table_name} gives the parent table of each
+row. A repeat group that has another parent in an older form version holds
+the rows under each parent. Its \verb{_parent_index} then points to the parent in
+the deployed form, and a \verb{_parent_index_<parent>} column points to each
+other parent.
 }
 \description{
 Get all submissions from a KoboToolbox API asset through a \code{kobo_asset} or

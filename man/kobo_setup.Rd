@@ -15,11 +15,13 @@ kobo_setup(
 
 \item{token}{character, the API token.}
 
-\item{page_size}{integer, the maximum number of submissions per API request.
-Default to \code{1000L}, which is the limit enforced by public KoboToolbox
-servers since KoboToolbox KPI version 2.026.03 (March 2026). Users with private servers that allow higher
-limits can set this to a larger value (e.g., \code{30000L}) to fetch more
-data per request and reduce the number of paginated calls.}
+\item{page_size}{integer, the number of submissions to ask for in each API
+request. Default to \code{1000L}, the limit of public KoboToolbox servers since
+KoboToolbox KPI version 2.026.03 (March 2026). Some private servers allow
+more, and a larger value (e.g., \code{30000L}) then means fewer requests. When
+the server returns fewer submissions than asked, \code{kobo_data()} detects its
+limit and requests the missing submissions, so a large value never loses
+data.}
 }
 \value{
 A \code{kobo_settings} object printing the server URL and the API token.

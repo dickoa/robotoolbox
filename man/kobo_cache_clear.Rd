@@ -7,9 +7,11 @@
 kobo_cache_clear(uid = NULL, type = c("all", "forms", "langs"))
 }
 \arguments{
-\item{uid}{Optional asset uid. If provided, clears cache for that asset only.}
+\item{uid}{Optional asset uid. If provided, clears the forms and languages
+of that asset only, on every server.}
 
-\item{type}{Character, which cache to clear: "all" (default), "forms", or "langs".}
+\item{type}{Character, which cache to clear: "all" (default), "forms", or
+"langs". "all" also clears the recorded server page limits.}
 }
 \value{
 Invisibly returns TRUE

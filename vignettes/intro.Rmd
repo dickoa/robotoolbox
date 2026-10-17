@@ -43,7 +43,7 @@ kobo_setup(url = "https://kobo.unhcr.org",
            token = "xxxxxxxxxxxxxxxxxxxxxxxxxx")
 ```
 
-By default, `kobo_setup` sets a maximum of 1,000 submissions per API request, matching the limit enforced by public KoboToolbox servers since KoboToolbox KPI version 2.026.03 (March 2026). If you use a private server with a higher limit, you can set the `page_size` parameter or the `KOBOTOOLBOX_PAGE_SIZE` environment variable:
+By default, `kobo_setup` asks for 1,000 submissions per API request, the limit of public KoboToolbox servers since KoboToolbox KPI version 2.026.03 (March 2026). Some private servers allow more, and a larger `page_size` then means fewer requests. When a server returns fewer submissions than asked, `kobo_data` detects its limit and requests the missing submissions, so a large value never loses data. You can set it with the `page_size` parameter or the `KOBOTOOLBOX_PAGE_SIZE` environment variable:
 
 ```{r, eval = FALSE}
 kobo_setup(url = "https://my-private-server.org",
@@ -114,6 +114,8 @@ asset_list |>
   slice_head(n = 6) |>
   knitr::kable()
 ```
+
+On accounts with many projects, `kobo_asset_list(minimal = TRUE)` is much faster. It returns only the `uid`, `name` and `deployment_status` of each asset.
 
 ## KoboToolbox asset
 

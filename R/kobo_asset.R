@@ -53,29 +53,53 @@ kobo_asset.default <- function(x) {
 #'
 #' @name kobo_asset_list
 #'
-#' @param limit integer, the number of API assets to display per page. Default to 100.
+#' @param limit integer, the maximum number of assets to return. Default to 100.
+#' @param minimal logical, whether to return only the asset uid, name and
+#'   deployment status. The minimal listing is much faster on accounts with many
+#'   assets. Default to `FALSE`.
 #'
 #' @returns A \code{data.frame} containing the list of all your KoboToolbox API assets
 #' and the following metadata:
 #' - `uid` the asset unique identifier
 #' - `name` the name of the asset
-#' - `asset_type` the type of asset (`block`, `survey`, `question`, or `template`)
-#' - `owner_userame` the user account of the owner of the asset
-#' - `date_create` when the asset was created
+#' - `asset_type` the type of asset (`block`, `survey`, `question`, `template`, or `empty`)
+#' - `owner_username` the user account of the owner of the asset
+#' - `date_created` when the asset was created
 #' - `date_modified` when the asset was last modified
 #' - `deployed` whether or not the asset is currently deployed
 #' - `submissions` the number of submissions for the asset (`survey`)
+#' - `created_by` the user account that created the asset. It differs from the
+#'   owner after a project transfer. It is `NA` when the server does not report
+#'   it, which is the case for some older assets and for all assets on servers
+#'   older than KoboToolbox KPI version 2.026.23.
+#'
+#' Assets are sorted by date of last modification, most recent first, so
+#' `limit` keeps the most recently modified assets.
+#'
+#' With `minimal = TRUE`, the \code{data.frame} has the columns `uid`, `name`
+#' and `deployment_status` (`draft`, `deployed`, `archived`, or `-` for empty
+#' assets). The minimal
+#' listing needs KoboToolbox KPI version 2.026.21 or later. On older servers,
+#' the same columns are taken from the full listing.
 #'
 #' @examples
 #' \dontrun{
 #' kobo_setup()
 #' asset_list <- kobo_asset_list(limit = 10L)
 #' asset_list
+#' kobo_asset_list(minimal = TRUE)
 #' }
 #'
 #' @export
-kobo_asset_list <- function(limit = 100L) {
-  get_asset_list_paginate(limit = limit)
+kobo_asset_list <- function(limit = 100L, minimal = FALSE) {
+  if (!is.numeric(limit) || length(limit) != 1 || is.na(limit) || limit < 1) {
+    abort("`limit` must be a positive integer", call = NULL)
+  }
+  if (isTRUE(minimal)) {
+    get_asset_minimal_list_(limit)
+  } else {
+    get_asset_list_(limit)
+  }
 }
 
 #' Get a specific KoboToolbox API asset version from an asset unique identifier
@@ -171,15 +195,7 @@ kobo_asset_version_list.character <- function(x) {
   if (!assert_uid(x))
     abort(message = "Invalid asset uid")
   path <- paste0("/api/v2/assets/", x, "/versions/")
-  res <- xget(path = path)
-  parsed <- fparse(res, max_simplify_lvl = "list")
-
-  if (!is.null(parsed$`next`) && !is.null(parsed$count)) {
-    res <- xget(path = path, args = list(limit = parsed$count))
-    parsed <- fparse(res, max_simplify_lvl = "list")
-  }
-
-  results <- parsed$results
+  results <- do.call(c, xget_all_(path))
   if (length(results) == 0)
     return(tibble(uid = character(), url = character(),
                   deployed = logical(), date_modified = character()))

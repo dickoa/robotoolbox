@@ -5,22 +5,14 @@ template:
   bootstrap: 5
 
 reference:
+  - title: Package
+    contents:
+      - robotoolbox-package
+
   - title: Examples of KoboToolbox assets and data
     contents:
-      - asset_list
-      - asset_ml
-      - asset_rg
-      - asset_spatial
-      - asset_sm_label
-      - asset_audit
-      - data_ml_en
-      - data_ml_fr
-      - data_ml_ar
-      - data_ml_default
-      - data_rg
-      - data_spatial
-      - data_sm_label
-      - data_audit
+      - dummy_asset
+      - dummy_data
 
   - title: robotoolbox settings
     contents:

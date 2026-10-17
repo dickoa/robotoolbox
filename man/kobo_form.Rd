@@ -10,7 +10,9 @@ kobo_form(x, version)
 \item{x}{the unique identifier of a specific asset (\code{character}) or
 a \code{kobo_asset} object.}
 
-\item{version}{character, the unique identifier of the version of the asset.}
+\item{version}{character, the unique identifier of the version of the asset.
+Defaults to the deployed version, or to the draft for a form that was
+never deployed.}
 }
 \value{
 A \code{data.frame} with the following columns:

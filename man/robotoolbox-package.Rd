@@ -13,12 +13,17 @@ Useful links:
 \itemize{
   \item \url{https://dickoa.gitlab.io/robotoolbox}
   \item \url{https://gitlab.com/dickoa/robotoolbox}
-  \item Report bugs at \url{https://gitlab.com/dickoa/robotoolbox/-/issues}
+  \item Report bugs at \url{https://gitlab.com/dickoa/robotoolbox/-/work_items}
 }
 
 }
 \author{
 \strong{Maintainer}: Ahmadou Dicko \email{mail@ahmadoudicko.com} [copyright holder]
+
+Authors:
+\itemize{
+  \item Ahmadou Dicko \email{mail@ahmadoudicko.com} [copyright holder]
+}
 
 Other contributors:
 \itemize{

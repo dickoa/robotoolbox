@@ -3,6 +3,7 @@
 #' List all uploaded files related to a KoboToolbox API asset
 #'
 #' @importFrom tidyr unnest_wider
+#' @importFrom purrr list_rbind
 #'
 #' @name kobo_asset_file_list
 #'
@@ -42,10 +43,8 @@ kobo_asset_file_list.character <- function(x) {
   path <- paste0("/api/v2/assets/",
                  x,
                  "/files/")
-  res <- xget(path = path)
-  res <- fparse(res,
-                max_simplify_lvl = "data_frame")
-  if (res$count <= 0) {
+  pages <- xget_all_(path, simplify = "data_frame")
+  if (length(pages) == 0L) {
     cnames <- c("uid", "url", "asset",
                 "user", "user__username",
                 "file_type", "description",
@@ -53,7 +52,7 @@ kobo_asset_file_list.character <- function(x) {
                 "hash", "filename", "mimetype")
     res <- empty_tibble_(cnames)
   } else {
-    res <- unnest_wider(res$results,
+    res <- unnest_wider(list_rbind(pages),
                         "metadata")
   }
   res

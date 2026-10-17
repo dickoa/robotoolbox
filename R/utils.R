@@ -45,16 +45,17 @@ api_max_limit_ <- function() {
   as.integer(val)
 }
 
+#' @importFrom RcppSimdJson is_valid_json
 #' @noRd
 validate_query_ <- function(query) {
   if (is.null(query)) {
     return(invisible(NULL))
   }
-  if (!is.character(query) || length(query) != 1) {
+  if (!is.character(query) || length(query) != 1 || is.na(query)) {
     abort("`query` must be a single character string", call = NULL)
   }
-  parsed <- tryCatch(fparse(query), error = function(e) NULL)
-  if (is.null(parsed) || !is.list(parsed)) {
+  is_object <- grepl("^[[:space:]]*[{]", query) && is_valid_json(query)
+  if (!is_object) {
     abort(
       c(
         "`query` must be a valid JSON object string",
@@ -170,7 +171,11 @@ xget <- function(path, args = list(), n_retry = 3L, ...) {
     terminate_on = 404
   )
   if (res$status_code >= 300) {
-    abort(error_msg(res$content), call = NULL)
+    abort(
+      error_msg(res$content),
+      class = paste0("robotoolbox_http_", res$status_code),
+      call = NULL
+    )
   }
   res$raise_for_ct_json()
   res$parse("UTF-8")
@@ -204,61 +209,53 @@ xget_mime <- function(
     terminate_on = 404
   )
   if (res$status_code >= 300) {
-    abort(error_msg(res$content), call = NULL)
+    abort(
+      error_msg(res$content),
+      class = paste0("robotoolbox_http_", res$status_code),
+      call = NULL
+    )
   }
   res$raise_for_ct(mimetype)
   res$parse("UTF-8")
 } # nocov end
 
-#' @importFrom purrr list_rbind
-#' @importFrom tibble as_tibble
+#' @importFrom tibble as_tibble tibble
 #' @importFrom dplyr transmute
-#' @importFrom crul Paginator
-#' @importFrom rlang abort
+#' @importFrom cli cli_warn
 #' @noRd
-get_asset_list_paginate <- function(
-  limit = 100L,
-  chunk = min(limit, 100L),
-  n_retry = 3L
-) {
-  headers <- list(
-    Authorization = paste("Token", Sys.getenv("KOBOTOOLBOX_TOKEN")),
-    `User-Agent` = user_agent_()
+get_asset_list_ <- function(limit = 100L) {
+  pages <- xget_all_(
+    "api/v2/assets/",
+    args = list(ordering = asset_ordering_),
+    n_max = limit,
+    simplify = "data_frame"
   )
-  cli <- HttpClient$new(Sys.getenv("KOBOTOOLBOX_URL"), headers = headers)
-
-  cc <- Paginator$new(
-    cli,
-    by = "limit_offset",
-    limit_param = "limit",
-    offset_param = "offset",
-    limit = limit,
-    chunk = chunk
-  )
-
-  cc$get(
-    path = "/api/v2/assets",
-    args = list(metadata = "on"),
-    times = n_retry,
-    retry_only_on = c(500, 503),
-    terminate_on = 404
-  )
-
-  cond <- cc$status_code() >= 300L
-  if (any(cond)) {
-    msg <- cc$content()[cond]
-    abort(error_msg(msg[[1]]), call = NULL)
+  if (length(pages) == 0L) {
+    return(tibble(
+      uid = character(),
+      name = character(),
+      asset_type = character(),
+      owner_username = character(),
+      date_created = character(),
+      date_modified = character(),
+      deployed = logical(),
+      submissions = integer(),
+      created_by = character()
+    ))
   }
-
-  resp <- cc$parse("UTF-8")
-  res <- fparse(resp, max_simplify_lvl = "data_frame", query = "/results")
-
-  if (length(resp) >= 2) {
-    res <- list_rbind(res)
+  res <- distinct_assets_(pages)
+  expected <- min(attr(pages, "count") %||% 0, limit)
+  if (nrow(res) < expected) {
+    cli_warn(c(
+      "The server listed {nrow(res)} of {expected} assets.",
+      i = "Pages overlapped because several assets sort identically."
+    ))
   }
-
+  if (!"created_by" %in% names(res)) {
+    res$created_by <- NA_character_
+  }
   transmute(
-    as_tibble(res),
+    res,
     .data$uid,
     .data$name,
     .data$asset_type,
@@ -266,8 +263,57 @@ get_asset_list_paginate <- function(
     date_created = parse_kobo_datetime(.data$date_created),
     date_modified = parse_kobo_datetime(.data$date_modified),
     deployed = .data$deployment__active,
-    submissions = .data$deployment__submission_count
+    submissions = .data$deployment__submission_count,
+    created_by = as.character(.data$created_by)
   )
+}
+
+#' @importFrom tibble tibble
+#' @importFrom cli cli_inform
+#' @importFrom rlang try_fetch
+#' @noRd
+get_asset_minimal_list_ <- function(limit = 100L) {
+  args <- list(ordering = asset_ordering_)
+  pages <- try_fetch(
+    xget_all_(
+      "api/v2/assets/minimal-list/",
+      args = args,
+      n_max = limit,
+      simplify = "data_frame"
+    ),
+    robotoolbox_http_404 = function(e) {
+      cli_inform(c(
+        i = "The minimal asset listing needs KoboToolbox KPI 2.026.21 or later.",
+        " " = "Using the full asset listing instead."
+      ))
+      xget_all_("api/v2/assets/", args = args, n_max = limit, simplify = "data_frame")
+    }
+  )
+  if (length(pages) == 0L) {
+    return(tibble(
+      uid = character(),
+      name = character(),
+      deployment_status = character()
+    ))
+  }
+  distinct_assets_(pages)[c("uid", "name", "deployment_status")]
+}
+
+#' Sort order for asset listings
+#'
+#' The default order (deployment status, then `-date_modified`) has ties, for
+#' example after a server migration touches many assets at once, and tied rows
+#' can move between pages. `uid` is not an allowed ordering field, so further
+#' fields break the ties.
+#' @noRd
+asset_ordering_ <- "-date_modified,name,owner__username,asset_type,date_deployed"
+
+#' @importFrom purrr list_rbind
+#' @importFrom tibble as_tibble
+#' @noRd
+distinct_assets_ <- function(pages) {
+  res <- as_tibble(list_rbind(pages))
+  res[!duplicated(res$uid), ]
 }
 
 #' @importFrom tibble as_tibble
@@ -276,157 +322,6 @@ dt2tibble <- function(x) {
   x <- as_tibble(x)
   attr(x, ".internal.selfref") <- NULL
   x
-}
-
-#' @importFrom RcppSimdJson fparse
-#' @noRd
-get_subs <- function(uid, args = list(), query = NULL, fields = NULL, ...) {
-  path <- paste0("api/v2/assets/", uid, "/data.json")
-  if (is.null(args$limit)) {
-    args$limit <- api_max_limit_()
-  }
-  if (!is.null(query)) {
-    args$query <- query
-  }
-  if (!is.null(fields)) {
-    args$fields <- fields
-  }
-  res <- xget(path = path, args = args, ...)
-  res <- fparse(res, max_simplify_lvl = "data_frame", query = "/results")
-  as_tibble(res)
-}
-
-#' @importFrom glue glue glue_data
-#' @importFrom tibble tibble
-#' @importFrom utils URLencode
-#' @noRd
-build_subs_urls <- function(
-  uid,
-  size,
-  chunk_size = NULL,
-  query = NULL,
-  fields = NULL
-) {
-  extra_args <- c()
-  if (!is.null(query)) {
-    extra_args <- c(
-      extra_args,
-      paste0("query=", URLencode(query, reserved = TRUE))
-    )
-  }
-  if (!is.null(fields)) {
-    extra_args <- c(
-      extra_args,
-      paste0("fields=", URLencode(fields, reserved = TRUE))
-    )
-  }
-  extra <- paste(extra_args, collapse = "&")
-
-  if (chunk_size >= size || is.null(chunk_size)) {
-    limit_val <- min(size, api_max_limit_())
-    urls <- glue(
-      "api/v2/assets/{uid}/data.json?limit={limit_val}",
-      uid = uid,
-      limit_val = limit_val
-    )
-    if (nzchar(extra)) urls <- paste0(urls, "&", extra)
-  } else {
-    start <- seq(0, size - 1L, by = chunk_size)
-    limit <- pmin(chunk_size, size - start)
-    df <- tibble(
-      start = sprintf("%d", start),
-      limit = sprintf("%d", limit),
-      uid = uid
-    )
-    template <- "api/v2/assets/{uid}/data.json?start={start}&limit={limit}"
-    urls <- glue_data(df, template)
-    if (nzchar(extra)) urls <- paste0(urls, "&", extra)
-  }
-  file.path(Sys.getenv("KOBOTOOLBOX_URL"), urls)
-}
-
-#' @importFrom crul AsyncQueue HttpRequest
-#' @importFrom RcppSimdJson fparse
-#' @importFrom data.table rbindlist setattr
-#' @importFrom tibble as_tibble
-#' @importFrom dplyr case_when
-#' @importFrom rlang abort
-#' @noRd
-get_subs_async <- function(
-  uid,
-  size,
-  chunk_size = NULL,
-  n_retry = 3L,
-  query = NULL,
-  fields = NULL,
-  ...
-) {
-  headers <- list(
-    Authorization = paste("Token", Sys.getenv("KOBOTOOLBOX_TOKEN"))
-  )
-  urls <- build_subs_urls(uid, size, chunk_size, query = query, fields = fields)
-  reqs <- lapply(urls, function(url) {
-    req <- HttpRequest$new(url, headers = headers, opts = list(...))
-    req$retry(
-      "get",
-      times = n_retry,
-      retry_only_on = c(500, 503),
-      terminate_on = 404
-    )
-  })
-  sleep <- case_when(
-    size > 30000 ~ 0.25,
-    size > 15000 ~ 0.2,
-    size > 5000 ~ 0.15,
-    size > 1000 ~ 0.1,
-    .default = 0.05
-  )
-  res <- AsyncQueue$new(.list = reqs, bucket_size = 15L, sleep = sleep)
-  res$request()
-  cond <- res$status_code() >= 300L
-  if (any(cond)) {
-    msg <- res$content()[cond]
-    abort(error_msg(msg[[1]]), call = NULL)
-  }
-  res <- res$parse(encoding = "UTF-8")
-  res <- fparse(res, max_simplify_lvl = "data_frame", query = "/results")
-  res <- rbindlist(res, fill = TRUE)
-  res <- dt2tibble(res)
-  res
-}
-
-#' @importFrom RcppSimdJson fparse
-#' @importFrom tibble tibble
-#' @importFrom dplyr select filter
-#' @noRd
-get_subs_fields_ <- function(uid, fields) {
-  path <- paste0("api/v2/assets/", uid, "/data.json")
-  count_res <- xget(path = path, args = list(limit = 1, fields = fields))
-  parsed <- fparse(count_res, max_simplify_lvl = "list")
-  count <- parsed$count
-  if (is.null(count) || count == 0) {
-    return(NULL)
-  }
-  if (count <= 1) {
-    return(as_tibble(rbindlist(parsed$results, fill = TRUE)))
-  }
-  if (count <= api_max_limit_()) {
-    res <- xget(
-      path = path,
-      args = list(fields = fields, limit = count)
-    )
-    res <- fparse(res, max_simplify_lvl = "data_frame")
-    return(res$results)
-  }
-  starts <- seq(0, count - 1, by = api_max_limit_())
-  res_list <- lapply(starts, function(s) {
-    r <- xget(
-      path = path,
-      args = list(fields = fields, start = s, limit = api_max_limit_())
-    )
-    fparse(r, max_simplify_lvl = "data_frame")$results
-  })
-  as_tibble(rbindlist(res_list, fill = TRUE))
 }
 
 #' @noRd
@@ -452,13 +347,30 @@ get_filtered_count_ <- function(uid, query) {
 
 #' @noRd
 get_audit_url_ <- function(uid) {
+  empty <- tibble(`_id` = integer(), download_url = character())
   res <- get_subs_fields_(uid, '["_attachments", "formhub/uuid", "_uuid"]')
   if (is.null(res)) {
-    return(tibble(`_id` = integer(), download_url = character()))
+    return(empty)
   }
-  unnest(res[c("_id", "_attachments")], "_attachments") |>
+  res <- unnest(res[c("_id", "_attachments")], "_attachments")
+  if (!"media_file_basename" %in% names(res)) {
+    return(empty)
+  }
+  res |>
     filter(.data$media_file_basename %in% "audit.csv") |>
     select("_id", "download_url")
+}
+
+#' @noRd
+empty_audit_ <- function() {
+  int64 <- structure(numeric(), class = "integer64")
+  time <- as.POSIXct(numeric(), origin = "1970-01-01")
+  tibble(`_id` = integer(), event = character(), node = character(),
+         name = character(), start_int = int64, end_int = int64,
+         start = time, end = time, latitude = numeric(),
+         longitude = numeric(), accuracy = numeric(),
+         `old-value` = character(), `new-value` = character(),
+         user = character(), `change-reason` = character())
 }
 
 #' @importFrom RcppSimdJson fparse
@@ -530,10 +442,9 @@ null2char <- function(x) {
 #' @importFrom stats na.omit
 #' @noRd
 col2choices <- function(x, form, col) {
-  idx <- which(form$name %in% col)
+  idx <- which(form$name %in% col & grepl("select_multiple", form$type, fixed = TRUE))
   if (length(idx) > 0) {
-    idx <- idx[1]
-    uv <- unique(form$choices[[idx]]$value_name)
+    uv <- unique(unlist(lapply(form$choices[idx], `[[`, "value_name")))
   } else {
     uv <- unique(unlist(strsplit(x[[col]], "\\s+")))
     uv <- trimws(na.omit(uv))
@@ -610,25 +521,19 @@ dummy_from_form_ <- function(x, form, sep) {
 #'
 #' @importFrom dplyr coalesce
 #' @noRd
-dedup_vars_ <- function(x, all_versions = TRUE) {
+dedup_vars_ <- function(x) {
   nm <- names(x)
-  base_nm <- basename(nm)
-  nm_to_test <- paste0("/", base_nm)
+  nm_to_test <- paste0("/", basename(nm))
   cond <- duplicated(nm_to_test, fromLast = FALSE)
   if (any(cond)) {
-    if (all_versions) {
-      rs <- c(nm[cond], nm[duplicated(nm_to_test, fromLast = TRUE)])
-      rs <- unique(rs)
-      rs_key <- basename(rs)
-      rs <- split(rs, rs_key)
-      rs_key <- names(rs)
-      for (v in rs_key) {
-        old_vars <- rs[[v]]
-        x[[v]] <- with(x, coalesce(!!!as.list(x[old_vars])))
-        x[old_vars] <- NULL
-      }
-    } else {
-      x <- x[!cond]
+    rs <- c(nm[cond], nm[duplicated(nm_to_test, fromLast = TRUE)])
+    rs <- unique(rs)
+    rs <- split(rs, basename(rs))
+    for (v in names(rs)) {
+      old_vars <- rs[[v]]
+      merged <- coalesce(!!!unname(as.list(x[old_vars])))
+      x[old_vars] <- NULL
+      x[[v]] <- merged
     }
   }
   x
@@ -639,60 +544,161 @@ make_unique_names_ <- function(x) {
   make.unique(basename(x), sep = "_")
 }
 
-#' @importFrom tibble tibble rowid_to_column
+#' Repeat group enclosing each row of the form
+#'
+#' The scope is computed within each form version. A `begin_repeat` row gets
+#' the scope that encloses the repeat group, its parent.
+#' @noRd
+repeat_scope_ <- function(form) {
+  ver <- form$version %||% rep(NA_character_, nrow(form))
+  ver[is.na(ver)] <- ""
+  begin <- repeat_begin_(form)
+  scope <- rep("main", nrow(form))
+  for (v in unique(ver)) {
+    idx <- which(ver == v)
+    type <- form$type[idx]
+    name <- form$name[idx]
+    is_begin <- begin[idx]
+    ev <- which(is_begin | type == "end_repeat")
+    after <- character(length(ev))
+    stack <- "main"
+    for (k in seq_along(ev)) {
+      if (is_begin[ev[k]]) {
+        stack <- c(stack, name[ev[k]])
+      } else if (length(stack) > 1L) {
+        stack <- stack[-length(stack)]
+      }
+      after[k] <- stack[length(stack)]
+    }
+    pos <- findInterval(seq_along(idx), ev)
+    s <- c("main", after)[pos + 1L]
+    b <- ev[is_begin[ev]]
+    s[b] <- c("main", after)[pos[b]]
+    scope[idx] <- s
+  }
+  scope
+}
+
+#' Rows of the form that open a repeat group
+#'
+#' Rows without a label, such as `end_repeat`, only exist in the first
+#' language of each form version, so only the `begin_repeat` rows of that
+#' language open a repeat group.
+#' @noRd
+repeat_begin_ <- function(form) {
+  ver <- form$version %||% rep(NA_character_, nrow(form))
+  ver[is.na(ver)] <- ""
+  lang <- form$lang %||% rep("", nrow(form))
+  first <- lang[match(ver, ver)]
+  same_lang <- lang == first | (is.na(lang) & is.na(first))
+  form$type %in% "begin_repeat" & !is.na(form$name) & same_lang %in% TRUE
+}
+
+#' Parent tables of each repeat group
+#'
+#' A repeat group can have a different parent in another form version. The
+#' links follow the form order, so the deployed version gives the first
+#' parent of each repeat group.
+#' @noRd
+repeat_links_ <- function(form) {
+  b <- repeat_begin_(form)
+  res <- data.frame(name = form$name[b], parent = repeat_scope_(form)[b])
+  res[!duplicated(res), , drop = FALSE]
+}
+
+#' Rows of a repeat group from each of its parent tables
+#'
+#' `x` holds the list column of the repeat group in each parent table, named
+#' by parent. `_parent_index` points to the first parent of `parents`, and
+#' `_parent_index_<parent>` to each other one.
+#' @importFrom tibble tibble rowid_to_column add_column
+#' @importFrom rlang :=
 #' @importFrom data.table rbindlist
 #' @noRd
-extract_repeat_tbl <- function(x, form, all_versions) {
+repeat_tbl_ <- function(x, parents = names(x)) {
+  parts <- lapply(x, function(rows) {
+    if (is.null(rows)) {
+      rows <- list()
+    }
+    rows[!vapply(rows, is.data.frame, logical(1))] <- list(tibble())
+    rbindlist(rows, idcol = "_parent_index", fill = TRUE)
+  })
+  from <- rep(names(x), vapply(parts, nrow, integer(1)))
+  res <- rbindlist(parts, fill = TRUE)
+  if (nrow(res) == 0L) {
+    res <- tibble(`_parent_index` = integer())
+  } else {
+    res <- dt2tibble(res)
+    res <- dedup_vars_(res)
+    res <- set_names(res, make_unique_names_)
+  }
+  idx <- res$`_parent_index`
+  for (p in rev(parents[-1])) {
+    res <- add_column(res, !!paste0("_parent_index_", p) := replace(idx, from != p, NA),
+                      .after = "_parent_index")
+  }
+  res$`_parent_index` <- replace(idx, from != parents[1], NA)
+  res <- rowid_to_column(res, "_index")
+  res$`_parent_table_name` <- from
+  res
+}
+
+#' Extract repeat tables at every depth
+#'
+#' Every repeat group of the form gives a table, with zero rows when the data
+#' has no instance of it. Tables are listed in form order. Each one records
+#' the parent table of each row in `_parent_table_name`. A repeat group whose
+#' parent differs between form versions gets its rows from every parent. With
+#' `fields`, only the top-level repeat groups it names are kept, together with
+#' the repeat groups nested in them.
+#' @noRd
+kobo_extract_repeat_tbl <- function(x, form, fields = NULL) {
+  links <- repeat_links_(form)
+  todo <- unique(links$name)
+  done <- "main"
   res <- list()
-  nm <- unique(form$name[form$type %in% "begin_repeat"])
-  nm <- intersect(names(x), nm)
-  if (length(nm) > 0) {
-    empty <- tibble()
-    res <- setNames(
-      lapply(nm, function(n) {
-        res <- x[[n]]
-        is_not_df <- !vapply(res, is.data.frame, logical(1))
-        if (any(is_not_df)) {
-          res[is_not_df] <- list(empty)
-        }
-        res <- rbindlist(res, idcol = "_parent_index", fill = TRUE)
-        res <- dt2tibble(res)
-        res <- dedup_vars_(res, all_versions = all_versions)
-        res <- set_names(res, make_unique_names_)
-        rowid_to_column(res, "_index")
-      }),
-      nm
-    )
+  while (length(todo) > 0) {
+    ready <- vapply(todo, function(nm) all(links$parent[links$name == nm] %in% done),
+                    logical(1))
+    if (!any(ready)) {
+      abort(
+        c(
+          "Can't extract the repeat groups of this form.",
+          i = paste0("Repeat groups ", paste0("`", todo, "`", collapse = ", "),
+                     " are nested in each other in different form versions.")
+        ),
+        call = NULL
+      )
+    }
+    nm <- todo[ready][1]
+    parents <- links$parent[links$name == nm]
+    from_main <- parents == "main" & (is.null(fields) | nm %in% fields)
+    found <- parents[from_main | parents %in% names(res)]
+    if (length(found) > 0) {
+      src <- lapply(found, function(p) if (p == "main") x[[nm]] else res[[p]][[nm]])
+      res[[nm]] <- repeat_tbl_(setNames(src, found), parents)
+    }
+    done <- c(done, nm)
+    todo <- todo[todo != nm]
   }
   res
 }
 
-#' @importFrom rlang squash
+#' Set the primary and foreign keys of repeat tables
+#' @importFrom dm as_dm dm_add_pk dm_add_fk
 #' @noRd
-kobo_extract_repeat_tbl <- function(x, form, all_versions) {
-  if (is.null(x)) {
-    return(NULL)
-  }
-  x <- extract_repeat_tbl(x, form, all_versions)
-  x <- lapply(x, function(df) {
-    df$`_parent_table_name` <- "main"
-    df
-  })
-  res <- lapply(seq_along(x), function(i) {
-    if (is.data.frame(x[[i]])) {
-      c(
-        setNames(list(x[[i]]), names(x[i])),
-        lapply(extract_repeat_tbl(x[[i]], form, all_versions), function(df) {
-          df$`_parent_table_name` <- names(x[i])
-          df
-        })
-      )
-    } else {
-      list()
+repeat_dm_ <- function(tbls, links) {
+  res <- as_dm(tbls)
+  for (nm in names(tbls)) {
+    res <- dm_add_pk(res, !!nm, "_index")
+    parents <- links$parent[links$name == nm]
+    cols <- c("_parent_index", paste0("_parent_index_", parents[-1]))
+    for (k in seq_along(parents)) {
+      if (parents[k] %in% names(tbls)) {
+        res <- dm_add_fk(res, !!nm, !!cols[k], !!parents[k])
+      }
     }
-  })
-  res <- suppressWarnings(squash(res))
-  res <- set_names(res, make.unique, sep = "_")
+  }
   res
 }
 
@@ -738,43 +744,142 @@ val_labels_from_form_ <- function(x, form, lang, precomputed_choices = NULL) {
   x
 }
 
-#' @importFrom data.table rbindlist
 #' @importFrom labelled var_label<-
-#' @importFrom stringi stri_replace_all_regex
-#'
 #' @noRd
 val_labels_sm_from_form_ <- function(x, form, lang) {
-  form <- form[
-    form$lang %in% lang & grepl("select_multiple", form$type, fixed = TRUE),
-  ]
-  nm <- unique(form$name)
-  nm <- intersect(names(x), nm)
-  if (length(nm) > 0) {
-    choices <- lapply(nm, function(n) {
-      ch <- rbindlist(form$choices[form$name == n], fill = TRUE)
-      if ("value_version" %in% names(ch)) {
-        ch$value_version <- NULL
-      }
-      ch <- unique(ch)
-      ch <- ch[ch$value_lang %in% lang, ]
-      ch$value_label <- make.unique(ch$value_label, sep = "_")
-      ch
-    })
-    names(choices) <- nm
-    for (n in nm) {
-      d <- x[[n]]
-      ch <- choices[[n]]
-      vl <- var_label(d)
-      x[[n]] <- stri_replace_all_regex(
-        d,
-        paste0("\\b", ch$value_name, "\\b"),
-        ch$value_label,
-        vectorize_all = FALSE
-      )
-      var_label(x[[n]]) <- vl
-    }
+  is_sm <- grepl("select_multiple", form$type, fixed = TRUE)
+  nm <- intersect(names(x), unique(form$name[form$lang %in% lang & is_sm]))
+  for (n in nm) {
+    d <- x[[n]]
+    vl <- var_label(d)
+    lookup <- sm_lookup_(form, n, lang)
+    x[[n]] <- sm_codes_to_labels_(d, lookup)
+    var_label(x[[n]]) <- vl
+    attr(x[[n]], "kobo_sm_lang") <- lang
+    attr(x[[n]], "kobo_sm_unlabeled") <- sm_unlabeled_(d, lookup)
   }
   x
+}
+
+#' Codes of select_multiple answers that have no label and are kept as is
+#' @importFrom stringi stri_split_fixed
+#' @noRd
+sm_unlabeled_ <- function(x, lookup) {
+  x <- as.character(x)
+  codes <- unique(unlist(stri_split_fixed(unique(x[!is.na(x)]), " ", omit_empty = TRUE)))
+  codes <- as.character(codes)
+  sort(codes[is.na(lookup[codes])])
+}
+
+#' Labels of the choices of a select_multiple question, named by code
+#'
+#' Labels shared by several choices are made unique, so each label maps back
+#' to one code. A choice without a translation has an empty label, which is
+#' taken as no label.
+#' @importFrom data.table rbindlist
+#' @noRd
+sm_lookup_ <- function(form, n, lang) {
+  is_sm <- grepl("select_multiple", form$type, fixed = TRUE)
+  ch <- rbindlist(form$choices[form$name %in% n & form$lang %in% lang & is_sm],
+                  fill = TRUE)
+  if (nrow(ch) == 0) {
+    return(setNames(character(), character()))
+  }
+  if ("value_version" %in% names(ch)) {
+    ch$value_version <- NULL
+  }
+  ch <- unique(ch)
+  ch <- ch[ch$value_lang %in% lang, ]
+  ch$value_label[ch$value_label %in% ""] <- NA
+  has_label <- !is.na(ch$value_label)
+  ch$value_label[has_label] <- make.unique(ch$value_label[has_label], sep = "_")
+  ch <- ch[!duplicated(ch$value_name), ]
+  setNames(ch$value_label, ch$value_name)
+}
+
+#' Replace each code of a select_multiple answer by its label
+#'
+#' Answers are split on spaces and each code is looked up exactly. A code
+#' without a label is kept as it is.
+#' @importFrom stringi stri_split_fixed
+#' @noRd
+sm_codes_to_labels_ <- function(x, lookup) {
+  x <- as.character(x)
+  u <- unique(x[!is.na(x)])
+  codes <- stri_split_fixed(u, " ", omit_empty = TRUE)
+  labels <- vapply(codes, function(code) {
+    lab <- lookup[code]
+    lab[is.na(lab)] <- code[is.na(lab)]
+    paste(lab, collapse = " ")
+  }, character(1))
+  labels[match(x, u)]
+}
+
+#' Codes of select_multiple answers written with labels
+#'
+#' Each answer is split into labels of the question, or into single words for
+#' codes that had no label. `unlabeled` lists the codes known to be kept as
+#' is, and they count as their own labels. The split with the fewest other
+#' words is kept, and an answer with two equally good splits is an error, for
+#' example an unlabeled code spelled like the label of another choice.
+#' @noRd
+sm_labels_to_codes_ <- function(x, lookup, name, unlabeled = character()) {
+  x <- as.character(x)
+  lookup[is.na(lookup)] <- names(lookup)[is.na(lookup)]
+  lookup <- c(lookup, setNames(unlabeled, unlabeled))
+  lookup <- lookup[!duplicated(names(lookup))]
+  u <- unique(x[!is.na(x)])
+  codes <- vapply(u, function(s) {
+    res <- sm_split_(s, lookup)
+    if (is.na(res)) {
+      abort(
+        c(
+          paste0("Can't translate the answers of select_multiple question `", name, "`."),
+          i = paste0("The answer \"", s, "\" matches its labels and codes in more than one way."),
+          i = "Download the data in this language with `kobo_data(lang = )` instead."
+        ),
+        call = NULL
+      )
+    }
+    res
+  }, character(1), USE.NAMES = FALSE)
+  codes[match(x, u)]
+}
+
+#' Split one answer into codes, NA when the split is ambiguous
+#' @noRd
+sm_split_ <- function(s, lookup) {
+  n <- nchar(s)
+  if (n == 0) {
+    return(s)
+  }
+  starts <- c(1L, which(strsplit(s, "", fixed = TRUE)[[1]] == " ") + 1L)
+  starts <- starts[starts <= n]
+  unknown <- integer(n + 2L)
+  ways <- integer(n + 2L)
+  path <- character(n + 2L)
+  ways[n + 2L] <- 1L
+  lens <- nchar(lookup)
+  for (i in rev(starts)) {
+    rest <- substr(s, i, n)
+    word <- sub(" .*", "", rest)
+    hit <- startsWith(rest, lookup)
+    cand_next <- c(i + lens[hit] + 1L, i + nchar(word) + 1L)
+    cand_code <- c(names(lookup)[hit], word)
+    cand_unknown <- c(integer(sum(hit)), 1L)
+    ok <- nzchar(c(lookup[hit], word)) & ways[cand_next] > 0
+    if (!any(ok)) next
+    cost <- cand_unknown[ok] + unknown[cand_next[ok]]
+    best <- which(cost == min(cost))
+    unknown[i] <- min(cost)
+    ways[i] <- min(sum(ways[cand_next[ok][best]]), 2L)
+    path[i] <- paste(c(cand_code[ok][best[1]], path[cand_next[ok][best[1]]]),
+                     collapse = " ")
+  }
+  if (ways[1] != 1L) {
+    return(NA_character_)
+  }
+  trimws(path[1], "right")
 }
 
 #' @noRd
@@ -787,7 +892,7 @@ replace_na_list_efficient_ <- function(x) {
 #' @importFrom tidyr unnest
 #' @importFrom dplyr transmute distinct
 #' @noRd
-select_multiple_var_label <- function(x, form, lang) {
+select_multiple_var_label <- function(x, form, lang, sep = "_") {
   labels <- list()
   bool <- stri_detect_regex(form$type, "select_multiple")
   if (any(bool)) {
@@ -801,7 +906,7 @@ select_multiple_var_label <- function(x, form, lang) {
       select(-any_of("value_version")) |>
       distinct() |>
       transmute(
-        value_name = paste0(.data$name, "_", .data$value_name),
+        value_name = paste0(.data$name, sep, .data$value_name),
         value_label = paste0(.data$label, "::", .data$value_label)
       ) |>
       distinct()
@@ -813,15 +918,44 @@ select_multiple_var_label <- function(x, form, lang) {
   labels
 }
 
+#' Separator of select_multiple dummy columns
+#'
+#' The separator is the most common string between the name of a
+#' select_multiple question and one of its choice codes in `col_names`. It
+#' falls back to `"_"` when no dummy column is found.
+#' @noRd
+sm_sep_ <- function(col_names, form) {
+  sm <- form[grepl("select_multiple", form$type, fixed = TRUE), ]
+  sm <- sm[!is.na(sm$name) & !duplicated(sm$name), ]
+  seps <- character(0)
+  for (i in seq_len(nrow(sm))) {
+    n <- sm$name[i]
+    rest <- col_names[startsWith(col_names, n)]
+    rest <- substring(rest, nchar(n) + 1L)
+    rest <- rest[nzchar(rest)]
+    codes <- unique(sm$choices[[i]]$value_name)
+    for (k in codes[!is.na(codes)]) {
+      hit <- rest[endsWith(rest, k) & nchar(rest) > nchar(k)]
+      seps <- c(seps, substring(hit, 1L, nchar(hit) - nchar(k)))
+    }
+  }
+  if (length(seps) == 0L) {
+    return("_")
+  }
+  counts <- table(seps)
+  names(counts)[which.max(counts)]
+}
+
 #' @importFrom stats setNames
 #' @noRd
-precompute_var_labels_ <- function(form, lang) {
+precompute_var_labels_ <- function(form, lang, sep = "_") {
   form_lang <- form[form$lang %in% lang, ]
   form_labels <- setNames(as.list(form_lang$label), form_lang$name)
   sm_labels <- select_multiple_var_label(
     x = NULL,
     form = form_lang,
-    lang = lang
+    lang = lang,
+    sep = sep
   )
   list(form_labels = form_labels, sm_labels = sm_labels)
 }
@@ -833,10 +967,11 @@ var_labels_from_form_ <- function(
   x,
   form,
   lang,
-  precomputed_var_labels = NULL
+  precomputed_var_labels = NULL,
+  sep = "_"
 ) {
   if (is.null(precomputed_var_labels)) {
-    precomputed_var_labels <- precompute_var_labels_(form, lang)
+    precomputed_var_labels <- precompute_var_labels_(form, lang, sep)
   }
   form_labels <- precomputed_var_labels$form_labels
   sm_labels <- precomputed_var_labels$sm_labels
@@ -1094,7 +1229,8 @@ postprocess_data_ <- function(
     x = x,
     form = form,
     lang = lang,
-    precomputed_var_labels = precomputed_var_labels
+    precomputed_var_labels = precomputed_var_labels,
+    sep = select_multiple_sep
   )
   if (isTRUE(select_multiple_label)) {
     x <- val_labels_sm_from_form_(x = x, form = form, lang = lang)
@@ -1168,141 +1304,98 @@ empty_tibble_ <- function(cnames) {
   tibble(!!!cnames, .rows = 0, .name_repair = ~cnames)
 }
 
+#' TRUE when columns are named after their labels
+#'
+#' Columns renamed by `colnames_label = TRUE` keep their question name in the
+#' `kobo_name` attribute. Data without it, from older versions, is taken as
+#' named after labels when more columns match a label than a question name.
 #' @noRd
-label_lookup_from_form_ <- function(col_names, form, lang) {
-  form_lang <- form[form$lang %in% lang, ]
-  lookup <- setNames(form_lang$label, form_lang$name)
-  lookup <- lookup[!duplicated(names(lookup))]
-  matched <- lookup[intersect(col_names, names(lookup))]
-  matched <- matched[!is.na(matched)]
-  setNames(names(matched), make.unique(unlist(matched), sep = "_"))
+is_label_cols_ <- function(tbls, form) {
+  if (has_kobo_names_(tbls)) {
+    return(TRUE)
+  }
+  cols <- unlist(lapply(tbls, names), use.names = FALSE)
+  sum(cols %in% form$label) > sum(cols %in% form$name)
 }
 
+#' TRUE when some column keeps its question name in `kobo_name`
 #' @noRd
-has_label_colnames_ <- function(col_names, form) {
-  form_labels <- unique(form$label[!is.na(form$label)])
-  any(col_names %in% form_labels)
+has_kobo_names_ <- function(tbls) {
+  any(vapply(tbls, function(tbl) {
+    any(vapply(tbl, function(col) !is.null(attr(col, "kobo_name", exact = TRUE)),
+               logical(1)))
+  }, logical(1)))
 }
 
 #' Returns c("original_name" = "label_col", ...) for use with rename()
+#'
+#' Labels shared by several questions are skipped, since they cannot be mapped
+#' back.
 #' @noRd
 reverse_label_lookup_ <- function(label_cols, form, lang) {
   form_lang <- form[form$lang %in% lang, ]
   name_to_lbl <- setNames(form_lang$label, form_lang$name)
   name_to_lbl <- name_to_lbl[!duplicated(names(name_to_lbl)) & !is.na(name_to_lbl)]
+  shared <- name_to_lbl[duplicated(name_to_lbl)]
+  name_to_lbl <- name_to_lbl[!name_to_lbl %in% shared]
   in_data <- name_to_lbl[name_to_lbl %in% label_cols]
   setNames(unname(in_data), names(in_data))
 }
 
-#' @importFrom dplyr rename
-#' @noRd
-set_names_from_varlabel_empty_ <- function(x, form, lang) {
-  lookup <- label_lookup_from_form_(names(x), form, lang)
-  if (length(lookup) > 0) rename(x, all_of(lookup)) else x
-}
-
-#' @importFrom dm dm_rename
-#' @noRd
-set_names_from_varlabel_empty_dm_ <- function(x, form, lang) {
-  for (nm in names(x)) {
-    lookup <- label_lookup_from_form_(names(x[[nm]]), form, lang)
-    if (length(lookup) > 0) x <- dm_rename(x, {{ nm }}, lookup)
-  }
-  x
-}
-
-#' @importFrom purrr map map_chr accumulate
-#' @importFrom dplyr distinct
-#' @importFrom purrr map
-#' @importFrom rlang set_names
+#' Column names of each table of a repeat group form
+#'
+#' Scopes are read in each form version, so a field only present in an older
+#' version goes to the table it had in that version. A field that moved between
+#' tables is listed in both.
 #' @noRd
 kobo_form_name_to_list_ <- function(x, sep) {
+  x$scope <- repeat_scope_(x)
+  x <- x[!x$type %in% c("begin_repeat", "end_repeat"), ]
+  x <- x[!duplicated(x[c("version", "name", "scope")]), ]
   x <- kobo_form_extra_(x, sep)
-
-  first_ver <- na.omit(unique(x$version))[1]
-  struct <- if (!is.na(first_ver)) {
-    x[x$version %in% first_ver, ]
-  } else {
-    x
-  }
-
-  types <- struct$type
-  names_col <- struct$name
-  is_begin <- types == "begin_repeat" & !is.na(names_col)
-  is_end <- types == "end_repeat"
-  is_repeat <- is_begin | is_end
-
-  scope_vec <- character(nrow(struct))
-  stack <- character(0)
-  cur_scope <- "main"
-  for (i in which(is_repeat)) {
-    if (is_begin[i]) {
-      nm <- names_col[i]
-      if (length(stack) == 0L || stack[length(stack)] != nm) {
-        stack <- c(stack, nm)
-        cur_scope <- paste(stack, collapse = "/")
-      }
-    } else if (length(stack) > 0L) {
-      stack <- stack[-length(stack)]
-      cur_scope <- if (length(stack) > 0L) {
-        paste(stack, collapse = "/")
-      } else {
-        "main"
-      }
-    }
-    scope_vec[i] <- cur_scope
-  }
-
-  repeat_idx <- which(is_repeat)
-  if (length(repeat_idx) > 0L) {
-    breaks <- findInterval(seq_len(nrow(struct)), repeat_idx)
-    filled <- scope_vec[repeat_idx[pmax(breaks, 1L)]]
-    filled[breaks == 0L] <- "main"
-    scope_vec[!is_repeat] <- filled[!is_repeat]
-  } else {
-    scope_vec[] <- "main"
-  }
-
-  keep <- !is_repeat
-  cnames_struct <- struct$cnames[keep]
-  scope_struct <- scope_vec[keep]
-  dup <- duplicated(cnames_struct)
-  cname_scope <- setNames(scope_struct[!dup], cnames_struct[!dup])
-
-  is_repeat_all <- grepl("repeat", x$type, fixed = TRUE)
-  x <- x[!is_repeat_all, ]
-  x$scope <- cname_scope[x$cnames]
-  x$scope[is.na(x$scope)] <- "main"
-  x <- distinct(x, .data$cnames, .data$scope, .keep_all = TRUE)
-
-  x |>
-    split(x$scope) |>
-    map(~ .x$cnames) |>
-    set_names(basename)
+  x <- x[!duplicated(x[c("cnames", "scope")]), ]
+  split(x$cnames, factor(x$scope, levels = unique(c("main", x$scope))))
 }
 
+#' Question names of the columns
+#'
+#' A column renamed after its label keeps its question name in the
+#' `kobo_name` attribute.
 #' @noRd
-#' @importFrom labelled var_label
-lookup_varlabel_ <- function(x) {
-  v <- var_label(x)
-  setNames(names(v), make.unique(unlist(v), sep = "_"))
+kobo_names_ <- function(x) {
+  nm <- names(x)
+  vapply(seq_along(nm), function(i) {
+    attr(x[[i]], "kobo_name", exact = TRUE) %||% nm[i]
+  }, character(1))
 }
 
-#' @importFrom dplyr rename
+#' Rename columns and keep their question names in `kobo_name`
+#'
+#' Every column gets the attribute, renamed or not, so data named after
+#' labels stays recognizable when the labels equal the question names.
+#' @noRd
+rename_kobo_ <- function(x, new_names) {
+  orig <- kobo_names_(x)
+  cls <- class(x)
+  x <- unclass(x)
+  for (i in seq_along(x)) {
+    attr(x[[i]], "kobo_name") <- orig[i]
+  }
+  names(x) <- new_names
+  class(x) <- cls
+  x
+}
+
+#' @importFrom labelled var_label
 #' @noRd
 set_names_from_varlabel_ <- function(x) {
-  lookup <- lookup_varlabel_(x)
-  rename(x, all_of(lookup))
-}
-
-#' @importFrom dm dm_rename
-#' @noRd
-set_names_from_varlabel_dm_ <- function(x) {
-  tbl_nm <- names(x)
-  for (nm in tbl_nm) {
-    x <- dm_rename(x, {{ nm }}, lookup_varlabel_(x[[nm]]))
-  }
-  x
+  lbl <- var_label(x)
+  nm <- names(x)
+  lbl <- vapply(seq_along(nm), function(i) {
+    l <- lbl[[i]]
+    if (is.null(l) || is.na(l)) nm[i] else l
+  }, character(1))
+  rename_kobo_(x, make.unique(lbl, sep = "_"))
 }
 
 #' @importFrom dplyr mutate case_when
@@ -1446,58 +1539,47 @@ kobo_type_cols_ <- function(x, form) {
   paste(coalesce(v, "?"), collapse = "")
 }
 
+#' Form used to read the submissions
+#'
+#' The deployed form comes first, so its labels win. With `all_versions`, the
+#' other deployed versions found in the submissions follow, newest first, and
+#' add the questions and choices the deployed form lacks.
 #' @noRd
 kobo_form_version_ <- function(x, asset, all_versions) {
+  form <- kobo_form(asset)
+  has_version <- sum(grepl("\\_version\\_", names(x))) == 1
+  if (!all_versions || !has_version)
+    return(form)
+
   uid <- asset$uid
-  default_version <- asset$deployed_version_id
-
-  # Always call API - version lists can change, and server requires this call
   form_versions <- kobo_asset_version_list(uid)
+  form_versions <- unique(form_versions$uid[form_versions$deployed])
+  versions <- intersect(form_versions, unique(x[["__version__"]]))
+  versions <- setdiff(versions, unique(form$version))
+  if (length(versions) == 0)
+    return(form)
 
-  form_versions <- filter(form_versions, .data$deployed)
-  cond3 <- nrow(form_versions) > 0
-  form_versions <- unique(form_versions$uid)
-  cond1 <- sum(grepl("\\_version\\_", names(x))) == 1
-  subs_versions <- unique(x[["__version__"]])
-  cond2 <- length(subs_versions) > 1
-  versions <- intersect(unique(form_versions), unique(subs_versions))
-  if (length(versions) == 0) {
-    versions <- default_version
-  }
-  cond <- cond1 & cond2 & cond3 & all_versions
-  if (cond) {
-    uncached <- versions[
-      !vapply(
-        versions,
-        \(v) has_cached_form_(uid, v),
-        logical(1)
-      )
-    ]
-    if (length(uncached) > 1) {
-      asset_vers <- tryCatch(
-        fetch_asset_versions_async_(uid, uncached),
-        error = function(e) NULL
-      )
-      if (!is.null(asset_vers)) {
-        for (i in seq_along(uncached)) {
-          frm <- kobo_form_api_(asset_vers[[i]], uncached[i])
-          set_cached_form_(uid, uncached[i], frm)
-        }
-      } else {
-        for (v in uncached) {
-          kobo_form(uid, v)
-        }
+  uncached <- versions[!vapply(versions, \(v) has_cached_form_(uid, v), logical(1))]
+  if (length(uncached) > 1) {
+    asset_vers <- tryCatch(
+      fetch_asset_versions_async_(uid, uncached),
+      error = function(e) NULL
+    )
+    if (!is.null(asset_vers)) {
+      for (i in seq_along(uncached)) {
+        frm <- kobo_form_api_(asset_vers[[i]], uncached[i])
+        set_cached_form_(uid, uncached[i], frm)
       }
-    } else if (length(uncached) == 1) {
-      kobo_form(uid, uncached)
+    } else {
+      for (v in uncached) {
+        kobo_form(asset, v)
+      }
     }
-    form <- lapply(versions, \(v) get_cached_form_(uid, v))
-    form <- dt2tibble(rbindlist(form, fill = TRUE))
-  } else {
-    v <- if (!cond2 & cond3) versions else NULL
-    form <- kobo_form(uid, version = v)
+  } else if (length(uncached) == 1) {
+    kobo_form(asset, uncached)
   }
-  form
+  form <- c(list(form), lapply(versions, \(v) get_cached_form_(uid, v)))
+  dt2tibble(rbindlist(form, fill = TRUE))
 }
 
 #' @importFrom crul AsyncQueue HttpRequest

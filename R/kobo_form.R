@@ -5,6 +5,8 @@
 #' @param x the unique identifier of a specific asset (`character`) or
 #' a \code{kobo_asset} object.
 #' @param version character, the unique identifier of the version of the asset.
+#'   Defaults to the deployed version, or to the draft for a form that was
+#'   never deployed.
 #'
 #' @name kobo_form
 #'
@@ -50,12 +52,16 @@ kobo_form <- function(x, version) {
 #' @export
 kobo_form.kobo_asset <- function(x, version = NULL) {
   uid <- x$uid
+  version <- version %||% form_version_uid_(x)
 
   if (has_cached_form_(uid, version))
     return(get_cached_form_(uid, version))
 
-  form <- kobo_form_api_(x, version)
+  src <- form_source_(x, version)
+  form <- kobo_form_api_(src, version)
   set_cached_form_(uid, version, form)
+  if (!has_cached_lang_(uid, version))
+    set_cached_lang_(uid, version, content_langs_(src$content))
 
   form
 }
@@ -65,7 +71,7 @@ kobo_form.character <- function(x, version = NULL) {
   if (!assert_uid(x))
     abort(message = "Invalid asset uid")
 
-  if (has_cached_form_(x, version))
+  if (!is.null(version) && has_cached_form_(x, version))
     return(get_cached_form_(x, version))
 
   kobo_form(kobo_asset(x), version)
@@ -74,6 +80,42 @@ kobo_form.character <- function(x, version = NULL) {
 #' @export
 kobo_form.default <- function(x, version) {
   abort("You need to use a 'kobo_asset' or a valid asset uid")
+}
+
+#' @noRd
+form_version_uid_ <- function(x) {
+  dv <- x$deployed_versions$results
+  if (length(dv))
+    return(dv[[1]]$uid)
+  x$version_id %||% x$deployed_version_id
+}
+
+#' @noRd
+form_source_ <- function(x, version) {
+  if (is.null(version) || inherits(x, "kobo_asset_version") ||
+        identical(version, x$version_id))
+    return(x)
+  dv <- Filter(\(v) identical(v$uid, version), x$deployed_versions$results)
+  same <- length(dv) > 0 && !is.null(x$version__content_hash) &&
+    identical(dv[[1]]$content_hash, x$version__content_hash)
+  if (same)
+    return(x)
+  res <- kobo_asset_version(x, version)
+  ## Versions saved before KPI added autonames can have unnamed questions
+  unnamed <- vapply(res$content$survey, \(q) {
+    !is.null(q$label) && is.null(q$name) && is.null(q[["$autoname"]])
+  }, logical(1))
+  if (any(unnamed) && identical(version, form_version_uid_(x)))
+    return(x)
+  res
+}
+
+#' @noRd
+content_langs_ <- function(content) {
+  lng <- content$translations
+  if (sum(lengths(lng)) <= 0)
+    lng <- "Labels"
+  unlist(lng)
 }
 
 #' @noRd
@@ -90,9 +132,7 @@ kobo_form_api_ <- function(x, version = NULL) {
     x
   }
 
-  asset <- x
-  if (!is.null(version) && !inherits(x, "kobo_asset_version"))
-    asset <- kobo_asset_version(x, version)
+  asset <- form_source_(x, version)
   asset_content_nm <- names(asset$content)
   cond <- "translations" %in% asset_content_nm &
     !is.null(unlist(asset$content$translations))
@@ -106,6 +146,9 @@ kobo_form_api_ <- function(x, version = NULL) {
     x
   })
   survey <- rbindlist(drop_nulls(survey), fill = TRUE)
+  if (!"label" %in% names(survey)) {
+    survey$label <- NA_character_
+  }
   has_autoname <- "$autoname" %in% names(survey)
   if (has_autoname) {
     survey <- select(.data = survey,
@@ -135,7 +178,7 @@ kobo_form_api_ <- function(x, version = NULL) {
   if (any(duplicated(names(survey))))
     survey <- set_names(survey, make.names, unique = TRUE)
   survey <- filter(survey, .data$type %in% stypes)
-  survey$version <- x$deployed_version_id
+  survey$version <- x$deployed_version_id %||% NA_character_
   if (!is.null(version))
     survey$version <- version
   form <- survey

@@ -1,30 +1,37 @@
-## Submission 1.6.2
+## Submission 1.8.0
 
-Patch release fixing a regression introduced while tightening repeat-group
-detection after 1.6.1. The stricter check required repeat-group names to be
-present in the downloaded payload before entering the `dm` branch, which caused
-some genuine repeat-group forms to be returned as flat tables. Version 1.6.2
-restores the simpler form-structure-based check (`begin_repeat` in the form),
-so repeat-group forms are again returned as `dm` objects consistently.
+This release fixes silent data loss and adapts the package to recent
+KoboToolbox API changes.
+
+KoboToolbox servers cap the number of records returned per request and
+ignore larger requests without an error. Since KoboToolbox KPI version
+2.026.12, the cap applies to every API endpoint. When users raised `page_size`
+above that cap, `kobo_data()`, `kobo_attachment_download()` and `kobo_audit()`
+returned incomplete results. Version 1.7.0 detects the cap from the server
+response and requests the missing records. Version and file listings, which
+returned at most 1,000 and 100 results, now page through all results.
 
 ### Key changes
 
-- Fixed repeat-group detection so genuine repeat-group surveys return `dm`
-  outputs again.
-- Clarified `fields` documentation for repeat-group forms:
-  main-table fields can be selected individually, top-level repeat groups are
-  selected at table level, selected repeat groups are returned in full, and
-  nested repeat groups / child columns are not independently selectable.
+- Fixed incomplete results when `page_size` exceeds the server limit.
+- Fixed truncated results in `kobo_asset_version_list()` and
+  `kobo_asset_file_list()`.
+- New `minimal` argument and `created_by` column in `kobo_asset_list()`.
+- `glue` removed from `Imports`. `%||%` is now imported from `rlang`, so
+  the package no longer relies on the base R version introduced in R 4.4.
 
 ## Test environments
 
-- Arch Linux x86_64 GNU/Linux, kernel 6.19.9, R 4.5.3 Patched (2026-03-11)
-- Win-builder (devel, release)
-- Github Action (linux, windows, macos)
+- Arch Linux x86_64 GNU/Linux, kernel 7.2.9, R 4.6.1 Patched (2026-06-28)
 
 ## R CMD check results
 
-0 errors | 0 warnings | 0 notes
+0 errors | 0 warnings | 1 note
+
+The note concerns the `BugReports` field. The issue tracker of the GitLab
+project lives at `/-/work_items`, which is the correct URL. The suggestion to
+use a different path comes from a heuristic that assumes a GitHub-style
+layout.
 
 ## Reverse dependencies
 

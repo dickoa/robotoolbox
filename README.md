@@ -100,16 +100,25 @@ kobo_setup(url = "https://kobo.unhcr.org",
            token = "xxxxxxxxxxxxxxxxxxxxxxxxxx")
 ```
 
-By default, `kobo_setup` sets a maximum of 1,000 submissions per API
-request, matching the limit enforced by public KoboToolbox servers since
-KoboToolbox KPI version 2.026.03 (March 2026). If you use a private
-server with a higher limit, you can configure it with the `page_size`
-parameter:
+By default, `kobo_setup` asks for 1,000 submissions per API request, the
+limit of public KoboToolbox servers since KoboToolbox KPI version
+2.026.03 (March 2026). Some private servers allow more, and a larger
+`page_size` then means fewer requests. When a server returns fewer
+submissions than asked, `kobo_data` detects its limit and requests the
+missing submissions, so a large value never loses data. You can set it
+with the `page_size` parameter or the `KOBOTOOLBOX_PAGE_SIZE`
+environment variable:
 
 ``` r
 kobo_setup(url = "https://my-private-server.org",
            token = "xxxxxxxxxxxxxxxxxxxxxxxxxx",
            page_size = 30000)
+```
+
+Alternatively, you can set `KOBOTOOLBOX_PAGE_SIZE` in your `.Renviron`:
+
+``` bash
+KOBOTOOLBOX_PAGE_SIZE=30000
 ```
 
 You can check the settings using the `kobo_settings` function.
@@ -273,7 +282,7 @@ for interacting with ODK data.
 ## Meta
 
 - Please [report any issues or
-  bugs](https://gitlab.com/dickoa/robotoolbox/-/issues).
+  bugs](https://gitlab.com/dickoa/robotoolbox/-/work_items).
 - License: MIT
 - Please note that this project is released with a [Contributor Code of
   Conduct](https://dickoa.gitlab.io/robotoolbox/CODE_OF_CONDUCT.html).

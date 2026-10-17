@@ -35,6 +35,9 @@ in the audit and the data from \code{kobo_data}.
 \item \code{user} the username of the data collector.
 \item \code{change-reason} the reason before they save changes to a form.
 }
+
+When no submission has an audit log, the result has zero rows and all the
+columns above.
 }
 \description{
 Get all audit logs data from a KoboToolbox survey through a \code{kobo_asset} or

@@ -1,6 +1,8 @@
 #' @noRd
 kobo_audit_ <- function(uid, progress = FALSE) {
   audit_meta <- get_audit_url_(uid)
+  if (nrow(audit_meta) == 0L)
+    return(empty_audit_())
   headers <- list(Authorization = paste("Token",
                                         Sys.getenv("KOBOTOOLBOX_TOKEN")))
   reqs <- lapply(audit_meta$download_url, function(url) {
@@ -100,6 +102,9 @@ kobo_audit_ <- function(uid, progress = FALSE) {
 #' - `user` the username of the data collector.
 #'
 #' - `change-reason` the reason before they save changes to a form.
+#'
+#' When no submission has an audit log, the result has zero rows and all the
+#' columns above.
 #'
 #' @examples
 #' \dontrun{
