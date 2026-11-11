@@ -151,6 +151,8 @@ pull(df, polygon)
 pull(df, polygon_wkt)
 ```
 
+A WKT column is `NA` when the answer is missing or does not form a valid geometry, such as a point with a part that is not a number, a line with a single point, or a polygon with fewer than four points, the closing point included. `sf::st_as_sf()` stops on a missing WKT value, so keep the rows that have one first, for example with `filter(df, !is.na(line_wkt))`.
+
 Now that we understand how `robotoolbox` stores spatial question types, we can convert these columns into spatial objects suitable for spatial data analysis.
 
 ## Geopoint

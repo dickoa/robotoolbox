@@ -129,3 +129,89 @@ test_that("xget_all_ follows pages until the server reports no next page", {
   expect_length(seen, 2L)
   expect_equal(vapply(seen, `[[`, "", "limit"), c("2", "1"))
 })
+
+## Capped counts (KoboToolbox KPI 2.026.43 and later)
+
+test_that("parse_api_count_ reads numbers and treats capped counts as unknown", {
+  expect_identical(parse_api_count_(2217L), 2217)
+  expect_identical(parse_api_count_(2217), 2217)
+  expect_identical(parse_api_count_("2217"), 2217)
+  expect_identical(parse_api_count_("many"), NA_real_)
+  expect_identical(parse_api_count_("unknown"), NA_real_)
+  expect_identical(parse_api_count_(NULL), NA_real_)
+  expect_identical(parse_api_count_(NA), NA_real_)
+  expect_silent(parse_api_count_("many"))
+})
+
+test_that("parse_subs_page_ keeps whether the server has a next page", {
+  res <- parse_subs_page_('{"count": "many", "next": "x", "results": [{"_id": 1}]}')
+  expect_true(res$has_next)
+  res <- parse_subs_page_('{"count": 1, "next": null, "results": [{"_id": 1}]}')
+  expect_false(res$has_next)
+})
+
+test_that("every submission is fetched when the server does not report a count", {
+  for (count in c("many", "unknown")) {
+    server <- fake_server(total = 2500, cap = 1000, count = count)
+    with_fake_server(server, {
+      res <- get_subs_pages_("aFake", page_size = 1000)
+    })
+    expect_equal(res$`_id`, 1:2500, info = count)
+    expect_equal(server$calls$n, 3L, info = count)
+  }
+})
+
+test_that("the server limit is detected when the count is not reported", {
+  server <- fake_server(total = 2500, cap = 1000, count = "many")
+  with_fake_server(server, {
+    expect_message(
+      res <- get_subs_pages_("aFake", page_size = 5000),
+      "at most 1000"
+    )
+    expect_equal(res$`_id`, 1:2500)
+    expect_equal(page_cap_get_(), 1000)
+  })
+})
+
+test_that("planned pages are completed when the count is not reported", {
+  server <- fake_server(total = 2500, cap = 1000, count = "many")
+  with_fake_server(server, {
+    res <- get_subs_pages_("aFake", size = 2000, page_size = 1000)
+  })
+  expect_equal(res$`_id`, 1:2500)
+
+  for (count in c("many", "unknown")) {
+    server <- fake_server(total = 12000, cap = 1000, count = count)
+    with_fake_server(server, {
+      expect_message(
+        res <- get_subs_pages_("aFake", size = 12000, page_size = 5000),
+        "at most 1000"
+      )
+    })
+    expect_equal(res$`_id`, 1:12000, info = count)
+    expect_equal(server$calls$n, 12L, info = count)
+  }
+
+  server <- fake_server(total = 7500, cap = 1000, count = "many")
+  with_fake_server(server, {
+    expect_message(
+      res <- get_subs_pages_("aFake", size = 20000, page_size = 5000),
+      "at most 1000"
+    )
+  })
+  expect_equal(res$`_id`, 1:7500)
+})
+
+test_that("get_filtered_count_ returns NA for a count the server did not compute", {
+  for (count in c('"many"', '"unknown"')) {
+    local_mocked_bindings(xget = function(path, args = list(), ...) {
+      sprintf('{"count": %s, "next": "x", "results": []}', count)
+    })
+    expect_no_warning(n <- get_filtered_count_("aFake", '{"a": 1}'))
+    expect_identical(n, NA_integer_, info = count)
+  }
+  local_mocked_bindings(xget = function(path, args = list(), ...) {
+    '{"count": 12, "next": null, "results": []}'
+  })
+  expect_identical(get_filtered_count_("aFake", '{"a": 1}'), 12L)
+})

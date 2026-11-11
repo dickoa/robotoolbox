@@ -1,6 +1,6 @@
 Package: robotoolbox
 Title: Client for the 'KoboToolbox' API
-Version: 1.8.0
+Version: 1.9.0
 Authors@R: c(person(given = "Ahmadou",
                     family = "Dicko",
 		    email = "mail@ahmadoudicko.com",
@@ -53,4 +53,4 @@ LazyData: true
 Config/Needs/website: unhcr-dataviz/unhcrtemplate
 X-schema.org-applicationCategory: Data Access
 X-schema.org-keywords: open-data, kobotoolbox, odk, kpi, api, data, dataset
-Config/roxygen2/version: 8.1.0
+Config/roxygen2/version: 8.1.1

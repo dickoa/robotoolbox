@@ -1,5 +1,6 @@
-## Fake data endpoint that returns at most `cap` records per request
-fake_server <- function(total, cap = Inf, rows = NULL) {
+## Fake data endpoint that returns at most `cap` records per request. `count`
+## is what the server reports, `"many"` or `"unknown"` on capped servers.
+fake_server <- function(total, cap = Inf, rows = NULL, count = total) {
   if (is.null(rows)) {
     rows <- function(ids) data.frame(`_id` = ids, check.names = FALSE)
   }
@@ -12,7 +13,7 @@ fake_server <- function(total, cap = Inf, rows = NULL) {
     Map(function(s, l) {
       n <- max(0, min(l, cap, total - s))
       ids <- if (n > 0) seq(s + 1, s + n) else integer()
-      list(count = total, results = rows(ids))
+      list(count = count, has_next = s + n < total, results = rows(ids))
     }, start, limit)
   }
   list(fetch = fetch, calls = calls)

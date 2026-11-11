@@ -48,7 +48,7 @@ http_interactions:
   recorded_at: 2026-10-15 15:43:47
 - request:
     method: GET
-    uri: https://kobo-trn.unhcr.org/api/v2/assets/aUJbF9hPVWfo3o83S8Ageq
+    uri: https://kobo-trn.unhcr.org/api/v2/assets/aUJbF9hPVWfo3o83S8Ageq/
   response:
     status: 200
     headers:

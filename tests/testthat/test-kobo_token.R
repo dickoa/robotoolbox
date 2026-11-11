@@ -28,7 +28,7 @@ test_that("kobo_token works", {
   expect_type(token, "character")
   expect_type(token2, "character")
   expect_equal(Sys.getenv("KOBOTOOLBOX_URL"),
-               Sys.getenv("KOBOTOOLBOX_PROD_URL"))
+               clean_urls(Sys.getenv("KOBOTOOLBOX_PROD_URL")))
   expect_equal(Sys.getenv("KOBOTOOLBOX_TOKEN"),
                Sys.getenv("KOBOTOOLBOX_PROD_TOKEN"))
 
@@ -43,4 +43,16 @@ test_that("kobo_token works", {
                        password = pwd)
   expect_equal(token, token3)
 
+})
+
+test_that("kobo_token strips a trailing slash from the server URL", {
+  old_url <- Sys.getenv("KOBOTOOLBOX_URL")
+  old_tok <- Sys.getenv("KOBOTOOLBOX_TOKEN")
+  on.exit({
+    Sys.setenv(KOBOTOOLBOX_URL = old_url, KOBOTOOLBOX_TOKEN = old_tok)
+  })
+  Sys.setenv(KOBOTOOLBOX_TOKEN = "0000000000000000000000000000000000000000")
+  tok <- kobo_token(url = "https://kobo.example.org/", overwrite = FALSE)
+  expect_identical(tok, "0000000000000000000000000000000000000000")
+  expect_identical(Sys.getenv("KOBOTOOLBOX_URL"), "https://kobo.example.org")
 })

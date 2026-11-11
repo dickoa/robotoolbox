@@ -33,7 +33,7 @@
 #'
 #' @name dummy_data
 #' @aliases data_ml_en
-#' @format data_ml: A \code{data.frame} with submissions from \code{\link{asset_ml}}
+#' @format data_ml_en: A \code{data.frame} with submissions from \code{\link{asset_ml}}
 #' in English.
 "data_ml_en"
 

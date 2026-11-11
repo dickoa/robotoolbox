@@ -1,7 +1,7 @@
 http_interactions:
 - request:
     method: GET
-    uri: https://kobo.unhcr.org/api/v2/assets/aYuTZn9vegi3Z49MXwKjep
+    uri: https://kobo.unhcr.org/api/v2/assets/aYuTZn9vegi3Z49MXwKjep/
   response:
     status: 200
     headers:

@@ -67,7 +67,8 @@ kobo_setup <- function(url = Sys.getenv("KOBOTOOLBOX_URL", ""),
   if (!assert_token(token))
     abort(message = "Invalid token")
 
-  if (!is.numeric(page_size) || length(page_size) != 1 || page_size < 1)
+  if (!is.numeric(page_size) || length(page_size) != 1 || is.na(page_size) ||
+        page_size < 1)
     abort("`page_size` must be a positive integer", call = NULL)
 
   Sys.setenv("KOBOTOOLBOX_URL" = clean_urls(url))

@@ -18,13 +18,37 @@ subs_args_ <- function(start, limit, query = NULL, fields = NULL) {
 #' @noRd
 parse_subs_page_ <- function(json) {
   res <- fparse(json, max_simplify_lvl = "data_frame")
-  list(count = res$count, results = res$results)
+  list(
+    count = res$count,
+    has_next = !is.null(res[["next"]]),
+    results = res$results
+  )
+}
+
+#' Count reported by a paginated endpoint
+#'
+#' Since KoboToolbox KPI 2.026.43, servers may stop counting past a limit and
+#' report `"many"`, or `"unknown"` when counting takes too long.
+#'
+#' @returns The count as a number, or `NA` when the server gives none.
+#' @noRd
+parse_api_count_ <- function(x) {
+  if (length(x) != 1L || is.na(x)) {
+    return(NA_real_)
+  }
+  if (is.numeric(x)) {
+    return(as.numeric(x))
+  }
+  if (is.character(x) && grepl("^[0-9]+$", x)) {
+    return(as.numeric(x))
+  }
+  NA_real_
 }
 
 #' @noRd
 fetch_subs_page_ <- function(uid, start, limit, query = NULL, fields = NULL) {
   path <- paste0("api/v2/assets/", uid, "/data.json")
-  res <- xget(path = path, args = subs_args_(start, limit, query, fields))
+  res <- xget(path = path, args = subs_args_(start, limit, query, fields), raw = TRUE)
   parse_subs_page_(res)
 }
 
@@ -40,6 +64,7 @@ fetch_subs_async_ <- function(
   fields = NULL,
   n_retry = 3L
 ) {
+  check_setup_()
   headers <- list(
     Authorization = paste("Token", Sys.getenv("KOBOTOOLBOX_TOKEN")),
     `User-Agent` = user_agent_()
@@ -56,7 +81,7 @@ fetch_subs_async_ <- function(
       "get",
       query = subs_args_(start[i], limit[i], query, fields),
       times = n_retry,
-      retry_only_on = c(500, 503),
+      retry_only_on = retry_codes_,
       terminate_on = 404
     )
   })
@@ -75,7 +100,7 @@ fetch_subs_async_ <- function(
     msg <- res$content()[cond]
     abort(error_msg(msg[[1]]), call = NULL)
   }
-  lapply(res$parse(encoding = "UTF-8"), parse_subs_page_)
+  lapply(res$content(), parse_subs_page_)
 }
 
 #' @noRd
@@ -129,7 +154,7 @@ get_subs_pages_ <- function(
   fields = NULL
 ) {
   page_size <- min(page_size, page_cap_get_())
-  if (is.null(size) || size <= page_size) {
+  if (is.null(size) || is.na(size) || size <= page_size) {
     start <- 0
     limit <- page_size
   } else {
@@ -139,9 +164,10 @@ get_subs_pages_ <- function(
   pages <- fetch_subs_pages_(uid, start, limit, query, fields)
 
   got <- vapply(pages, function(p) NROW(p$results), numeric(1))
-  count <- unlist(lapply(pages, `[[`, "count"))
-  total <- max(c(count, sum(got)))
-  short <- got < pmin(limit, total - start)
+  count <- vapply(pages, function(p) parse_api_count_(p$count), numeric(1))
+  has_next <- vapply(pages, function(p) isTRUE(p$has_next), logical(1))
+  total <- max(c(0, count[!is.na(count)], (start + got)[got > 0]))
+  short <- got < pmin(limit, total - start) | (has_next & got < limit)
   cap <- max(got)
   chunk <- page_size
   if (any(short) && cap > 0 && cap < max(limit[short])) {
@@ -158,6 +184,24 @@ get_subs_pages_ <- function(
     more <- fetch_subs_pages_(uid, missing$start, missing$limit, query, fields)
     pages <- c(pages, more)
     start <- c(start, missing$start)
+  }
+
+  ## Without a count, the total is unknown, so follow the last non-empty page's `next`
+  repeat {
+    non_empty <- which(vapply(pages, function(p) NROW(p$results) > 0, logical(1)))
+    if (length(non_empty) == 0L) {
+      break
+    }
+    last <- non_empty[which.max(start[non_empty])]
+    if (!isTRUE(pages[[last]]$has_next)) {
+      break
+    }
+    s <- start[last] + NROW(pages[[last]]$results)
+    if (s %in% start) {
+      break
+    }
+    pages <- c(pages, fetch_subs_pages_(uid, s, chunk, query, fields))
+    start <- c(start, s)
   }
 
   results <- lapply(pages[order(start)], `[[`, "results")
@@ -204,7 +248,7 @@ xget_all_ <- function(
     if (n > 0) {
       args$start <- sprintf("%d", n)
     }
-    res <- fparse(xget(path = path, args = args), max_simplify_lvl = simplify)
+    res <- fparse(xget(path = path, args = args, raw = TRUE), max_simplify_lvl = simplify)
     count <- count %||% res$count
     got <- NROW(res$results)
     if (got == 0) {

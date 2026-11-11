@@ -21,3 +21,22 @@ test_that("kobo_asset works", {
   testthat::local_edition(3)
   expect_snapshot_output(print.kobo_asset(asset1))
 })
+
+test_that("asset and version paths end with a slash to avoid a redirect", {
+  expect_identical(asset_path_("aFakeFakeFakeFakeFakeF"), "api/v2/assets/aFakeFakeFakeFakeFakeF/")
+  expect_identical(
+    asset_path_("aFakeFakeFakeFakeFakeF", "vFakeFakeFakeFakeFakeF"),
+    "api/v2/assets/aFakeFakeFakeFakeFakeF/versions/vFakeFakeFakeFakeFakeF/"
+  )
+  paths <- character()
+  local_mocked_bindings(xget = function(path, args = list(), ...) {
+    paths <<- c(paths, path)
+    '{"uid": "x"}'
+  })
+  kobo_asset("aFakeFakeFakeFakeFakeF")
+  kobo_asset_version("aFakeFakeFakeFakeFakeF", "vFakeFakeFakeFakeFakeF")
+  expect_identical(paths, c(
+    asset_path_("aFakeFakeFakeFakeFakeF"),
+    asset_path_("aFakeFakeFakeFakeFakeF", "vFakeFakeFakeFakeFakeF")
+  ))
+})

@@ -3,14 +3,16 @@ kobo_audit_ <- function(uid, progress = FALSE) {
   audit_meta <- get_audit_url_(uid)
   if (nrow(audit_meta) == 0L)
     return(empty_audit_())
-  headers <- list(Authorization = paste("Token",
-                                        Sys.getenv("KOBOTOOLBOX_TOKEN")))
+  headers <- list(
+    Authorization = paste("Token", Sys.getenv("KOBOTOOLBOX_TOKEN")),
+    `User-Agent` = user_agent_()
+  )
   reqs <- lapply(audit_meta$download_url, function(url) {
     req <- HttpRequest$new(url,
                            headers = headers)
     req$retry("get",
               times = 3L,
-              retry_only_on = c(500, 502, 503),
+              retry_only_on = retry_codes_,
               terminate_on = 404)
   })
   sleep <- 0.05
@@ -28,27 +30,52 @@ kobo_audit_ <- function(uid, progress = FALSE) {
   if (isTRUE(progress))
     cli_progress_step("Processing audit data")
 
-  res <- res$parse(encoding = "UTF-8")
-  col_classes <- c("event",
-                   "node",
-                   "old-value",
-                   "new-value",
-                   "user",
-                   "change-reason")
-  col_classes <- list(character = col_classes)
-  res <- mutate(audit_meta,
-                data = lapply(res, \(path) suppressWarnings(fread(path,
-                                                                  colClasses = col_classes,
-                                                                  data.table = FALSE))))
+  parse_audit_(audit_meta, res$parse(encoding = "UTF-8"))
+}
 
-  res <- select(res, -"download_url")
+#' Read the audit files of a survey
+#'
+#' @param audit_meta data.frame with the `_id` of each submission and the
+#'   `download_url` of its audit file.
+#' @param texts list, the content of each audit file.
+#' @returns A tibble with the columns of `empty_audit_()`. Columns that a file
+#'   does not have, such as the location ones, are `NA`.
+#' @importFrom data.table fread
+#' @importFrom dplyr mutate
+#' @importFrom tidyr unnest
+#' @noRd
+parse_audit_ <- function(audit_meta, texts) {
+  col_classes <- list(character = c(
+    "event", "node", "old-value", "new-value", "user", "change-reason"
+  ))
+  data <- lapply(texts, function(txt) {
+    if (length(txt) != 1L || is.na(txt) || !nzchar(trimws(txt))) {
+      return(NULL)
+    }
+    res <- suppressWarnings(
+      fread(text = txt, colClasses = col_classes, data.table = FALSE)
+    )
+    if (nrow(res) == 0L) NULL else res
+  })
+  keep <- !vapply(data, is.null, logical(1))
+  if (!any(keep)) {
+    return(empty_audit_())
+  }
+  res <- audit_meta[keep, setdiff(names(audit_meta), "download_url")]
+  res$data <- data[keep]
   res <- unnest(res, "data")
-  res |>
-    mutate(name = basename(.data$node), .before = "start",
-           start_int = .data$start,
-           start = as.POSIXct(.data$start_int/1000, origin = "1970-01-01"),
-           end_int = .data$end,
-           end = as.POSIXct(.data$end_int/1000, origin = "1970-01-01"))
+  template <- empty_audit_()
+  optional <- c("latitude", "longitude", "accuracy", "old-value", "new-value",
+                "user", "change-reason")
+  for (col in setdiff(optional, names(res))) {
+    res[[col]] <- template[[col]][rep(NA_integer_, nrow(res))]
+  }
+  res <- mutate(res, name = basename(.data$node), .before = "start",
+                start_int = .data$start,
+                start = as.POSIXct(.data$start_int/1000, origin = "1970-01-01"),
+                end_int = .data$end,
+                end = as.POSIXct(.data$end_int/1000, origin = "1970-01-01"))
+  res[c(names(template), setdiff(names(res), names(template)))]
 }
 
 #' Get all audit logs data from a KoboToolbox survey
@@ -131,16 +158,14 @@ kobo_audit <- function(x, progress) {
 kobo_audit.kobo_asset <- function(x, progress = FALSE) {
   if (isTRUE(progress))
     cli_progress_step("Checking audit data availability")
-  asset_version_list <- kobo_asset_version_list(x$uid)
-  asset_version_list <- filter(asset_version_list,
-                               .data$deployed)
-  cond <- nrow(asset_version_list) > 0
-  if (cond) {
-    version <- unique(asset_version_list$uid)
-    form <- lapply(version, \(v) kobo_form(x, v))
-    form <- dt2tibble(rbindlist(form, fill = TRUE))
-  } else {
-    form <- kobo_form(x)
+  form <- kobo_form(x)
+  if (!"audit" %in% form$name) {
+    asset_version_list <- kobo_asset_version_list(x$uid)
+    version <- unique(asset_version_list$uid[asset_version_list$deployed])
+    if (length(version) > 0) {
+      form <- lapply(version, \(v) kobo_form(x, v))
+      form <- dt2tibble(rbindlist(form, fill = TRUE))
+    }
   }
 
   if (!any("audit" %in% form$name))

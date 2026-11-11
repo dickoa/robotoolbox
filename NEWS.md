@@ -1,3 +1,96 @@
+robotoolbox 1.9.0 (2026-11-11)
+======================
+
+### NEW FEATURES
+- `kobo_asset_version_list()` returns a new `version_number` column with the
+  version label shown in the form history of KoboToolbox, such as `"12"` for a
+  deployment and `"11.4"` for a draft saved after it (KoboToolbox KPI 2.026.30
+  or later, `NA` on older servers). It links the `__version__` uids found in
+  the submissions to the versions users see in KoboToolbox.
+- `kobo_setup()` accepts self-hosted servers on `localhost`, an IP address, a
+  port, or a domain with a long top-level domain such as `.international`.
+- `kobo_data()` with `all_versions = TRUE` also reads the versions listed in
+  `meta/formVersions` (KoboToolbox KPI 2.026.33 or later). The server writes
+  every version an edited submission went through there.
+
+### BUG FIXES
+- Large projects can report their submission count as `"many"`, or
+  `"unknown"` when counting takes too long (KoboToolbox KPI 2.026.43 or later,
+  when the server operator enables the limit). `kobo_data()`, `kobo_audit()`
+  and `kobo_attachment_download()` stopped with "non-numeric argument to binary
+  operator", and `kobo_data(query = )` with "missing value where TRUE/FALSE
+  needed". They now follow the next page links until the last submission.
+  `kobo_asset_list()` no longer compares the listed assets with such a count.
+- `kobo_data()` with `all_versions = TRUE` ignored older form versions when a
+  question name contained `_version_`, such as `app_version_num`. Their
+  questions were missing from the data.
+- `kobo_asset_version_list()` failed when a version lacked a field, and reported
+  a version without deployment date as deployed.
+- Dates in `kobo_asset_list()`, `kobo_asset_version_list()` and the print
+  methods ignored the time zone offset, so `10:00:00+02:00` read as 10:00 UTC.
+  They are now converted to UTC.
+- A geopoint answer with fewer than four parts, or an empty one, stopped
+  `kobo_data()`. Such answers now give `NA` parts, and a two-part point gives
+  `POINT (longitude latitude)`. A part that is not a number gives `NA`, where
+  it used to make readr warn. Missing or empty geotrace and geoshape answers
+  gave invalid WKT such as `LINESTRING (NA)` and now give `NA`. So do a
+  geotrace with a single point and a geoshape with fewer than four points,
+  the closing point included, which GIS software cannot read as valid
+  geometries. Spatial columns keep their type when every answer is missing.
+- `kobo_data()` read `deviceid` answers made only of digits (IMEI) as numbers,
+  printed in scientific notation. They are now read as text.
+- With `all_versions = TRUE`, a select_multiple choice relabeled between
+  versions gave its old label to another dummy column whose name ended in
+  `_1`. The label of the deployed version is now used.
+- With `all_versions = TRUE`, a choice relabeled between versions kept its old
+  label among the value labels. Another choice that had the same old label
+  then became `Medium_1`, although no choice of the deployed form was labeled
+  `Medium`. This affected the value labels of select_one questions and the
+  answers of `select_multiple_label = TRUE`. Labels shared by several choices
+  of the same form version are still made unique.
+- `kobo_audit()` failed on an audit file that was empty or held only its
+  header line, and returned fewer columns
+  when the form did not record locations or track changes. Missing columns
+  are now `NA`.
+- `kobo_asset_version()` with `version = NULL` returned the version listing
+  instead of an error.
+- `kobo_setup(page_size = NA)` and `kobo_data(page_size = NA)` gave "missing
+  value where TRUE/FALSE needed" instead of the page size error.
+
+### PERFORMANCE
+- `kobo_data()` is faster on large forms with many versions. On a form with
+  6,088 submissions, 29 versions and 26 repeat groups, the first call went
+  from 44 to 29 seconds and later calls in the session from 27 to 18 seconds.
+  About 16 seconds of that is the download itself. Output is unchanged.
+  - Responses are parsed from their raw bytes, without building a string
+    first.
+  - The version listing is no longer requested when the asset already lists
+    its deployed versions, nor when the data holds a single version.
+  - Form versions are read faster, and only the columns that `kobo_data()`
+    uses are kept when versions are stacked.
+  - Column types, select_multiple choices and labels are computed once per
+    call instead of once per table, and columns are set on plain lists.
+- `kobo_audit()` reads the older form versions only when the deployed form
+  has no `audit` question.
+
+### OTHER CHANGES
+- Asset and version requests end with a slash. Without it the server answered
+  with a redirect, which doubled the requests.
+- A request made before `kobo_setup()` now says that no server is configured,
+  instead of a curl error about the URL.
+- Server errors such as 403 (permission denied) and 429 (rate limit) now show
+  the message of the server.
+- Every request retries on status 429, 500, 502, 503 and 504, waiting as long
+  as the server asks, and sends the robotoolbox User-Agent.
+- `kobo_settings()` shows `<unset>` when no token is set.
+- `kobo_token()` removes a trailing slash from the server URL before storing
+  it in `KOBOTOOLBOX_URL`, as `kobo_setup()` does.
+- Unused code to read external CSV choices is removed, along with the
+  `tools` import.
+- Documentation fixes in `kobo_asset_file_list()`, the example data and the
+  README. The multilanguage vignette shows `kobo_lang_set()` and
+  `kobo_lang_get()`.
+
 robotoolbox 1.8.0 (2026-10-17)
 ======================
 

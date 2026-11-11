@@ -1,7 +1,7 @@
 http_interactions:
 - request:
     method: GET
-    uri: https://kobo.unhcr.org/api/v2/assets/atbUaNGu5PWR2u4tNDsYaH
+    uri: https://kobo.unhcr.org/api/v2/assets/atbUaNGu5PWR2u4tNDsYaH/
   response:
     status: 200
     headers:
@@ -111,7 +111,7 @@ http_interactions:
   recorded_at: 2026-10-15 15:44:04
 - request:
     method: GET
-    uri: https://kobo.unhcr.org/api/v2/assets/atbUaNGu5PWR2u4tNDsYaH
+    uri: https://kobo.unhcr.org/api/v2/assets/atbUaNGu5PWR2u4tNDsYaH/
   response:
     status: 200
     headers:
@@ -325,7 +325,7 @@ http_interactions:
   recorded_at: 2026-10-15 15:44:05
 - request:
     method: GET
-    uri: https://kobo.unhcr.org/api/v2/assets/atbUaNGu5PWR2u4tNDsYaH
+    uri: https://kobo.unhcr.org/api/v2/assets/atbUaNGu5PWR2u4tNDsYaH/
   response:
     status: 200
     headers:
@@ -435,7 +435,7 @@ http_interactions:
   recorded_at: 2026-10-15 15:44:05
 - request:
     method: GET
-    uri: https://kobo.unhcr.org/api/v2/assets/atbUaNGu5PWR2u4tNDsYaH/versions/vjPe5qiVxTmyviYSrQE3x4
+    uri: https://kobo.unhcr.org/api/v2/assets/atbUaNGu5PWR2u4tNDsYaH/versions/vjPe5qiVxTmyviYSrQE3x4/
   response:
     status: 200
     headers:

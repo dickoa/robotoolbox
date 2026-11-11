@@ -74,7 +74,11 @@ fake_assets <- function(n) {
 ## Serves `assets` page by page. `minimal` is FALSE for a server without the
 ## minimal listing. With `overlap`, each later page starts with the last
 ## `overlap` assets of the previous page instead of its own, as tied rows do.
-fake_listing <- function(assets, minimal = TRUE, overlap = 0L) {
+fake_listing <- function(assets, minimal = TRUE, overlap = 0L, count = NULL) {
+  count <- count %||% sprintf("%d", nrow(assets))
+  if (!grepl("^[0-9]+$", count)) {
+    count <- sprintf('"%s"', count)
+  }
   calls <- new.env()
   calls$args <- list()
   calls$paths <- character()
@@ -105,7 +109,7 @@ fake_listing <- function(assets, minimal = TRUE, overlap = 0L) {
     }, "")
     sprintf(
       '{%s"next": %s, "results": [%s]}',
-      if (is_minimal) "" else sprintf('"count": %d, ', nrow(assets)),
+      if (is_minimal) "" else sprintf('"count": %s, ', count),
       if (start + limit < nrow(assets)) '"next"' else "null",
       paste(rows, collapse = ", ")
     )
@@ -187,4 +191,17 @@ test_that("kobo_asset_list validates limit", {
   expect_error(kobo_asset_list(limit = 0), "positive integer")
   expect_error(kobo_asset_list(limit = "10"), "positive integer")
   expect_error(kobo_asset_list(limit = c(1, 2)), "positive integer")
+})
+
+test_that("kobo_asset_list accepts a count the server did not compute", {
+  for (count in c("many", "unknown")) {
+    srv <- fake_listing(fake_assets(1500), count = count)
+    local_mocked_bindings(xget = srv$xget)
+    expect_no_warning(res <- kobo_asset_list(limit = 5000))
+    expect_equal(nrow(res), 1500L, info = count)
+  }
+  srv <- fake_listing(fake_assets(2500), count = "many", overlap = 3L)
+  local_mocked_bindings(xget = srv$xget)
+  expect_no_warning(res <- kobo_asset_list(limit = 5000))
+  expect_false(anyDuplicated(res$uid) > 0)
 })

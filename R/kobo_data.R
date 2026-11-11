@@ -75,7 +75,8 @@ kobo_data_ <- function(
     cli_progress_step("Downloading data")
   }
 
-  if (!is.null(page_size) && (!is.numeric(page_size) || page_size < 1)) {
+  if (!is.null(page_size) && (!is.numeric(page_size) || length(page_size) != 1 ||
+                               is.na(page_size) || page_size < 1)) {
     abort("`page_size` must be a positive integer", call = NULL)
   }
 
@@ -83,7 +84,7 @@ kobo_data_ <- function(
 
   if (is.null(page_size)) {
     page_size <- api_max_limit_()
-    if (isTRUE(paginate) && size > 0 && size <= page_size) {
+    if (isTRUE(paginate) && !is.na(size) && size > 0 && size <= page_size) {
       page_size <- max(size %/% 2, 1L)
     }
   }
@@ -99,7 +100,6 @@ kobo_data_ <- function(
     cli_progress_step("Processing data")
   }
   form <- kobo_form_version_(subs, x, all_versions = all_versions)
-  cn <- kobo_form_names_(form, sep = select_multiple_sep)
   klang <- kobo_lang(x)
   if (is.null(lang) || !lang %in% klang) {
     lang <- klang[1]
@@ -111,6 +111,8 @@ kobo_data_ <- function(
     names_list <- kobo_form_name_to_list_(form, sep = select_multiple_sep)
     pc_choices <- precompute_val_labels_(form, lang)
     pc_var_labels <- precompute_var_labels_(form, lang, select_multiple_sep)
+    pc_types <- form_type_map_(form)
+    pc_sm <- form_sm_choices_(form)
     subs <- dedup_vars_(subs)
     subs <- set_names(subs, make_unique_names_)
     subs <- c(
@@ -131,6 +133,8 @@ kobo_data_ <- function(
         cn = cn_list,
         precomputed_choices = pc_choices,
         precomputed_var_labels = pc_var_labels,
+        precomputed_types = pc_types,
+        precomputed_sm = pc_sm,
         fields = if (n == "main") fields
       )
     })
@@ -140,6 +144,7 @@ kobo_data_ <- function(
     }
     subs <- repeat_dm_(subs, repeat_links_(form))
   } else {
+    cn <- kobo_form_names_(form, sep = select_multiple_sep)
     subs <- dedup_vars_(subs)
     subs <- set_names(subs, make_unique_names_)
     subs <- postprocess_data_(
@@ -321,7 +326,7 @@ kobo_data.kobo_asset <- function(
         robotoolbox_http_404 = abort_no_data_
       )
     }
-    if (is.null(query) || size > 0) {
+    if (is.null(query) || is.na(size) || size > 0) {
       res <- kobo_data_(
         x = x,
         lang = lang,
@@ -433,10 +438,8 @@ kobo_attachment_download_ <- function(attachments, folder, overwrite, n_retry) {
     distinct()
 
   headers <- list(
-    Authorization = paste(
-      "Token",
-      Sys.getenv("KOBOTOOLBOX_TOKEN")
-    )
+    Authorization = paste("Token", Sys.getenv("KOBOTOOLBOX_TOKEN")),
+    `User-Agent` = user_agent_()
   )
 
   if (isFALSE(overwrite)) {
@@ -452,7 +455,7 @@ kobo_attachment_download_ <- function(attachments, folder, overwrite, n_retry) {
       req$retry(
         "get",
         times = n_retry,
-        retry_only_on = c(500, 502, 503),
+        retry_only_on = retry_codes_,
         terminate_on = 404
       )
     })

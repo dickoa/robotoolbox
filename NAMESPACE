@@ -73,6 +73,7 @@ importFrom(crul,
   auth
 )
 importFrom(data.table,
+  as.data.table,
   chmatch,
   fread,
   rbindlist
@@ -86,8 +87,6 @@ importFrom(dm,
   dm_get_tables
 )
 importFrom(dplyr,
-  across,
-  arrange,
   case_when,
   coalesce,
   distinct,
@@ -95,7 +94,6 @@ importFrom(dplyr,
   mutate,
   nest_join,
   rename,
-  rename_with,
   select,
   transmute
 )
@@ -103,6 +101,7 @@ importFrom(labelled,
   "var_label<-",
   labelled,
   remove_val_labels,
+  set_label_attribute,
   set_value_labels,
   set_variable_labels,
   var_label
@@ -128,7 +127,7 @@ importFrom(stats,
 )
 importFrom(stringi,
   stri_detect_regex,
-  stri_replace_all_regex,
+  stri_enc_isascii,
   stri_sort,
   stri_split_fixed,
   stri_trans_general
@@ -142,8 +141,6 @@ importFrom(tibble,
 )
 importFrom(tidyr,
   drop_na,
-  pivot_longer,
-  separate_wider_delim,
   unnest,
   unnest_wider
 )
@@ -154,7 +151,6 @@ importFrom(tidyselect,
   everything,
   starts_with
 )
-importFrom(tools,toTitleCase)
 importFrom(utils,
   packageVersion,
   type.convert

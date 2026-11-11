@@ -68,3 +68,28 @@ test_that("kobo_audit returns an empty table when no submission has an audit log
   }, version = asset_audit$deployed_version_id)
   expect_identical(res, empty_audit_())
 })
+
+## Parsing audit files
+
+test_that("parse_audit_ reads files with and without the optional columns", {
+  full <- paste(
+    "event,node,start,end,latitude,longitude,accuracy,old-value,new-value,user,change-reason",
+    "question,/data/q1,1700000000000,1700000005000,14.7,-17.4,5,,a,me,",
+    sep = "\n"
+  )
+  short <- paste(
+    "event,node,start,end",
+    "form start,,1700000000000,",
+    "question,/data/q2,1700000001000,1700000002000",
+    sep = "\n"
+  )
+  meta <- tibble::tibble(`_id` = 1:4, download_url = paste0("u", 1:4))
+  res <- parse_audit_(meta, list(full, short, "event,node,start,end", ""))
+  expect_named(res, names(empty_audit_()))
+  expect_identical(res$`_id`, c(1L, 2L, 2L))
+  expect_identical(res$name, c("q1", "", "q2"))
+  expect_identical(res$latitude, c(14.7, NA, NA))
+  expect_identical(res$user, c("me", NA, NA))
+  expect_s3_class(res$start, "POSIXct")
+  expect_identical(parse_audit_(meta[4, ], list("")), empty_audit_())
+})

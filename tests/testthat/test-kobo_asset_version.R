@@ -23,3 +23,11 @@ test_that("kobo_asset_version_list works", {
   testthat::local_edition(3)
   expect_snapshot_output(print.kobo_asset_version(asset_version1))
 })
+
+test_that("kobo_asset_version needs exactly one valid version uid", {
+  local_mocked_bindings(xget = function(...) stop("no request expected"))
+  uid <- "aFakeFakeFakeFakeFakeF"
+  for (v in list(NULL, character(0), NA_character_, "", c("vFakeFakeFakeFakeFakeF", "vFakeFakeFakeFakeFakeG"))) {
+    expect_error(kobo_asset_version(uid, v), "Invalid asset version uid")
+  }
+})

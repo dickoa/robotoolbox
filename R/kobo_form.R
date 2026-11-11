@@ -121,14 +121,20 @@ content_langs_ <- function(content) {
 #' @noRd
 kobo_form_api_ <- function(x, version = NULL) {
 
+  display <- kobo_display_fields()
   form_display_fields <- function(x, lang) {
-    nm <- intersect(names(x),
-                    kobo_display_fields())
-    nm <- c(nm, "lang")
+    nm <- names(x)
+    nm <- c(nm[nm %in% display], "lang")
     ss <- length(x$label)
     x$lang <- lang[seq.int(ss)]
     for (n in nm)
       x[[n]] <- lapply(x[[n]], null2char)
+    ## Same as drop_nulls(x), recursing only where a NULL can remain
+    x <- x[!vapply(x, is.null, logical(1))]
+    for (i in which(vapply(x, is.list, logical(1)))) {
+      if (any(vapply(x[[i]], \(e) is.null(e) || is.list(e), logical(1))))
+        x[[i]] <- drop_nulls(x[[i]])
+    }
     x
   }
 
@@ -145,7 +151,7 @@ kobo_form_api_ <- function(x, version = NULL) {
     x <- form_display_fields(l, lang)
     x
   })
-  survey <- rbindlist(drop_nulls(survey), fill = TRUE)
+  survey <- rbindlist(survey, fill = TRUE)
   if (!"label" %in% names(survey)) {
     survey$label <- NA_character_
   }
@@ -187,7 +193,6 @@ kobo_form_api_ <- function(x, version = NULL) {
       x <- form_display_fields(l, lang)
       x
     })
-    choices <- drop_nulls(choices)
     choices <- rbindlist(choices, fill = TRUE)
     has_autovalue <- "$autovalue" %in% names(choices)
     if (has_autovalue) {
@@ -204,22 +209,17 @@ kobo_form_api_ <- function(x, version = NULL) {
                         value_lang = "lang")
     }
     choices <- drop_na(choices, "value_label")
-    choices$value_label <- stri_trans_general(choices$value_label,
-                                              id = "latin-ascii")
     cols_to_unnest <- is_list_cols_names(choices)
     choices <- setNames(unnest(choices,
                                cols = all_of(cols_to_unnest),
                                keep_empty = TRUE),
                         gsub("^\\$", "", names(choices)))
-    choices_external <- empty_tibble_(c("list_name",
-                                        "value_lang",
-                                        "value_label",
-                                        "value_name"))
+    choices$value_label <- latin_ascii_(choices$value_label)
     if (!is.null(version))
       choices$value_version <- version
     form <- nest_join(survey, choices,
                       by = "list_name")
   }
-  form$name <- stri_trans_general(form$name, "latin-ascii")
+  form$name <- latin_ascii_(form$name)
   form
 }

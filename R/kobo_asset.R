@@ -30,8 +30,7 @@ kobo_asset <- function(x) {
 kobo_asset.character <- function(x) {
   if (!assert_uid(x))
     abort(message = "Invalid asset uid")
-  path <- paste0("api/v2/assets/", x)
-  res <- xget(path = path)
+  res <- xget(path = asset_path_(x), raw = TRUE)
   structure(fparse(res,
                    max_simplify_lvl = "list"),
             class = "kobo_asset")
@@ -136,12 +135,10 @@ kobo_asset_version.character <- function(x, version) {
   if (!assert_uid(x))
     abort(message = "Invalid asset uid")
 
-  if (!is_zero_length_or_null(version) && !assert_version_uid(version))
+  if (length(version) != 1L || is.na(version) || !assert_version_uid(version))
     abort(message = "Invalid asset version uid")
 
-  path <- paste0("/api/v2/assets/", x,
-                 "/versions/", version)
-  res <- xget(path = path)
+  res <- xget(path = asset_path_(x, version), raw = TRUE)
   res <- fparse(res,
                 max_simplify_lvl = "list")
   res$asset_uid <- x
@@ -174,8 +171,10 @@ kobo_asset_version.default <- function(x, version) {
 #' - `url` the URL of the asset version.
 #' - `deployed` whether or not the asset version is deployed
 #' - `date_modified` when the asset version was last modified
-
-#' @returns a \code{data.frame}
+#' - `version_number` the version label shown in the form history of
+#'   KoboToolbox, such as `"12"` for the twelfth deployment and `"11.4"` for the
+#'   fourth draft saved after the eleventh deployment. It is a character column,
+#'   `NA` on servers older than KoboToolbox KPI 2.026.30.
 #'
 #' @examples
 #' \dontrun{
@@ -198,16 +197,14 @@ kobo_asset_version_list.character <- function(x) {
   results <- do.call(c, xget_all_(path))
   if (length(results) == 0)
     return(tibble(uid = character(), url = character(),
-                  deployed = logical(), date_modified = character()))
+                  deployed = logical(), date_modified = character(),
+                  version_number = character()))
 
-  # date_deployed is "FALSE" when undeployed, a datetime string when deployed.
-  # as.logical("FALSE") -> FALSE, as.logical("2024-...") -> NA,
-  # so is.na() gives TRUE for deployed versions.
   tibble(uid = map_chr2(results, "uid"),
          url = map_chr2(results, "url"),
-         deployed = is.na(as.logical(map_chr2(results,
-                                              "date_deployed"))),
-         date_modified = parse_kobo_datetime(map_chr2(results, "date_modified")))
+         deployed = is_deployed_version_(map_chr2(results, "date_deployed")),
+         date_modified = parse_kobo_datetime(map_chr2(results, "date_modified")),
+         version_number = map_chr2(results, "version_number"))
 }
 
 #' @export
@@ -241,7 +238,7 @@ print.kobo_asset_version <- function(x, ...) {
   cat("<robotoolbox asset version> ", x$uid, "\n")
   cat("  Asset uid: ", x$asset_uid, "\n", sep = "")
   cat("  Asset deployed: ",
-      is.na(as.logical(x$date_deployed)), "\n", sep = "")
+      is_deployed_version_(x$date_deployed), "\n", sep = "")
   cat("  Date modified: ",
       parse_kobo_datetime(x$date_modified), "\n", sep = "")
   invisible(x)

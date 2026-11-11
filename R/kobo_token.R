@@ -40,22 +40,25 @@ kobo_token <- function(username = NULL, password = NULL,
         call = NULL
       )
     }
+    url <- clean_urls(url)
   } else {
     if (!assert_url(url))
       abort("Invalid URL", call = NULL)
+    url <- clean_urls(url)
     Sys.setenv("KOBOTOOLBOX_URL" = url)
   }
 
   if (nzchar(Sys.getenv("KOBOTOOLBOX_TOKEN")) && !overwrite) {
     token <- Sys.getenv("KOBOTOOLBOX_TOKEN")
   } else {
-    url_path <- paste0(sub("/$", "", url), "/token/?format=json")
+    url_path <- paste0(url, "/token/?format=json")
     cli <- HttpClient$new(url = url_path,
+                          headers = list(`User-Agent` = user_agent_()),
                           auth = auth(user = username,
                                       pwd = password))
     res <- cli$retry("get",
                      times = 3L,
-                     retry_only_on = c(500, 503),
+                     retry_only_on = retry_codes_,
                      terminate_on = 404)
     if (res$status_code >= 300)
       abort(error_msg(res$content),

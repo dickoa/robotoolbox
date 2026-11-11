@@ -15,7 +15,7 @@
 \alias{data_audit}
 \title{Examples of KoboToolbox submissions data}
 \format{
-data_ml: A \code{data.frame} with submissions from \code{\link{asset_ml}}
+data_ml_en: A \code{data.frame} with submissions from \code{\link{asset_ml}}
 in English.
 
 data_ml_fr: A \code{data.frame} with submissions from \code{\link{asset_ml}}

@@ -17,9 +17,11 @@ of a given KoboToolbox API asset with the following metadata:
 \item \code{url} the URL of the asset version.
 \item \code{deployed} whether or not the asset version is deployed
 \item \code{date_modified} when the asset version was last modified
+\item \code{version_number} the version label shown in the form history of
+KoboToolbox, such as \code{"12"} for the twelfth deployment and \code{"11.4"} for the
+fourth draft saved after the eleventh deployment. It is a character column,
+\code{NA} on servers older than KoboToolbox KPI 2.026.30.
 }
-
-a \code{data.frame}
 }
 \description{
 List all available versions of a KoboToolbox API asset and their metadata.

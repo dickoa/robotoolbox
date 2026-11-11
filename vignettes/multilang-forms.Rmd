@@ -98,6 +98,24 @@ df_default <- data_ml_default
 all.equal(df_default, df_en)
 ```
 
+### Switching language without downloading again
+
+Each call to `kobo_data` downloads the submissions again. To change the
+language of data already in your session, use `kobo_lang_set`. It applies the
+labels of another language from the form, without any request to the server.
+`kobo_lang_get` tells which language a dataset currently uses.
+
+```{r lang_set}
+kobo_lang_get(df_en, asset)
+df_fr2 <- kobo_lang_set(df_en, asset, lang = "Francais (fr)")
+kobo_lang_get(df_fr2, asset)
+all.equal(df_fr2, df_fr)
+```
+
+`kobo_lang_set` also works on the `dm` objects returned for forms with repeat
+groups, and on data read with `colnames_label = TRUE`, whose column names
+change with the language.
+
 ### Accessing variable labels
 
 You can use the `var_label` function from the `labelled` package to access question labels.

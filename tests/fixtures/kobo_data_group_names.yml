@@ -1,7 +1,7 @@
 http_interactions:
 - request:
     method: GET
-    uri: https://kobo.unhcr.org/api/v2/assets/aDMHypRASH2EuJdvKMx5Mi
+    uri: https://kobo.unhcr.org/api/v2/assets/aDMHypRASH2EuJdvKMx5Mi/
   response:
     status: 200
     headers:
@@ -243,7 +243,7 @@ http_interactions:
   recorded_at: 2026-10-15 15:44:08
 - request:
     method: GET
-    uri: https://kobo.unhcr.org/api/v2/assets/aDMHypRASH2EuJdvKMx5Mi
+    uri: https://kobo.unhcr.org/api/v2/assets/aDMHypRASH2EuJdvKMx5Mi/
   response:
     status: 200
     headers:
@@ -375,7 +375,7 @@ http_interactions:
   recorded_at: 2026-10-15 15:44:08
 - request:
     method: GET
-    uri: https://kobo.unhcr.org/api/v2/assets/aDMHypRASH2EuJdvKMx5Mi/versions/vLRmZbNfdg3ccREn3GBrhz
+    uri: https://kobo.unhcr.org/api/v2/assets/aDMHypRASH2EuJdvKMx5Mi/versions/vLRmZbNfdg3ccREn3GBrhz/
   response:
     status: 200
     headers:
@@ -434,7 +434,7 @@ http_interactions:
   recorded_at: 2026-10-15 15:44:08
 - request:
     method: GET
-    uri: https://kobo.unhcr.org/api/v2/assets/aDMHypRASH2EuJdvKMx5Mi
+    uri: https://kobo.unhcr.org/api/v2/assets/aDMHypRASH2EuJdvKMx5Mi/
   response:
     status: 200
     headers:
@@ -566,7 +566,7 @@ http_interactions:
   recorded_at: 2026-10-15 15:44:09
 - request:
     method: GET
-    uri: https://kobo.unhcr.org/api/v2/assets/aDMHypRASH2EuJdvKMx5Mi/versions/vQMEt4Kdmnpm9ui24GKwKU
+    uri: https://kobo.unhcr.org/api/v2/assets/aDMHypRASH2EuJdvKMx5Mi/versions/vQMEt4Kdmnpm9ui24GKwKU/
   response:
     status: 200
     headers:
@@ -626,7 +626,7 @@ http_interactions:
   recorded_at: 2026-10-15 15:44:09
 - request:
     method: GET
-    uri: https://kobo.unhcr.org/api/v2/assets/aDMHypRASH2EuJdvKMx5Mi
+    uri: https://kobo.unhcr.org/api/v2/assets/aDMHypRASH2EuJdvKMx5Mi/
   response:
     status: 200
     headers:
@@ -758,7 +758,7 @@ http_interactions:
   recorded_at: 2026-10-15 15:44:09
 - request:
     method: GET
-    uri: https://kobo.unhcr.org/api/v2/assets/aDMHypRASH2EuJdvKMx5Mi/versions/vMFnPjwHiASsf3u2fFYsaY
+    uri: https://kobo.unhcr.org/api/v2/assets/aDMHypRASH2EuJdvKMx5Mi/versions/vMFnPjwHiASsf3u2fFYsaY/
   response:
     status: 200
     headers:

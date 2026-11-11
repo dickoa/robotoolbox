@@ -127,8 +127,9 @@ You can check the settings using the `kobo_settings` function.
 library("robotoolbox")
 kobo_settings()
 ## <robotoolbox settings>
-##    KoboToolbox URL: https://kobo.unhcr.org/
-##    KoboToolbox API Token: xxxxxxxxxxxxxxxxxxxxxxxxxx
+##    KoboToolbox URL: https://kobo.unhcr.org
+##    KoboToolbox API Token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx12345
+##    Max page size: 1000
 ```
 
 With the settings done, it is possible to list all `assets` (e.g
@@ -141,29 +142,34 @@ URL.
 library("dplyr")
 l <- kobo_asset_list()
 l
-# A tibble: 24 x 7
-   uid     name     asset_type owner_username date_created
-   <chr>   <chr>    <chr>      <chr>          <dttm>
- 1 b9kgvd… Proj_A1… survey     xxxxxxxxxxxxx… 2020-04-27 20:34:23
- 2 aRFJMp… Proj_A2… survey     xxxxxxxxxxxxx… 2020-04-27 21:21:12
- 3 a6qMG7… Proj_A3… survey     xxxxxxxxxxxxx… 2021-05-25 16:59:08
- 4 azhrVs… Proj_A4… survey     xxxxxxxxxxxxx… 2021-05-25 13:59:46
- 5 aReR58… Proj_A5… survey     xxxxxxxxxxxxx… 2021-06-07 09:15:53
- 6 aWaoqy… Proj_A6… survey     xxxxxxxxxxxxx… 2021-05-29 10:46:09
- 7 aABU3C… Proj_A7… survey     xxxxxxxxxxxxx… 2020-11-28 15:00:10
- 8 aaznyX… Proj_A9… survey     xxxxxxxxxxxxx… 2020-11-28 14:28:48
- 9 aCVr2Q… Proj_A9… survey     xxxxxxxxxxxxx… 2021-05-25 13:30:24
-10 aPxNao… Proj_A10… survey    xxxxxxxxxxxxx… 2020-04-27 11:37:34
-# … with 14 more rows, and 3 more variables:
-#   date_modified <dttm>, submissions <int>
+# A tibble: 24 x 9
+   uid      name  asset_type owner_username date_created date_modified
+   <chr>    <chr> <chr>      <chr>          <chr>        <chr>
+ 1 b9kgvd7~ Proj~ survey     xxxxxxxxxxxxx  2020-05-26 ~ 2021-06-23 0~
+ 2 aRfJMpT~ Proj~ survey     xxxxxxxxxxxxx  2020-06-24 ~ 2021-06-27 2~
+ 3 a6qMG7Z~ Proj~ survey     xxxxxxxxxxxxx  2020-07-18 ~ 2021-08-06 0~
+ 4 azhrVs3~ Proj~ survey     xxxxxxxxxxxxx  2020-07-30 ~ 2021-09-11 0~
+ 5 aReR58P~ Proj~ survey     xxxxxxxxxxxxx  2020-08-01 ~ 2021-10-18 1~
+ 6 aWaoqy9~ Proj~ survey     xxxxxxxxxxxxx  2020-08-04 ~ 2021-11-21 1~
+ 7 aABU3Cz~ Proj~ survey     xxxxxxxxxxxxx  2020-08-28 ~ 2021-12-11 0~
+ 8 aaznyX7~ Proj~ survey     xxxxxxxxxxxxx  2020-10-17 ~ 2021-12-12 2~
+ 9 aCVr2Qp~ Proj~ survey     xxxxxxxxxxxxx  2020-10-20 ~ 2021-12-24 1~
+10 aPxNao4~ Proj~ survey     xxxxxxxxxxxxx  2020-10-22 ~ 2022-01-24 0~
+# i 14 more rows
+# i 3 more variables: deployed <lgl>, submissions <int>,
+#   created_by <chr>
 glimpse(l)
-$ uid            <chr> "b9kgvd7AXQCmo5qyUOBEl", "aRfJMpTSGRLzZ…"
-$ name           <chr> "Proj_A1", "Proj_A2", "Proj_A3", "Proj_A…"
-$ asset_type     <chr> "survey", "survey", "survey", "survey", …
-$ owner_username <chr> "xxxxxxxxxxxxxx", "xxxxxxxxxxxxxxx", "xx…"
-$ date_created   <dttm> 2020-04-27 20:34:23, 2020-04-27 21:21:1…
-$ date_modified  <dttm> 2021-06-17 01:52:57, 2021-06-17 01:52:5…
-$ submissions    <int> 2951, 2679, 2, 1, 0, 0, 287, 73, 0, 274,…
+Rows: 24
+Columns: 9
+$ uid            <chr> "b9kgvd7AXQCmo5qyUOBEla", "aRfJMpTSGRLzZb8nE3~
+$ name           <chr> "Proj_A1", "Proj_A2", "Proj_A3", "Proj_A4", "~
+$ asset_type     <chr> "survey", "survey", "survey", "survey", "surv~
+$ owner_username <chr> "xxxxxxxxxxxxx", "xxxxxxxxxxxxx", "xxxxxxxxxx~
+$ date_created   <chr> "2020-05-26 11:05:13", "2020-06-24 23:37:46",~
+$ date_modified  <chr> "2021-06-23 06:39:50", "2021-06-27 21:07:05",~
+$ deployed       <lgl> TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TR~
+$ submissions    <int> 2951, 2679, 2, 0, 1, 0, 287, 73, 0, 274, 376,~
+$ created_by     <chr> "xxxxxxxxxxxxx", "xxxxxxxxxxxxx", "xxxxxxxxxx~
 ```
 
 The list of `assets` is a `tibble`, you can filter it to select the form
@@ -232,8 +238,8 @@ df_partial <- kobo_data(asset, fields = c("country", "admin_level_1"))
 
 `robotoolbox` uses the R package
 [`labelled`](https://larmarange.github.io/labelled/) to provide tools to
-manipulate variable labels and value labels. You can learn more about
-this here.
+manipulate variable labels and value labels. Learn more about it
+[here](https://dickoa.gitlab.io/robotoolbox/articles/multilang-forms.html).
 
 ### Repeating groups
 

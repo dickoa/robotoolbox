@@ -13,18 +13,18 @@ kobo_asset_file_list(x)
 A \code{data.frame} containing the list of all your KoboToolbox API files under
 the asset:
 \itemize{
-\item \code{uid} the asset unique identifier
-\item \code{url} url of the files API endpoint
-\item \code{asset} url of the files associated asset API endpoint
-\item \code{user} the user account of the owner of the asset
-\item \code{user__username} when the asset was created
-\item \code{file_type} files type either \code{form_media} or \code{map_layer}
-\item \code{description} files description
-\item \code{date_created} date when the files were created
-\item \code{content} url to download the files
-\item \code{hash}md5 hash of the files
-\item \code{filename} names of the files
-\item \code{mimetype} mime type of the files
+\item \code{uid} the file unique identifier
+\item \code{url} URL of the file in the API
+\item \code{asset} URL of the asset the file belongs to
+\item \code{user} URL of the account that uploaded the file
+\item \code{user__username} username of the account that uploaded the file
+\item \code{file_type} file type, either \code{form_media} or \code{map_layer}
+\item \code{description} file description
+\item \code{date_created} date when the file was uploaded
+\item \code{content} URL to download the file
+\item \code{hash} MD5 hash of the file, prefixed with \verb{md5:}
+\item \code{filename} name of the file
+\item \code{mimetype} MIME type of the file
 }
 }
 \description{
@@ -34,7 +34,7 @@ List all uploaded files related to a KoboToolbox API asset
 \dontrun{
 kobo_setup()
 uid <- "a9cwEQcbWqWzA5hzkjRUWi"
-kobo_file_list(uid)
+kobo_asset_file_list(uid)
 }
 
 }

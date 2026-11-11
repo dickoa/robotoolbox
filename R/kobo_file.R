@@ -11,24 +11,24 @@
 #'
 #' @returns A \code{data.frame} containing the list of all your KoboToolbox API files under
 #' the asset:
-#' - `uid` the asset unique identifier
-#' - `url` url of the files API endpoint
-#' - `asset` url of the files associated asset API endpoint
-#' - `user` the user account of the owner of the asset
-#' - `user__username` when the asset was created
-#' - `file_type` files type either `form_media` or `map_layer`
-#' - `description` files description
-#' - `date_created` date when the files were created
-#' - `content` url to download the files
-#' - `hash`md5 hash of the files
-#' - `filename` names of the files
-#' - `mimetype` mime type of the files
+#' - `uid` the file unique identifier
+#' - `url` URL of the file in the API
+#' - `asset` URL of the asset the file belongs to
+#' - `user` URL of the account that uploaded the file
+#' - `user__username` username of the account that uploaded the file
+#' - `file_type` file type, either `form_media` or `map_layer`
+#' - `description` file description
+#' - `date_created` date when the file was uploaded
+#' - `content` URL to download the file
+#' - `hash` MD5 hash of the file, prefixed with `md5:`
+#' - `filename` name of the file
+#' - `mimetype` MIME type of the file
 #'
 #' @examples
 #' \dontrun{
 #' kobo_setup()
 #' uid <- "a9cwEQcbWqWzA5hzkjRUWi"
-#' kobo_file_list(uid)
+#' kobo_asset_file_list(uid)
 #' }
 #'
 #' @export

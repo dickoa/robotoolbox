@@ -1,7 +1,7 @@
 http_interactions:
 - request:
     method: GET
-    uri: https://kf.kobotoolbox.org/api/v2/assets/aoaErT8NRETaeDDaNuJSVz
+    uri: https://kf.kobotoolbox.org/api/v2/assets/aoaErT8NRETaeDDaNuJSVz/
   response:
     status: 200
     headers:
@@ -206,7 +206,7 @@ http_interactions:
   recorded_at: 2026-10-16 07:34:41
 - request:
     method: GET
-    uri: https://kf.kobotoolbox.org/api/v2/assets/aoaErT8NRETaeDDaNuJSVz
+    uri: https://kf.kobotoolbox.org/api/v2/assets/aoaErT8NRETaeDDaNuJSVz/
   response:
     status: 200
     headers:
@@ -310,7 +310,7 @@ http_interactions:
   recorded_at: 2026-10-16 07:34:41
 - request:
     method: GET
-    uri: https://kf.kobotoolbox.org/api/v2/assets/aoaErT8NRETaeDDaNuJSVz/versions/v3UCzJ3senEbuBXsSif8zK
+    uri: https://kf.kobotoolbox.org/api/v2/assets/aoaErT8NRETaeDDaNuJSVz/versions/v3UCzJ3senEbuBXsSif8zK/
   response:
     status: 200
     headers:
@@ -362,7 +362,7 @@ http_interactions:
   recorded_at: 2026-10-16 07:34:42
 - request:
     method: GET
-    uri: https://kf.kobotoolbox.org/api/v2/assets/aoaErT8NRETaeDDaNuJSVz
+    uri: https://kf.kobotoolbox.org/api/v2/assets/aoaErT8NRETaeDDaNuJSVz/
   response:
     status: 200
     headers:

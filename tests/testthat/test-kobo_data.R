@@ -163,7 +163,7 @@ test_that("kobo_data parse geodata columns", {
     expect_match(raw[[paste0(gt_nm, "_wkt")]], "^LINESTRING \\(.+")
   }
 
-  if (any(gt_exists)) {
+  if (any(gs_exists)) {
     gs_nm <- form$name[form$type %in% "geoshape"][1]
     expect_match(raw[[paste0(gs_nm, "_wkt")]], "^POLYGON \\(.+")
   }
@@ -574,6 +574,19 @@ test_that("kobo_data uses the filtered count from the server with a query", {
     res <- kobo_data(asset, query = '{"full_name": "A"}')
   })
   expect_equal(as.vector(res$`_id`), 1:2)
+})
+
+test_that("kobo_data downloads with a query when the server gives no count", {
+  asset <- asset_ml
+  asset$deployment__submission_count <- 0L
+  server <- fake_server(total = 2, rows = ml_rows, count = "many")
+  with_fake_server(server, {
+    local_mocked_bindings(get_filtered_count_ = function(uid, query) NA_integer_)
+    res <- kobo_data(asset, query = '{"full_name": "A"}')
+    res2 <- kobo_data(asset, query = '{"full_name": "A"}', paginate = TRUE)
+  })
+  expect_equal(as.vector(res$`_id`), 1:2)
+  expect_equal(as.vector(res2$`_id`), 1:2)
 })
 
 ## Query validation
@@ -1312,4 +1325,115 @@ test_that("a geopoint moved from the top level into a group keeps its answers", 
     expect_equal(as.vector(res$ponto), c("1 2 0 5", "5 6 0 5"), info = paste("all_versions =", av))
     expect_equal(as.vector(res$ponto_latitude), c(1, 5), info = paste("all_versions =", av))
   }
+})
+
+## Spatial columns
+
+test_that("geopoints keep their layout and handle missing or short values", {
+  form <- tibble::tibble(name = "pt", type = "geopoint")
+  x <- tibble::tibble(
+    a = 1:7,
+    pt = c("14.71 -17.45 10.5 5", "14.71 -17.45", "", NA, "  1  2  3  4 ",
+           "1 2 3.5e-4 0", "not a point"),
+    z = 1:7
+  )
+  labelled::var_label(x$pt) <- "Point"
+  res <- extract_geopoint_(x, form)
+  expect_named(res, c("a", "pt_latitude", "pt_longitude", "pt_altitude",
+                      "pt_precision", "pt", "z", "pt_wkt"))
+  expect_identical(
+    as.vector(res$pt_wkt),
+    c("POINT (-17.45 14.71 10.5)", "POINT (-17.45 14.71)", NA, NA,
+      "POINT (2 1 3)", "POINT (2 1 3.5e-4)", NA)
+  )
+  expect_identical(as.vector(res$pt_latitude), c("14.71", "14.71", NA, NA, "1", "1", NA))
+  expect_identical(as.vector(res$pt_precision), c("5", NA, NA, NA, "4", "0", NA))
+  expect_identical(res$pt, x$pt)
+  expect_identical(labelled::var_label(res$pt_wkt), "Point::wkt")
+  expect_identical(labelled::var_label(res$pt_latitude), "Point::latitude")
+  expect_no_warning(typed <- type_convert_(res, form))
+  expect_equal(as.vector(typed$pt_latitude), c(14.71, 14.71, NA, NA, 1, 1, NA))
+})
+
+test_that("geotraces and geoshapes give NA for missing or degenerate values", {
+  form <- tibble::tibble(name = c("tr", "sh"), type = c("geotrace", "geoshape"))
+  x <- tibble::tibble(
+    tr = c(NA, "", "1 2 0 0;3 4 0 0;", "1 2;3 4", "1 2 0 0; ;3 4 0 0",
+           "1 2 0 0;bad", "1 2 0 0"),
+    sh = c(NA, "", "1 2 0 0;3 4 0 0;5 6 0 0;1 2 0 0;", "1 2;3 4;5 6;1 2",
+           "1 2 0 0;3 4 0 0;5 6 0 0;1 2 0 0", "x", "1 2 0 0;3 4 0 0;1 2 0 0")
+  )
+  tr <- extract_geotrace_(x, form)$tr_wkt
+  sh <- extract_geoshape_(x, form)$sh_wkt
+  expect_identical(as.vector(tr), c(
+    NA, NA, "LINESTRING (2 1 0, 4 3 0)", "LINESTRING (2 1, 4 3)",
+    "LINESTRING (2 1 0, 4 3 0)", NA, NA
+  ))
+  expect_identical(as.vector(sh), c(
+    NA, NA, "POLYGON ((2 1 0, 4 3 0, 6 5 0, 2 1 0))",
+    "POLYGON ((2 1, 4 3, 6 5, 2 1))",
+    "POLYGON ((2 1 0, 4 3 0, 6 5 0, 2 1 0))", NA, NA
+  ))
+})
+
+test_that("spatial columns keep their type when every value is missing", {
+  form <- tibble::tibble(
+    name = c("pt", "tr", "sh"),
+    type = c("geopoint", "geotrace", "geoshape")
+  )
+  x <- tibble::tibble(pt = NA_character_, tr = NA_character_, sh = NA_character_)
+  x <- extract_geoshape_(extract_geotrace_(extract_geopoint_(x, form), form), form)
+  res <- type_convert_(x, form)
+  expect_type(res$pt_wkt, "character")
+  expect_type(res$tr_wkt, "character")
+  expect_type(res$sh_wkt, "character")
+  expect_type(res$pt_latitude, "double")
+  expect_type(res$pt_precision, "double")
+})
+
+test_that("select_multiple labels keep the deployed label when versions differ", {
+  ch <- function(lbl) {
+    tibble::tibble(value_name = c("red", "red_1"), value_label = lbl, value_lang = "English")
+  }
+  form <- tibble::tibble(
+    name = "colors",
+    type = "select_multiple colors",
+    label = "Colors",
+    lang = "English",
+    version = c("vNEW", "vOLD"),
+    choices = list(ch(c("New red", "Dark red")), ch(c("Old red", "Dark red")))
+  )
+  labels <- select_multiple_var_label(NULL, form, "English")
+  expect_identical(names(labels), c("colors_red", "colors_red_1"))
+  expect_identical(labels$colors_red, "Colors::New red")
+  expect_identical(labels$colors_red_1, "Colors::Dark red")
+})
+
+test_that("superseded version labels do not add a suffix to other choices", {
+  ch <- function(nm, lbl) {
+    tibble::tibble(value_name = nm, value_label = lbl, value_lang = "English")
+  }
+  choices <- list(
+    ch(c("1", "2"), c("Low", "High")),
+    ch("1", "Medium"),
+    ch("3", "Medium")
+  )
+  so <- tibble::tibble(
+    name = "level",
+    type = "select_one level",
+    label = "Level",
+    lang = "English",
+    version = c("v3", "v2", "v1"),
+    choices = choices
+  )
+  expect_identical(
+    precompute_val_labels_(so, "English")$level,
+    c(Low = "1", High = "2", Medium = "3")
+  )
+  sm <- so
+  sm$type <- "select_multiple level"
+  expect_identical(
+    sm_lookup_(sm, "level", "English"),
+    c(`1` = "Low", `2` = "High", `3` = "Medium")
+  )
 })
