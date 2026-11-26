@@ -69,12 +69,7 @@ fetch_subs_async_ <- function(
     Authorization = paste("Token", Sys.getenv("KOBOTOOLBOX_TOKEN")),
     `User-Agent` = user_agent_()
   )
-  url <- file.path(
-    server_url_(),
-    "api/v2/assets",
-    uid,
-    "data.json"
-  )
+  url <- api_url_(paste0("api/v2/assets/", uid, "/data.json"))
   reqs <- lapply(seq_along(start), function(i) {
     req <- HttpRequest$new(url, headers = headers)
     req$retry(

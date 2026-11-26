@@ -163,6 +163,14 @@ server_url_ <- function() {
   clean_urls(Sys.getenv("KOBOTOOLBOX_URL"))
 }
 
+#' Full URL of an API path
+#'
+#' `file.path()` is not used because it drops a trailing slash on Windows.
+#' @noRd
+api_url_ <- function(path) {
+  paste0(server_url_(), "/", path)
+}
+
 #' HTTP status codes worth a retry
 #'
 #' 429 is rate limiting. A single request waits for the number of seconds
@@ -2156,9 +2164,8 @@ fetch_asset_versions_async_ <- function(uid, versions, tick = NULL) {
     Authorization = paste("Token", Sys.getenv("KOBOTOOLBOX_TOKEN")),
     `User-Agent` = user_agent_()
   )
-  base_url <- server_url_()
   reqs <- lapply(versions, function(v) {
-    url <- file.path(base_url, asset_path_(uid, v))
+    url <- api_url_(asset_path_(uid, v))
     HttpRequest$new(url, headers = headers)$retry(
       "get",
       times = 3L,
