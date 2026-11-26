@@ -7,14 +7,18 @@ fake_server <- function(total, cap = Inf, rows = NULL, count = total) {
   calls <- new.env()
   calls$n <- 0L
   calls$rounds <- list()
-  fetch <- function(uid, start, limit, query = NULL, fields = NULL) {
+  fetch <- function(uid, start, limit, query = NULL, fields = NULL, tick = NULL) {
     calls$n <- calls$n + length(start)
     calls$rounds[[length(calls$rounds) + 1L]] <- data.frame(start, limit)
-    Map(function(s, l) {
+    pages <- Map(function(s, l) {
       n <- max(0, min(l, cap, total - s))
       ids <- if (n > 0) seq(s + 1, s + n) else integer()
       list(count = count, has_next = s + n < total, results = rows(ids))
     }, start, limit)
+    if (is.function(tick)) {
+      tick(pages)
+    }
+    pages
   }
   list(fetch = fetch, calls = calls)
 }

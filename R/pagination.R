@@ -52,9 +52,8 @@ fetch_subs_page_ <- function(uid, start, limit, query = NULL, fields = NULL) {
   parse_subs_page_(res)
 }
 
-#' @importFrom crul AsyncQueue HttpRequest
+#' @importFrom crul HttpRequest
 #' @importFrom dplyr case_when
-#' @importFrom rlang abort
 #' @noRd
 fetch_subs_async_ <- function(
   uid,
@@ -62,7 +61,8 @@ fetch_subs_async_ <- function(
   limit,
   query = NULL,
   fields = NULL,
-  n_retry = 3L
+  n_retry = 3L,
+  tick = NULL
 ) {
   check_setup_()
   headers <- list(
@@ -70,7 +70,7 @@ fetch_subs_async_ <- function(
     `User-Agent` = user_agent_()
   )
   url <- file.path(
-    Sys.getenv("KOBOTOOLBOX_URL"),
+    server_url_(),
     "api/v2/assets",
     uid,
     "data.json"
@@ -93,22 +93,27 @@ fetch_subs_async_ <- function(
     size > 1000 ~ 0.1,
     .default = 0.05
   )
-  res <- AsyncQueue$new(.list = reqs, bucket_size = 15L, sleep = sleep)
-  res$request()
-  cond <- res$status_code() >= 300L
-  if (any(cond)) {
-    msg <- res$content()[cond]
-    abort(error_msg(msg[[1]]), call = NULL)
-  }
-  lapply(res$content(), parse_subs_page_)
+  async_fetch_batches_(
+    reqs,
+    handle = function(content, i) parse_subs_page_(content),
+    sleep = sleep,
+    tick = tick
+  )
 }
 
+#' @param tick function called with the pages of each batch received, or
+#'   `NULL`.
 #' @noRd
-fetch_subs_pages_ <- function(uid, start, limit, query = NULL, fields = NULL) {
+fetch_subs_pages_ <- function(uid, start, limit, query = NULL, fields = NULL,
+                              tick = NULL) {
   if (length(start) == 1L) {
-    return(list(fetch_subs_page_(uid, start, limit, query, fields)))
+    pages <- list(fetch_subs_page_(uid, start, limit, query, fields))
+    if (is.function(tick)) {
+      tick(pages)
+    }
+    return(pages)
   }
-  fetch_subs_async_(uid, start, limit, query, fields)
+  fetch_subs_async_(uid, start, limit, query, fields, tick = tick)
 }
 
 #' Pages needed to cover the records a first round of requests missed
@@ -151,7 +156,8 @@ get_subs_pages_ <- function(
   size = NULL,
   page_size = api_max_limit_(),
   query = NULL,
-  fields = NULL
+  fields = NULL,
+  tick = NULL
 ) {
   page_size <- min(page_size, page_cap_get_())
   if (is.null(size) || is.na(size) || size <= page_size) {
@@ -161,7 +167,7 @@ get_subs_pages_ <- function(
     start <- seq(0, size - 1, by = page_size)
     limit <- pmin(page_size, size - start)
   }
-  pages <- fetch_subs_pages_(uid, start, limit, query, fields)
+  pages <- fetch_subs_pages_(uid, start, limit, query, fields, tick = tick)
 
   got <- vapply(pages, function(p) NROW(p$results), numeric(1))
   count <- vapply(pages, function(p) parse_api_count_(p$count), numeric(1))
@@ -181,7 +187,7 @@ get_subs_pages_ <- function(
 
   missing <- plan_missing_pages_(start, got, total, chunk)
   if (nrow(missing) > 0) {
-    more <- fetch_subs_pages_(uid, missing$start, missing$limit, query, fields)
+    more <- fetch_subs_pages_(uid, missing$start, missing$limit, query, fields, tick = tick)
     pages <- c(pages, more)
     start <- c(start, missing$start)
   }
@@ -200,7 +206,7 @@ get_subs_pages_ <- function(
     if (s %in% start) {
       break
     }
-    pages <- c(pages, fetch_subs_pages_(uid, s, chunk, query, fields))
+    pages <- c(pages, fetch_subs_pages_(uid, s, chunk, query, fields, tick = tick))
     start <- c(start, s)
   }
 

@@ -28,16 +28,23 @@ A \code{data.frame} with the following columns:
 \item \code{qpath} and \code{xpath} the path of the question in JSON/XML
 }
 
-You can also have other columns such as \code{relevant}, \code{calculation}, etc. depending on how
-you structure for survey form.
+Other columns, such as \code{relevant} or \code{calculation}, are present when the
+form uses them. A form without choice list has no \code{choices} column.
 }
 \description{
 Get a KoboToolbox survey form from a \code{kobo_asset} or an asset unique identifier.
 }
+\details{
+The form is kept in memory for the rest of the R session, see \link{kobo_cache}.
+}
 \examples{
+# With a bundled example asset, no server is needed
+form <- kobo_form(asset_ml)
+form[c("name", "type", "label", "lang")]
+
 \dontrun{
 # Use your own URL and token
-kobo_setup(url = "https://kf.kobotoolbox.org/",
+kobo_setup(url = "https://kf.kobotoolbox.org",
            token = "9et1814c285w094f6v9bd629df47a1a0e81x53a0")
 # Use your own API asset identifier
 uid <- "a9cwEQcbWqWzA5hzkjRUWi"
@@ -46,3 +53,10 @@ form <- kobo_form(asset)
 }
 
 }
+\seealso{
+Other data functions:
+\code{\link[=kobo_attachment_download]{kobo_attachment_download()}},
+\code{\link[=kobo_audit]{kobo_audit()}},
+\code{\link[=kobo_data]{kobo_data()}}
+}
+\concept{data functions}

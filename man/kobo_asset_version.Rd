@@ -10,14 +10,15 @@ kobo_asset_version(x, version)
 \item{x}{the unique identifier of a specific asset (\code{character}) or
 a \code{kobo_asset} object.}
 
-\item{version}{character, the unique identifier of the version of the asset}
+\item{version}{character, the unique identifier of the version of the asset.
+\code{\link[=kobo_asset_version_list]{kobo_asset_version_list()}} lists them.}
 }
 \value{
-A \code{kobo_asset_version} object
+A \code{kobo_asset_version} object.
 }
 \description{
-Get a specific KoboToolbox Asset version from an asset unique identifier
-or \code{kobo_asset} object
+Get one version of a KoboToolbox API asset, from the asset unique identifier
+or a \code{kobo_asset} object and the unique identifier of the version.
 }
 \examples{
 \dontrun{
@@ -29,3 +30,11 @@ kobo_asset_version(asset, asset_version_list$uid[1])
 }
 
 }
+\seealso{
+Other asset functions:
+\code{\link[=kobo_asset]{kobo_asset()}},
+\code{\link[=kobo_asset_file_list]{kobo_asset_file_list()}},
+\code{\link[=kobo_asset_list]{kobo_asset_list()}},
+\code{\link[=kobo_asset_version_list]{kobo_asset_version_list()}}
+}
+\concept{asset functions}

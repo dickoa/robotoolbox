@@ -14,16 +14,23 @@ of that asset only, on every server.}
 "langs". "all" also clears the recorded server page limits.}
 }
 \value{
-Invisibly returns TRUE
+\code{TRUE}, invisibly.
 }
 \description{
-Clear the metadata cache
+Remove the forms, the languages and the server page limits that robotoolbox
+keeps in memory, described in \link{kobo_cache}.
 }
 \examples{
-\dontrun{
-kobo_cache_clear()
-kobo_cache_clear("aXf4gH7kL9mN2pQrStUvWx")
+form <- kobo_form(asset_ml)
+kobo_cache_info()$n_forms
+kobo_cache_clear(asset_ml$uid)
 kobo_cache_clear(type = "langs")
-}
+kobo_cache_clear()
 
 }
+\seealso{
+Other cache functions:
+\code{\link{kobo_cache}},
+\code{\link[=kobo_cache_info]{kobo_cache_info()}}
+}
+\concept{cache functions}

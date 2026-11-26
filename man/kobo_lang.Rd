@@ -2,42 +2,15 @@
 % Please edit documentation in R/kobo_lang.R
 \name{kobo_lang}
 \alias{kobo_lang}
-\alias{kobo_lang.kobo_asset}
-\alias{kobo_lang.character}
-\alias{kobo_lang.default}
 \alias{kobo_lang_get}
-\alias{kobo_lang_get.data.frame}
-\alias{kobo_lang_get.dm}
-\alias{kobo_lang_get.default}
 \alias{kobo_lang_set}
-\alias{kobo_lang_set.data.frame}
-\alias{kobo_lang_set.dm}
-\alias{kobo_lang_set.default}
 \title{Get and set the languages used in KoboToolbox data}
 \usage{
 kobo_lang(x)
 
-\method{kobo_lang}{kobo_asset}(x)
-
-\method{kobo_lang}{character}(x)
-
-\method{kobo_lang}{default}(x)
-
 kobo_lang_get(data, asset)
 
-\method{kobo_lang_get}{data.frame}(data, asset)
-
-\method{kobo_lang_get}{dm}(data, asset)
-
-\method{kobo_lang_get}{default}(data, asset)
-
 kobo_lang_set(data, asset, lang)
-
-\method{kobo_lang_set}{data.frame}(data, asset, lang)
-
-\method{kobo_lang_set}{dm}(data, asset, lang)
-
-\method{kobo_lang_set}{default}(data, asset, lang)
 }
 \arguments{
 \item{x}{For \code{kobo_lang()}: the unique identifier of a specific asset (\code{character}) or
@@ -94,8 +67,22 @@ answer splits in more than one way. This happens with "Red Blue" when
 label, such as \code{Red} from an older form version, when "Red" is also the
 label of another choice. Download the data in the new language with
 \code{kobo_data(lang = )} in that case.
+
+\code{kobo_lang_set()} takes the labels from the deployed form version. A
+question or a choice that only exists in an older form version has no label
+there, so its column is labeled with its name and its codes get no value
+label.
+
+The languages and the form are kept in memory for the rest of the R
+session, see \link{kobo_cache}.
 }
 \examples{
+# With the bundled example data, no server is needed
+kobo_lang(asset_ml)
+kobo_lang_get(data_ml_en, asset_ml)
+data_fr <- kobo_lang_set(data_ml_en, asset_ml, lang = "Francais (fr)")
+kobo_lang_get(data_fr, asset_ml)
+
 \dontrun{
 # Setup
 asset <- kobo_asset("aYuTZn9vegi3Z49MXwKjep")
@@ -119,4 +106,8 @@ dm_data <- kobo_data(complex_asset)
 dm_fr <- kobo_lang_set(dm_data, complex_asset, lang = "French")
 }
 
+}
+\seealso{
+\code{\link[=kobo_data]{kobo_data()}} to download the data in a language, and
+\code{\link[=kobo_form]{kobo_form()}} for the labels of each language.
 }

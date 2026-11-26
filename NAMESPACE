@@ -61,13 +61,17 @@ importFrom(RcppSimdJson,
   fparse,
   is_valid_json
 )
+importFrom(bit64,integer64)
 importFrom(cli,
   cli_inform,
+  cli_progress_bar,
+  cli_progress_done,
   cli_progress_step,
+  cli_progress_update,
   cli_warn
 )
 importFrom(crul,
-  AsyncQueue,
+  AsyncVaried,
   HttpClient,
   HttpRequest,
   auth
@@ -106,10 +110,7 @@ importFrom(labelled,
   set_variable_labels,
   var_label
 )
-importFrom(purrr,
-  list_rbind,
-  walk2
-)
+importFrom(purrr,list_rbind)
 importFrom(readr,type_convert)
 importFrom(rlang,
   "%||%",

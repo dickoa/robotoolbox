@@ -15,7 +15,7 @@ A \code{kobo_asset} object. It contains all the information about the
 KoboToolbox API asset associated to the unique identifier.
 }
 \description{
-Get a specific KoboToolbox API asset from a unique identifier
+Get a KoboToolbox API asset, such as a survey, from its unique identifier.
 }
 \examples{
 \dontrun{
@@ -27,3 +27,11 @@ asset <- kobo_asset(uid)
 asset
 }
 }
+\seealso{
+Other asset functions:
+\code{\link[=kobo_asset_file_list]{kobo_asset_file_list()}},
+\code{\link[=kobo_asset_list]{kobo_asset_list()}},
+\code{\link[=kobo_asset_version]{kobo_asset_version()}},
+\code{\link[=kobo_asset_version_list]{kobo_asset_version_list()}}
+}
+\concept{asset functions}

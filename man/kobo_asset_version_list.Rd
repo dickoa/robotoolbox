@@ -7,7 +7,8 @@
 kobo_asset_version_list(x)
 }
 \arguments{
-\item{x}{the uid or \code{kobo_asset} object.}
+\item{x}{the unique identifier of a specific asset (\code{character}) or
+a \code{kobo_asset} object.}
 }
 \value{
 A \code{data.frame} containing the list of all the versions
@@ -20,7 +21,7 @@ of a given KoboToolbox API asset with the following metadata:
 \item \code{version_number} the version label shown in the form history of
 KoboToolbox, such as \code{"12"} for the twelfth deployment and \code{"11.4"} for the
 fourth draft saved after the eleventh deployment. It is a character column,
-\code{NA} on servers older than KoboToolbox KPI 2.026.30.
+\code{NA} when the server does not provide it.
 }
 }
 \description{
@@ -35,3 +36,11 @@ kobo_asset_version_list(asset)
 }
 
 }
+\seealso{
+Other asset functions:
+\code{\link[=kobo_asset]{kobo_asset()}},
+\code{\link[=kobo_asset_file_list]{kobo_asset_file_list()}},
+\code{\link[=kobo_asset_list]{kobo_asset_list()}},
+\code{\link[=kobo_asset_version]{kobo_asset_version()}}
+}
+\concept{asset functions}

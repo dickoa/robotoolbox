@@ -99,3 +99,37 @@ test_that("error_msg shows the server message for other errors", {
   expect_identical(error_msg(charToRaw("<html>oops</html>")),
                    c(i = "Check your uid and/or credentials and try again"))
 })
+
+test_that("kobo_setup keeps the page size of the environment variable", {
+  withr::local_envvar(KOBOTOOLBOX_URL = "https://k.org", KOBOTOOLBOX_TOKEN = "",
+                      KOBOTOOLBOX_PAGE_SIZE = "30000")
+  token <- "0000000000000000000000000000000000000000"
+  expect_identical(kobo_setup(url = "https://k.org", token = token)$page_size, 30000L)
+  expect_identical(Sys.getenv("KOBOTOOLBOX_PAGE_SIZE"), "30000")
+  expect_identical(kobo_setup(url = "https://k.org", token = token, page_size = 500)$page_size, 500L)
+  Sys.unsetenv("KOBOTOOLBOX_PAGE_SIZE")
+  expect_identical(kobo_setup(url = "https://k.org", token = token)$page_size, 1000L)
+  expect_null(formals(kobo_setup)$page_size)
+  expect_identical(kobo_setup(url = "https://k.org", token = token, page_size = NULL)$page_size, 1000L)
+})
+
+test_that("the page size variable is read as a positive integer or refused", {
+  token <- "0000000000000000000000000000000000000000"
+  withr::local_envvar(KOBOTOOLBOX_URL = "https://k.org", KOBOTOOLBOX_TOKEN = token)
+  ## An empty variable counts as not set
+  for (value in c("", "  ")) {
+    withr::local_envvar(KOBOTOOLBOX_PAGE_SIZE = value)
+    expect_identical(api_max_limit_(), 1000L)
+    expect_identical(kobo_settings()$page_size, 1000L)
+    expect_identical(kobo_setup()$page_size, 1000L)
+  }
+  withr::local_envvar(KOBOTOOLBOX_PAGE_SIZE = " 500 ")
+  expect_identical(api_max_limit_(), 500L)
+  for (value in c("abc", "0", "-5", "1e3x")) {
+    withr::local_envvar(KOBOTOOLBOX_PAGE_SIZE = value)
+    expect_error(api_max_limit_(), "KOBOTOOLBOX_PAGE_SIZE")
+    expect_error(kobo_setup(), "KOBOTOOLBOX_PAGE_SIZE")
+    ## An explicit page size does not read the variable
+    expect_identical(kobo_setup(page_size = 200)$page_size, 200L)
+  }
+})

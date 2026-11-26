@@ -7,14 +7,27 @@
 kobo_settings()
 }
 \value{
-A list with information about your KoboToolbox server URL and token.
-}
-\description{
-Print the KoboToolbox server URL and API token currently in use.
-}
-\examples{
-\dontrun{
- kobo_settings()
+A \code{kobo_settings} object, a list with three elements.
+\itemize{
+\item \code{token} the API token
+\item \code{url} the URL of the KoboToolbox server
+\item \code{page_size} the number of submissions asked for in each API request
 }
 
+Its print method hides the token except for its last characters, and
+shows \verb{<unset>} when no token is set.
 }
+\description{
+Get the KoboToolbox server URL, the API token and the page size currently
+in use.
+}
+\examples{
+kobo_settings()
+
+}
+\seealso{
+Other setup functions:
+\code{\link[=kobo_setup]{kobo_setup()}},
+\code{\link[=kobo_token]{kobo_token()}}
+}
+\concept{setup functions}

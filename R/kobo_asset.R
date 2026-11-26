@@ -1,16 +1,18 @@
 #' Get a specific KoboToolbox API asset from a unique identifier
 #'
-#' Get a specific KoboToolbox API asset from a unique identifier
+#' Get a KoboToolbox API asset, such as a survey, from its unique identifier.
 #'
 #' @name kobo_asset
 #'
 #' @importFrom RcppSimdJson fparse
 #'
 #' @param x the unique identifier of a specific asset (`character`) or
-#' a \code{kobo_asset} object.
+#' a `kobo_asset` object.
 #'
-#' @returns A \code{kobo_asset} object. It contains all the information about the
+#' @returns A `kobo_asset` object. It contains all the information about the
 #' KoboToolbox API asset associated to the unique identifier.
+#'
+#' @family asset functions
 #'
 #' @examples
 #' \dontrun{
@@ -52,12 +54,12 @@ kobo_asset.default <- function(x) {
 #'
 #' @name kobo_asset_list
 #'
-#' @param limit integer, the maximum number of assets to return. Default to 100.
+#' @param limit integer, the maximum number of assets to return. Defaults to 100.
 #' @param minimal logical, whether to return only the asset uid, name and
 #'   deployment status. The minimal listing is much faster on accounts with many
-#'   assets. Default to `FALSE`.
+#'   assets. Defaults to `FALSE`.
 #'
-#' @returns A \code{data.frame} containing the list of all your KoboToolbox API assets
+#' @returns A `data.frame` containing the list of all your KoboToolbox API assets
 #' and the following metadata:
 #' - `uid` the asset unique identifier
 #' - `name` the name of the asset
@@ -68,18 +70,18 @@ kobo_asset.default <- function(x) {
 #' - `deployed` whether or not the asset is currently deployed
 #' - `submissions` the number of submissions for the asset (`survey`)
 #' - `created_by` the user account that created the asset. It differs from the
-#'   owner after a project transfer. It is `NA` when the server does not report
-#'   it, which is the case for some older assets and for all assets on servers
-#'   older than KoboToolbox KPI version 2.026.23.
+#'   owner after a project transfer. It is `NA` when the server does not
+#'   provide it, as for some older assets.
 #'
 #' Assets are sorted by date of last modification, most recent first, so
 #' `limit` keeps the most recently modified assets.
 #'
-#' With `minimal = TRUE`, the \code{data.frame} has the columns `uid`, `name`
+#' With `minimal = TRUE`, the `data.frame` has the columns `uid`, `name`
 #' and `deployment_status` (`draft`, `deployed`, `archived`, or `-` for empty
-#' assets). The minimal
-#' listing needs KoboToolbox KPI version 2.026.21 or later. On older servers,
-#' the same columns are taken from the full listing.
+#' assets). When the server does not provide the minimal listing, the same
+#' columns are taken from the full listing.
+#'
+#' @family asset functions
 #'
 #' @examples
 #' \dontrun{
@@ -103,18 +105,20 @@ kobo_asset_list <- function(limit = 100L, minimal = FALSE) {
 
 #' Get a specific KoboToolbox API asset version from an asset unique identifier
 #'
-#' Get a specific KoboToolbox Asset version from an asset unique identifier
-#' or \code{kobo_asset} object
+#' Get one version of a KoboToolbox API asset, from the asset unique identifier
+#' or a `kobo_asset` object and the unique identifier of the version.
 #'
 #' @name kobo_asset_version
 #'
-#' @param x the unique identifier of a specific asset (`character`) or
-#' a \code{kobo_asset} object.
-#' @param version character, the unique identifier of the version of the asset
+#' @inheritParams kobo_asset
+#' @param version character, the unique identifier of the version of the asset.
+#'   [kobo_asset_version_list()] lists them.
 #'
 #' @importFrom RcppSimdJson fparse
 #'
-#' @returns A \code{kobo_asset_version} object
+#' @returns A `kobo_asset_version` object.
+#'
+#' @family asset functions
 #'
 #' @examples
 #' \dontrun{
@@ -161,11 +165,11 @@ kobo_asset_version.default <- function(x, version) {
 #'
 #' @name kobo_asset_version_list
 #'
-#' @param x the uid or \code{kobo_asset} object.
+#' @inheritParams kobo_asset
 #' @importFrom RcppSimdJson fparse
 #' @importFrom tibble tibble
 #'
-#' @returns A \code{data.frame} containing the list of all the versions
+#' @returns A `data.frame` containing the list of all the versions
 #' of a given KoboToolbox API asset with the following metadata:
 #' - `uid` the asset version unique identifier.
 #' - `url` the URL of the asset version.
@@ -174,7 +178,9 @@ kobo_asset_version.default <- function(x, version) {
 #' - `version_number` the version label shown in the form history of
 #'   KoboToolbox, such as `"12"` for the twelfth deployment and `"11.4"` for the
 #'   fourth draft saved after the eleventh deployment. It is a character column,
-#'   `NA` on servers older than KoboToolbox KPI 2.026.30.
+#'   `NA` when the server does not provide it.
+#'
+#' @family asset functions
 #'
 #' @examples
 #' \dontrun{

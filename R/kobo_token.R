@@ -11,19 +11,24 @@
 #' @param password character, KoboToolbox account password.
 #' @param url character, KoboToolbox server URL.
 #' @param overwrite logical, if `TRUE`, it overwrites the existing token.
-#' Default to `FALSE`.
+#' Defaults to `FALSE`. The token of the session is returned as it is only
+#' when `url` is the server of the session. For another server, a new token
+#' is requested, and the URL and the token of the session change together
+#' once the request succeeds.
 #'
-#' @returns A \code{character}, the KoboToolbox API token. It also stores, as a side effect,
-#' the URL and token as the environment variables \code{KOBOTOOLBOX_URL} and
-#' \code{KOBOTOOLBOX_TOKEN} respectively.
+#' @returns A `character`, the KoboToolbox API token. It also stores, as a side effect,
+#' the URL and token as the environment variables `KOBOTOOLBOX_URL` and
+#' `KOBOTOOLBOX_TOKEN` respectively.
+#'
+#' @family setup functions
 #'
 #' @examples
 #' \dontrun{
 #' # use your own KoboToolbox URL, username and password
-#' if (require(askpass)) {
+#' if (requireNamespace("askpass", quietly = TRUE)) {
 #'  token <- kobo_token(username = "cool_user_name",
 #'                      password = askpass::askpass(),
-#'                      url = "https://kf.kobotoolbox.org/")
+#'                      url = "https://kf.kobotoolbox.org")
 #'  token
 #'  }
 #' }
@@ -45,11 +50,13 @@ kobo_token <- function(username = NULL, password = NULL,
     if (!assert_url(url))
       abort("Invalid URL", call = NULL)
     url <- clean_urls(url)
-    Sys.setenv("KOBOTOOLBOX_URL" = url)
   }
 
-  if (nzchar(Sys.getenv("KOBOTOOLBOX_TOKEN")) && !overwrite) {
+  ## A token is reused only for the server it was set with
+  same_server <- identical(url, server_url_())
+  if (nzchar(Sys.getenv("KOBOTOOLBOX_TOKEN")) && !overwrite && same_server) {
     token <- Sys.getenv("KOBOTOOLBOX_TOKEN")
+    Sys.setenv("KOBOTOOLBOX_URL" = url)
   } else {
     url_path <- paste0(url, "/token/?format=json")
     cli <- HttpClient$new(url = url_path,

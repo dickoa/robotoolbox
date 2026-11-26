@@ -22,3 +22,9 @@ it for the following requests.
 The cache is cleared when the R session ends, or with
 \code{kobo_cache_clear()}.
 }
+\seealso{
+Other cache functions:
+\code{\link[=kobo_cache_clear]{kobo_cache_clear()}},
+\code{\link[=kobo_cache_info]{kobo_cache_info()}}
+}
+\concept{cache functions}

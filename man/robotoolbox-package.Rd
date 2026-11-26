@@ -6,7 +6,7 @@
 \alias{robotoolbox-package}
 \title{robotoolbox: Client for the 'KoboToolbox' API}
 \description{
-\code{\link{robotoolbox}} is a Client for the 'KoboToolbox' API.
+\link{robotoolbox} is a Client for the 'KoboToolbox' API.
 }
 \seealso{
 Useful links:

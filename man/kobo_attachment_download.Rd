@@ -4,27 +4,42 @@
 \alias{kobo_attachment_download}
 \title{Download submitted files associated to KoboToolbox API asset}
 \usage{
-kobo_attachment_download(x, folder, progress, overwrite, n_retry)
+kobo_attachment_download(
+  x,
+  folder,
+  progress = FALSE,
+  overwrite = TRUE,
+  n_retry = 3L
+)
 }
 \arguments{
-\item{x}{the asset uid or the \code{kobo_asset} object.}
+\item{x}{the unique identifier of a specific asset (\code{character}) or
+a \code{kobo_asset} object.}
 
-\item{folder}{character, the folder where you store the downloaded files.}
+\item{folder}{character, the folder where the downloaded files are stored.
+It must exist.}
 
-\item{progress}{logical, whether or not you want to see the progess via message.
-Default to \code{FALSE}.}
+\item{progress}{logical, whether to show the progress of the download. A
+message is printed at each stage, and an interactive terminal also shows
+a progress bar. Defaults to \code{FALSE}.}
 
-\item{overwrite}{logical, whether or not you want to overwrite existing media files.
-Default to \code{TRUE}.}
+\item{overwrite}{logical, whether to download again the files that are
+already in \code{folder}. Defaults to \code{TRUE}.}
 
-\item{n_retry}{integer, Number of time you should retry the failed request.
-Default to 3L.}
+\item{n_retry}{integer, the number of times a failed request is tried again.
+Defaults to \code{3L}.}
 }
 \value{
-Silently returns a vector of files paths.
+The paths of the downloaded files, invisibly.
 }
 \description{
-Download submitted files associated to a KoboToolbox API asset
+Download the files submitted with the answers of a KoboToolbox survey, such
+as pictures and recordings, into a folder.
+}
+\details{
+Each file is saved under the unique identifier of its attachment
+followed by its name, so two files with the same name do not overwrite each
+other.
 }
 \examples{
 \dontrun{
@@ -34,3 +49,10 @@ kobo_attachment_download(uid, folder = tempdir())
 }
 
 }
+\seealso{
+Other data functions:
+\code{\link[=kobo_audit]{kobo_audit()}},
+\code{\link[=kobo_data]{kobo_data()}},
+\code{\link[=kobo_form]{kobo_form()}}
+}
+\concept{data functions}

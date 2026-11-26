@@ -1,15 +1,16 @@
 #' List all uploaded files related to a KoboToolbox API asset
 #'
-#' List all uploaded files related to a KoboToolbox API asset
+#' List the files uploaded to a KoboToolbox API asset, such as form media and
+#' map layers.
 #'
 #' @importFrom tidyr unnest_wider
 #' @importFrom purrr list_rbind
 #'
 #' @name kobo_asset_file_list
 #'
-#' @param x the asset uid or the \code{kobo_asset} object.
+#' @inheritParams kobo_asset
 #'
-#' @returns A \code{data.frame} containing the list of all your KoboToolbox API files under
+#' @returns A `data.frame` containing the list of all your KoboToolbox API files under
 #' the asset:
 #' - `uid` the file unique identifier
 #' - `url` URL of the file in the API
@@ -23,6 +24,8 @@
 #' - `hash` MD5 hash of the file, prefixed with `md5:`
 #' - `filename` name of the file
 #' - `mimetype` MIME type of the file
+#'
+#' @family asset functions
 #'
 #' @examples
 #' \dontrun{

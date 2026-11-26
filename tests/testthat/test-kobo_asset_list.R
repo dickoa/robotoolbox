@@ -205,3 +205,12 @@ test_that("kobo_asset_list accepts a count the server did not compute", {
   expect_no_warning(res <- kobo_asset_list(limit = 5000))
   expect_false(anyDuplicated(res$uid) > 0)
 })
+
+test_that("pages giving the submission count as numbers and as strings bind", {
+  pages <- list(fake_assets(2), fake_assets(5)[3:5, ])
+  pages[[1]]$deployment__submission_count <- c(4L, 0L)
+  pages[[2]]$deployment__submission_count <- c("many", "7", "unknown")
+  res <- distinct_assets_(pages)
+  expect_identical(res$uid, fake_assets(5)$uid)
+  expect_identical(res$deployment__submission_count, c(4L, 0L, NA, 7L, NA))
+})

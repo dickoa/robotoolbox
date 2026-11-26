@@ -50,7 +50,24 @@
 #' label of another choice. Download the data in the new language with
 #' `kobo_data(lang = )` in that case.
 #'
+#' `kobo_lang_set()` takes the labels from the deployed form version. A
+#' question or a choice that only exists in an older form version has no label
+#' there, so its column is labeled with its name and its codes get no value
+#' label.
+#'
+#' The languages and the form are kept in memory for the rest of the R
+#' session, see [kobo_cache].
+#'
+#' @seealso [kobo_data()] to download the data in a language, and
+#'   [kobo_form()] for the labels of each language.
+#'
 #' @examples
+#' # With the bundled example data, no server is needed
+#' kobo_lang(asset_ml)
+#' kobo_lang_get(data_ml_en, asset_ml)
+#' data_fr <- kobo_lang_set(data_ml_en, asset_ml, lang = "Francais (fr)")
+#' kobo_lang_get(data_fr, asset_ml)
+#'
 #' \dontrun{
 #' # Setup
 #' asset <- kobo_asset("aYuTZn9vegi3Z49MXwKjep")
@@ -80,7 +97,6 @@ kobo_lang <- function(x) {
   UseMethod("kobo_lang")
 }
 
-#' @rdname kobo_lang
 #' @export
 kobo_lang.kobo_asset <- function(x) {
   uid <- x$uid
@@ -94,7 +110,6 @@ kobo_lang.kobo_asset <- function(x) {
   lng
 }
 
-#' @rdname kobo_lang
 #' @export
 kobo_lang.character <- function(x) {
   if (!assert_uid(x))
@@ -102,7 +117,6 @@ kobo_lang.character <- function(x) {
   kobo_lang.kobo_asset(kobo_asset(x))
 }
 
-#' @rdname kobo_lang
 #' @export
 kobo_lang.default <- function(x) {
   abort("You need to use a 'kobo_asset' or a valid asset uid")
@@ -114,7 +128,6 @@ kobo_lang_get <- function(data, asset) {
   UseMethod("kobo_lang_get")
 }
 
-#' @rdname kobo_lang
 #' @importFrom labelled var_label
 #' @export
 kobo_lang_get.data.frame <- function(data, asset) {
@@ -135,7 +148,7 @@ kobo_lang_get.data.frame <- function(data, asset) {
   col_names <- names(current_labels)
 
   matches <- vapply(available_langs, function(lng) {
-    form_lang <- form[form$lang == lng, ]
+    form_lang <- form[form$lang %in% lng, ]
     form_labels <- setNames(form_lang$label, form_lang$name)
 
     if (is_label_cols) {
@@ -152,7 +165,6 @@ kobo_lang_get.data.frame <- function(data, asset) {
   names(which.max(matches))
 }
 
-#' @rdname kobo_lang
 #' @importFrom dm dm_get_tables
 #' @export
 kobo_lang_get.dm <- function(data, asset) {
@@ -166,7 +178,6 @@ kobo_lang_get.dm <- function(data, asset) {
   NA_character_
 }
 
-#' @rdname kobo_lang
 #' @export
 kobo_lang_get.default <- function(data, asset) {
   abort("data must be a data.frame or dm object returned by kobo_data()")
@@ -178,7 +189,6 @@ kobo_lang_set <- function(data, asset, lang) {
   UseMethod("kobo_lang_set")
 }
 
-#' @rdname kobo_lang
 #' @importFrom dplyr rename
 #' @importFrom tidyselect all_of
 #' @export
@@ -227,12 +237,14 @@ lang_set_tbl_ <- function(tbl, form, lang, sep, is_label_cols, cur_lang) {
     tbl <- rename_kobo_(tbl, kobo_names_(tbl))
   }
   tbl <- sm_labels_lang_set_(tbl, form, lang)
+  pc_var_labels <- precompute_var_labels_(form, lang, sep)
+  questions <- col_questions_(tbl, pc_var_labels$sm_parent)
   so <- unique(form$name[grepl("select_one", form$type, fixed = TRUE)])
-  for (n in intersect(names(tbl), so)) {
-    tbl[[n]] <- remove_val_labels(tbl[[n]])
+  for (i in which(questions %in% so)) {
+    tbl[[i]] <- remove_val_labels(tbl[[i]])
   }
-  tbl <- val_labels_from_form_(tbl, form, lang)
-  tbl <- var_labels_from_form_(tbl, form, lang, sep = sep)
+  tbl <- val_labels_from_form_(tbl, form, lang, questions = questions)
+  tbl <- var_labels_from_form_(tbl, form, lang, pc_var_labels, sep = sep)
   if (is_label_cols) tbl <- set_names_from_varlabel_(tbl)
   tbl
 }
@@ -248,8 +260,9 @@ sm_labels_lang_set_ <- function(tbl, form, lang) {
     old <- attr(tbl[[n]], "kobo_sm_lang", exact = TRUE)
     if (is.null(old) || identical(old, lang)) next
     unlabeled <- attr(tbl[[n]], "kobo_sm_unlabeled", exact = TRUE) %||% character()
-    codes <- sm_labels_to_codes_(tbl[[n]], sm_lookup_(form, n, old), n, unlabeled)
-    lookup <- sm_lookup_(form, n, lang)
+    q <- attr(tbl[[n]], "kobo_question", exact = TRUE) %||% n
+    codes <- sm_labels_to_codes_(tbl[[n]], sm_lookup_(form, q, old), n, unlabeled)
+    lookup <- sm_lookup_(form, q, lang)
     tbl[[n]][] <- sm_codes_to_labels_(codes, lookup)
     attr(tbl[[n]], "kobo_sm_lang") <- lang
     attr(tbl[[n]], "kobo_sm_unlabeled") <- sm_unlabeled_(codes, lookup)
@@ -257,7 +270,6 @@ sm_labels_lang_set_ <- function(tbl, form, lang) {
   tbl
 }
 
-#' @rdname kobo_lang
 #' @importFrom dm dm_get_tables dm_add_pk dm_add_fk dm_get_all_pks dm_get_all_fks
 #' @export
 kobo_lang_set.dm <- function(data, asset, lang) {
@@ -304,7 +316,6 @@ kobo_lang_set.dm <- function(data, asset, lang) {
   result
 }
 
-#' @rdname kobo_lang
 #' @export
 kobo_lang_set.default <- function(data, asset, lang) {
   abort("data must be a data.frame or dm object returned by kobo_data()")

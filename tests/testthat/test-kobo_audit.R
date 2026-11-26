@@ -93,3 +93,72 @@ test_that("parse_audit_ reads files with and without the optional columns", {
   expect_s3_class(res$start, "POSIXct")
   expect_identical(parse_audit_(meta[4, ], list("")), empty_audit_())
 })
+
+test_that("audit timestamps keep their milliseconds as 64-bit integers", {
+  ## 1700000000000 ms is 2023-11-14 22:13:20 UTC
+  with_end <- paste(
+    "event,node,start,end",
+    "question,/data/q1,1700000000000,1700000005250",
+    sep = "\n"
+  )
+  no_end <- paste("event,node,start,end", "form start,,1700000001000,", sep = "\n")
+  meta <- tibble::tibble(`_id` = 1:2, download_url = c("u1", "u2"))
+  expect_no_warning(res <- parse_audit_(meta, list(with_end, no_end)))
+  expect_identical(lapply(res, class), lapply(empty_audit_(), class))
+  expect_s3_class(res$start_int, "integer64")
+  expect_identical(as.character(res$start_int), c("1700000000000", "1700000001000"))
+  expect_identical(as.character(res$end_int), c("1700000005250", NA))
+  expect_identical(
+    format(res$start, "%Y-%m-%d %H:%M:%S", tz = "UTC"),
+    c("2023-11-14 22:13:20", "2023-11-14 22:13:21")
+  )
+  expect_identical(as.numeric(res$start), c(1700000000, 1700000001))
+  expect_identical(as.numeric(res$end), c(1700000005.25, NA))
+  expect_identical(empty_audit_()$start_int, bit64::integer64())
+})
+
+test_that("an invalid byte in an audit file does not discard the file", {
+  bytes <- c(charToRaw("event,node,start,end,old-value\nquestion,/data/q1,1700000000000,1700000001000,caf"),
+             as.raw(0xff), charToRaw("\n"))
+  txt <- audit_text_(bytes, 1L)
+  expect_false(is.na(txt))
+  expect_identical(audit_text_(charToRaw("caf\u00e9"), 1L), "caf\u00e9")
+  expect_identical(audit_text_(raw(), 1L), "")
+  res <- parse_audit_(tibble::tibble(`_id` = 7L, download_url = "u"), list(txt))
+  expect_identical(res$`_id`, 7L)
+  expect_identical(res$name, "q1")
+  expect_identical(res$`old-value`, "caf<ff>")
+})
+
+test_that("a short row of an audit file does not hide the rows after it", {
+  meta <- tibble::tibble(`_id` = c(11L, 12L), download_url = c("u1", "u2"))
+  short_row <- paste(c(
+    "event,node,start,end",
+    "question,/form/age,1700000000000,1700000000010",
+    "question,/form/name,1700000000011",
+    "question,/form/city,1700000000020,1700000000025"
+  ), collapse = "\n")
+  valid <- "event,node,start,end\nquestion,/form/q,1700000000000,1700000000010"
+  expect_no_warning(res <- parse_audit_(meta, list(short_row, valid)))
+  expect_identical(res$node, c("/form/age", "/form/name", "/form/city", "/form/q"))
+  expect_identical(res$`_id`, c(11L, 11L, 11L, 12L))
+  expect_identical(as.character(res$end_int),
+                   c("1700000000010", NA, "1700000000025", "1700000000010"))
+  expect_identical(lapply(res, class), lapply(empty_audit_(), class))
+
+  ## A file that cannot be read cleanly is reported with its submission
+  long_row <- paste(c(
+    "event,node,start,end",
+    "question,/form/age,1700000000000,1700000000010,extra,more"
+  ), collapse = "\n")
+  expect_warning(res <- parse_audit_(meta[2, ], list(long_row)), "submission 12")
+  expect_identical(res$node, "/form/age")
+  ## A file without the audit columns is left out
+  expect_warning(res <- parse_audit_(meta[2, ], list("a,b\n1,2")), "submission 12")
+  expect_identical(res, empty_audit_())
+  long_row <- paste(c(long_row, "question,/form/b,1700000000020,1700000000030"),
+                    collapse = "\n")
+  expect_warning(res <- parse_audit_(meta[2, ], list(long_row)), "submission 12")
+  expect_identical(res$node, c("/form/age", "/form/b"))
+  expect_named(res, names(empty_audit_()))
+})

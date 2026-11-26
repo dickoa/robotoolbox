@@ -250,3 +250,22 @@ test_that("kobo_lang_set stops on an unlabeled code spelled like a label", {
   expect_equal(as.vector(en$colors), c("Red", "Blue"))
   expect_error(kobo_lang_set(en, asset, "French (fr)"), "colors")
 })
+
+test_that("kobo_lang_get ignores the rows of a form that have no language", {
+  form <- tibble::tibble(
+    name = c("q1", "q2", "q1", "q2", "g"),
+    label = c("One", "Two", "Un", "Deux", NA),
+    lang = c("English (en)", "English (en)", "Francais (fr)", "Francais (fr)", NA),
+    type = c("text", "text", "text", "text", "begin_group")
+  )
+  local_mocked_bindings(
+    as_kobo_asset_ = function(x) x,
+    kobo_form = function(x, ...) form,
+    kobo_lang = function(x, ...) c("English (en)", "Francais (fr)")
+  )
+  data <- tibble::tibble(q1 = "a", q2 = "b", g = "c")
+  labelled::var_label(data) <- list(q1 = "Un", q2 = "Deux", g = "g")
+  expect_identical(kobo_lang_get(data, "asset"), "Francais (fr)")
+  labelled::var_label(data) <- list(q1 = "One", q2 = "Two", g = "g")
+  expect_identical(kobo_lang_get(data, "asset"), "English (en)")
+})

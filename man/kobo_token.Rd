@@ -14,7 +14,10 @@ kobo_token(username = NULL, password = NULL, url = NULL, overwrite = FALSE)
 \item{url}{character, KoboToolbox server URL.}
 
 \item{overwrite}{logical, if \code{TRUE}, it overwrites the existing token.
-Default to \code{FALSE}.}
+Defaults to \code{FALSE}. The token of the session is returned as it is only
+when \code{url} is the server of the session. For another server, a new token
+is requested, and the URL and the token of the session change together
+once the request succeeds.}
 }
 \value{
 A \code{character}, the KoboToolbox API token. It also stores, as a side effect,
@@ -27,12 +30,18 @@ Get your KoboToolbox API token from your username and password.
 \examples{
 \dontrun{
 # use your own KoboToolbox URL, username and password
-if (require(askpass)) {
+if (requireNamespace("askpass", quietly = TRUE)) {
  token <- kobo_token(username = "cool_user_name",
                      password = askpass::askpass(),
-                     url = "https://kf.kobotoolbox.org/")
+                     url = "https://kf.kobotoolbox.org")
  token
  }
 }
 
 }
+\seealso{
+Other setup functions:
+\code{\link[=kobo_settings]{kobo_settings()}},
+\code{\link[=kobo_setup]{kobo_setup()}}
+}
+\concept{setup functions}

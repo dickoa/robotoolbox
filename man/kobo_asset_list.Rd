@@ -7,11 +7,11 @@
 kobo_asset_list(limit = 100L, minimal = FALSE)
 }
 \arguments{
-\item{limit}{integer, the maximum number of assets to return. Default to 100.}
+\item{limit}{integer, the maximum number of assets to return. Defaults to 100.}
 
 \item{minimal}{logical, whether to return only the asset uid, name and
 deployment status. The minimal listing is much faster on accounts with many
-assets. Default to \code{FALSE}.}
+assets. Defaults to \code{FALSE}.}
 }
 \value{
 A \code{data.frame} containing the list of all your KoboToolbox API assets
@@ -26,9 +26,8 @@ and the following metadata:
 \item \code{deployed} whether or not the asset is currently deployed
 \item \code{submissions} the number of submissions for the asset (\code{survey})
 \item \code{created_by} the user account that created the asset. It differs from the
-owner after a project transfer. It is \code{NA} when the server does not report
-it, which is the case for some older assets and for all assets on servers
-older than KoboToolbox KPI version 2.026.23.
+owner after a project transfer. It is \code{NA} when the server does not
+provide it, as for some older assets.
 }
 
 Assets are sorted by date of last modification, most recent first, so
@@ -36,9 +35,8 @@ Assets are sorted by date of last modification, most recent first, so
 
 With \code{minimal = TRUE}, the \code{data.frame} has the columns \code{uid}, \code{name}
 and \code{deployment_status} (\code{draft}, \code{deployed}, \code{archived}, or \code{-} for empty
-assets). The minimal
-listing needs KoboToolbox KPI version 2.026.21 or later. On older servers,
-the same columns are taken from the full listing.
+assets). When the server does not provide the minimal listing, the same
+columns are taken from the full listing.
 }
 \description{
 List all available KoboToolbox API assets and their metadata.
@@ -52,3 +50,11 @@ kobo_asset_list(minimal = TRUE)
 }
 
 }
+\seealso{
+Other asset functions:
+\code{\link[=kobo_asset]{kobo_asset()}},
+\code{\link[=kobo_asset_file_list]{kobo_asset_file_list()}},
+\code{\link[=kobo_asset_version]{kobo_asset_version()}},
+\code{\link[=kobo_asset_version_list]{kobo_asset_version_list()}}
+}
+\concept{asset functions}

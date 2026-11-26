@@ -7,16 +7,20 @@
 kobo_setup(
   url = Sys.getenv("KOBOTOOLBOX_URL", ""),
   token = Sys.getenv("KOBOTOOLBOX_TOKEN", ""),
-  page_size = 1000L
+  page_size = NULL
 )
 }
 \arguments{
-\item{url}{character, the base URL of the KoboToolbox server.}
+\item{url}{character, the base URL of the KoboToolbox server. Defaults to
+the \code{KOBOTOOLBOX_URL} environment variable.}
 
-\item{token}{character, the API token.}
+\item{token}{character, the API token. Defaults to the \code{KOBOTOOLBOX_TOKEN}
+environment variable. \code{\link[=kobo_token]{kobo_token()}} gets it from a username and a
+password.}
 
 \item{page_size}{integer, the number of submissions to ask for in each API
-request. Default to \code{1000L}, the limit of public KoboToolbox servers since
+request. Defaults to \code{NULL}, which takes the \code{KOBOTOOLBOX_PAGE_SIZE}
+environment variable, or \code{1000L} when it is not set. This is the limit of public KoboToolbox servers since
 KoboToolbox KPI version 2.026.03 (March 2026). Some private servers allow
 more, and a larger value (e.g., \code{30000L}) then means fewer requests. When
 the server returns fewer submissions than asked, \code{kobo_data()} detects its
@@ -24,23 +28,30 @@ limit and requests the missing submissions, so a large value never loses
 data.}
 }
 \value{
-A \code{kobo_settings} object printing the server URL and the API token.
+The settings, invisibly, as the \code{kobo_settings} object that
+\code{\link[=kobo_settings]{kobo_settings()}} returns.
 }
 \description{
-Set the KoboToolbox server URL, API token and return invisibly
-a \code{kobo_settings} object.
+Set the KoboToolbox server URL, the API token and the page size for the
+rest of the R session.
 }
 \examples{
 \dontrun{
  # Public server (default page_size = 1000)
- kobo_setup(url = "https://kf.kobotoolbox.org/",
+ kobo_setup(url = "https://kf.kobotoolbox.org",
             token = "9et1814c285w094f6v9bd629df47a1a0e81x53a0")
 
  # Private server with higher limit
- kobo_setup(url = "https://myserver.org/",
+ kobo_setup(url = "https://myserver.org",
             token = "9et1814c285w094f6v9bd629df47a1a0e81x53a0",
             page_size = 30000)
  kobo_settings()
 }
 
 }
+\seealso{
+Other setup functions:
+\code{\link[=kobo_settings]{kobo_settings()}},
+\code{\link[=kobo_token]{kobo_token()}}
+}
+\concept{setup functions}

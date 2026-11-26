@@ -7,7 +7,8 @@
 kobo_asset_file_list(x)
 }
 \arguments{
-\item{x}{the asset uid or the \code{kobo_asset} object.}
+\item{x}{the unique identifier of a specific asset (\code{character}) or
+a \code{kobo_asset} object.}
 }
 \value{
 A \code{data.frame} containing the list of all your KoboToolbox API files under
@@ -28,7 +29,8 @@ the asset:
 }
 }
 \description{
-List all uploaded files related to a KoboToolbox API asset
+List the files uploaded to a KoboToolbox API asset, such as form media and
+map layers.
 }
 \examples{
 \dontrun{
@@ -38,3 +40,11 @@ kobo_asset_file_list(uid)
 }
 
 }
+\seealso{
+Other asset functions:
+\code{\link[=kobo_asset]{kobo_asset()}},
+\code{\link[=kobo_asset_list]{kobo_asset_list()}},
+\code{\link[=kobo_asset_version]{kobo_asset_version()}},
+\code{\link[=kobo_asset_version_list]{kobo_asset_version_list()}}
+}
+\concept{asset functions}

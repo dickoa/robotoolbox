@@ -1,9 +1,8 @@
 #' Get a KoboToolbox survey form
 #'
-#' Get a KoboToolbox survey form from a \code{kobo_asset} or an asset unique identifier.
+#' Get a KoboToolbox survey form from a `kobo_asset` or an asset unique identifier.
 #'
-#' @param x the unique identifier of a specific asset (`character`) or
-#' a \code{kobo_asset} object.
+#' @inheritParams kobo_asset
 #' @param version character, the unique identifier of the version of the asset.
 #'   Defaults to the deployed version, or to the draft for a form that was
 #'   never deployed.
@@ -19,7 +18,7 @@
 #' @importFrom tidyselect contains everything all_of
 #' @importFrom rlang .data set_names abort
 #'
-#' @returns A \code{data.frame} with the following columns:
+#' @returns A `data.frame` with the following columns:
 #' - `name` the name of the survey questions
 #' - `list_name` the name of list of code used for values and labels
 #' - `type` the type of KoboToolbox survey questions
@@ -30,13 +29,22 @@
 #' - `kuid` the unique identifier of the question
 #' - `qpath` and `xpath` the path of the question in JSON/XML
 #'
-#' You can also have other columns such as `relevant`, `calculation`, etc. depending on how
-#' you structure for survey form.
+#' Other columns, such as `relevant` or `calculation`, are present when the
+#' form uses them. A form without choice list has no `choices` column.
+#'
+#' @details
+#' The form is kept in memory for the rest of the R session, see [kobo_cache].
+#'
+#' @family data functions
 #'
 #' @examples
+#' # With a bundled example asset, no server is needed
+#' form <- kobo_form(asset_ml)
+#' form[c("name", "type", "label", "lang")]
+#'
 #' \dontrun{
 #' # Use your own URL and token
-#' kobo_setup(url = "https://kf.kobotoolbox.org/",
+#' kobo_setup(url = "https://kf.kobotoolbox.org",
 #'            token = "9et1814c285w094f6v9bd629df47a1a0e81x53a0")
 #' # Use your own API asset identifier
 #' uid <- "a9cwEQcbWqWzA5hzkjRUWi"

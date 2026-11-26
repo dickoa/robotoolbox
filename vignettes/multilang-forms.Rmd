@@ -191,7 +191,8 @@ Labels from `select_multiple` are also accessible using the `kobo_data` paramete
 
 
 ```{r, echo = TRUE, eval = FALSE}
-data_sm <- kobo_data(uid)
+uid_sm <- "atbUaNGu5PWR2u4tNDsYaH"
+data_sm <- kobo_data(uid_sm)
 glimpse(data_sm)
 ```
 
@@ -204,7 +205,7 @@ glimpse(data_sm)
 The column `pet_type` contains values (`1` to `5`) instead of the labels (`dog`, `cat`, etc.). Now, let's set the new `select_multiple_label` to `TRUE` and read again the data.
 
 ```{r, echo = TRUE, eval = FALSE}
-data_sm_label <- kobo_data(uid,
+data_sm_label <- kobo_data(uid_sm,
                            select_multiple_label = TRUE)
 glimpse(data_sm_label)
 ```

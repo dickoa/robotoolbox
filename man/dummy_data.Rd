@@ -15,33 +15,33 @@
 \alias{data_audit}
 \title{Examples of KoboToolbox submissions data}
 \format{
-data_ml_en: A \code{data.frame} with submissions from \code{\link{asset_ml}}
+data_ml_en: A \code{data.frame} with submissions from \link{asset_ml}
 in English.
 
-data_ml_fr: A \code{data.frame} with submissions from \code{\link{asset_ml}}
+data_ml_fr: A \code{data.frame} with submissions from \link{asset_ml}
 in French.
 
-data_ml_ar: A \code{data.frame} with submissions from \code{\link{asset_ml}}
+data_ml_ar: A \code{data.frame} with submissions from \link{asset_ml}
 in Arabic
 
-data_ml_default: A \code{data.frame} with submissions from \code{\link{asset_ml}}
+data_ml_default: A \code{data.frame} with submissions from \link{asset_ml}
 with the default language.
 
-data_ml_vlabel: A \code{data.frame} with submissions from \code{\link{asset_ml}}
+data_ml_vlabel: A \code{data.frame} with submissions from \link{asset_ml}
 using variable labels as column names.
 
-data_rg: A \code{dm} object with submissions from \code{\link{asset_rg}}
+data_rg: A \code{dm} object with submissions from \link{asset_rg}
 
 data_spatial: A \code{data.frame} with submissions from
-the \code{\link{asset_spatial}} KoboToolbox API asset.
+the \link{asset_spatial} KoboToolbox API asset.
 
 data_sm: A \code{data.frame} with submissions from
-\code{\link{asset_sm_label}} with no labels for the \code{select_multiple} question.
+\link{asset_sm_label} with no labels for the \code{select_multiple} question.
 
 data_sm_label: A \code{data.frame} with submissions from
-\code{\link{asset_sm_label}} with labels for the \code{select_multiple} question.
+\link{asset_sm_label} with labels for the \code{select_multiple} question.
 
-data_audit: A \code{data.frame} with submissions from \code{\link{asset_audit}}.
+data_audit: A \code{data.frame} with submissions from \link{asset_audit}.
 }
 \usage{
 data_ml_en
@@ -67,4 +67,9 @@ data_audit
 \description{
 Examples of KoboToolbox submissions data.
 }
+\seealso{
+Other example datasets:
+\code{\link{dummy_asset}}
+}
+\concept{example datasets}
 \keyword{datasets}

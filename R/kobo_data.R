@@ -32,8 +32,8 @@ kobo_data_empty_ <- function(x, lang, colnames_label, select_multiple_sep, field
       kobo_extract_repeat_tbl(main, form, fields = fields)
     )
     for (n in names(tbls)) {
-      tbl <- tibble(empty_tibble_(as.character(names_list[[n]])), tbls[[n]])
-      tbl <- var_labels_from_form_(tbl, form, lang, sep = select_multiple_sep)
+      tbl <- empty_table_(names_list[[n]], form, lang, select_multiple_sep,
+                          keys = tbls[[n]])
       if (isTRUE(colnames_label)) {
         tbl <- set_names_from_varlabel_(tbl)
       }
@@ -46,8 +46,7 @@ kobo_data_empty_ <- function(x, lang, colnames_label, select_multiple_sep, field
       cn <- intersect(cn, fields)
     }
     cn <- na.omit(cn)
-    res <- empty_tibble_(cn)
-    res <- var_labels_from_form_(res, form, lang, sep = select_multiple_sep)
+    res <- empty_table_(cn, form, lang, select_multiple_sep)
     if (isTRUE(colnames_label)) {
       res <- set_names_from_varlabel_(res)
     }
@@ -69,10 +68,13 @@ kobo_data_ <- function(
   all_versions,
   progress,
   query = NULL,
-  fields = NULL
+  fields = NULL,
+  fields_api = fields
 ) {
+  tick <- NULL
   if (isTRUE(progress)) {
     cli_progress_step("Downloading data")
+    tick <- progress_ticker_("Downloading submissions", total = size, size = n_subs_)
   }
 
   if (!is.null(page_size) && (!is.numeric(page_size) || length(page_size) != 1 ||
@@ -80,7 +82,7 @@ kobo_data_ <- function(
     abort("`page_size` must be a positive integer", call = NULL)
   }
 
-  fields_json <- format_fields_(fields)
+  fields_json <- format_fields_(fields_api)
 
   if (is.null(page_size)) {
     page_size <- api_max_limit_()
@@ -89,9 +91,11 @@ kobo_data_ <- function(
     }
   }
   subs <- try_fetch(
-    get_subs_pages_(x$uid, size, page_size, query = query, fields = fields_json),
+    get_subs_pages_(x$uid, size, page_size, query = query, fields = fields_json,
+                    tick = tick),
     robotoolbox_http_404 = abort_no_data_
   )
+  progress_done_(tick)
   if (nrow(subs) == 0L) {
     return(NULL)
   }
@@ -99,7 +103,7 @@ kobo_data_ <- function(
   if (isTRUE(progress)) {
     cli_progress_step("Processing data")
   }
-  form <- kobo_form_version_(subs, x, all_versions = all_versions)
+  form <- kobo_form_version_(subs, x, all_versions = all_versions, progress = progress)
   klang <- kobo_lang(x)
   if (is.null(lang) || !lang %in% klang) {
     lang <- klang[1]
@@ -121,7 +125,11 @@ kobo_data_ <- function(
     )
     nm <- names(subs)
     names_list <- names_list[nm]
+    tick <- if (isTRUE(progress)) {
+      progress_ticker_("Processing tables", total = length(nm))
+    }
     subs <- lapply(nm, function(n) {
+      on.exit(if (is.function(tick)) tick(n))
       d <- subs[[n]]
       cn_list <- names_list[[n]]
       postprocess_data_(
@@ -138,6 +146,7 @@ kobo_data_ <- function(
         fields = if (n == "main") fields
       )
     })
+    progress_done_(tick)
     subs <- setNames(subs, nm)
     if (isTRUE(colnames_label)) {
       subs <- lapply(subs, set_names_from_varlabel_)
@@ -165,8 +174,8 @@ kobo_data_ <- function(
 
 #' Get all submissions from a KoboToolbox API asset
 #'
-#' Get all submissions from a KoboToolbox API asset through a \code{kobo_asset} or
-#' asset unique identifier.
+#' Get all submissions from a KoboToolbox API asset through a `kobo_asset` or
+#' asset unique identifier. `kobo_submissions()` is an alias of `kobo_data()`.
 #'
 #' @name kobo_data
 #'
@@ -177,8 +186,10 @@ kobo_data_ <- function(
 #' @importFrom dm as_dm dm_add_pk dm_add_fk
 #' @importFrom cli cli_progress_step
 #'
-#' @param x the asset uid or the \code{kobo_asset} object.
+#' @inheritParams kobo_asset
 #' @param lang character, form language used for the variable and value labels.
+#'   [kobo_lang()] lists the languages of a form. Defaults to `NULL`, the first
+#'   language of the form.
 #' @param all_versions logical, whether to use the forms of older versions
 #'   too. The deployed form always gives the labels. With `TRUE`, the forms
 #'   of the older versions found in the submissions add the questions the
@@ -189,19 +200,26 @@ kobo_data_ <- function(
 #'   longer has, are dropped. Both return every submission, and keep the
 #'   values of a question moved to another group. To keep the submissions of
 #'   one version, use `query`, for example
-#'   `'{"__version__": "vZpLmSfX3dfu6gTXtGPcS8"}'`. Default to `TRUE`.
+#'   `'{"__version__": "vZpLmSfX3dfu6gTXtGPcS8"}'`. Defaults to `TRUE`.
 #' @param colnames_label logical, whether or not to use variable labels
 #' in lieu of column names based on form question names. Each column keeps
-#' its question name in the `kobo_name` attribute. Default to `FALSE`.
+#' its question name in the `kobo_name` attribute. Defaults to `FALSE`.
 #' @param select_multiple_label logical, whether or not to replace
 #' select_multiple columns values by labels. The labels of an answer are
-#' separated by spaces, and `kobo_lang_set()` translates them. Default to
+#' separated by spaces, and `kobo_lang_set()` translates them. Defaults to
 #' `FALSE`.
-#' @param select_multiple_sep character, column and choices separator for newly created dummy variables. Default to "_".
-#' @param progress logical, whether or not you want to see the progess via message.
-#' Default to `FALSE`.
-#' @param paginate logical, split submissions by page_size. Default to `NULL`.
-#' @param page_size integer, number of submissions per request. Default to the
+#' @param select_multiple_sep character, separator between the question name
+#'   and the choice code in the names of the dummy columns of select_multiple
+#'   questions. Defaults to `"_"`.
+#' @param progress logical, whether to show the progress of the download. A
+#'   message is printed at each stage, and an interactive terminal also shows
+#'   a progress bar. Defaults to `FALSE`.
+#' @param paginate logical. With `TRUE`, and when `page_size` is not given, a
+#'   download that fits in one request is split into two requests of half its
+#'   size. It never reduces the number of requests. A form with more
+#'   submissions than `page_size`, or than the limit of the server, always
+#'   takes several requests. Defaults to `NULL`.
+#' @param page_size integer, number of submissions per request. Defaults to the
 #'   value set with `kobo_setup(page_size = )`, 1000 unless changed. Servers may
 #'   return fewer submissions per request than asked. `kobo_data()` detects this
 #'   limit and requests the missing submissions, so no submission is lost when
@@ -211,29 +229,51 @@ kobo_data_ <- function(
 #'   submissions where `field_name` equals `"value"`. The query filters
 #'   submissions (main table rows) based on top-level fields only. You cannot
 #'   filter on fields inside a repeat group. All repeat group rows belonging to
-#'   matching submissions are returned. Default to `NULL` (no filtering).
+#'   matching submissions are returned. Defaults to `NULL` (no filtering).
 #' @param fields character vector of field names to return. When provided, only
 #'   these fields (plus `__version__`) are fetched from the server. The server
 #'   may still include system fields such as `_id` and `_uuid`.
+#'
+#'   A question is selected by its name, also when it is inside a group. Its
+#'   path, such as `"household/age"`, is accepted too.
 #'
 #'   For repeat-group forms, `fields` supports individual selection of
 #'   main-table columns and table-level selection of top-level repeat groups.
 #'   A selected repeat group is always returned in full. Selecting individual
 #'   child columns within a repeat group (for example, `"my_repeat/age"`) is
-#'   not supported. Nested repeat groups cannot be selected independently, you'll
-#'   need to include their ancestor repeat group instead.
+#'   not supported. Nested repeat groups cannot be selected independently.
+#'   Include their ancestor repeat group instead.
 #'
 #'   Repeat-group forms always return a `dm` object. If no repeat group is
-#'   selected, the returned `dm` contains only the `main` table. Default to
+#'   selected, the returned `dm` contains only the `main` table. Defaults to
 #'   `NULL` (all fields).
 #'
-#' @details \code{\link{kobo_data}} is the main function of \code{robotoolbox}, it is used
-#' pull submissions from your Kobotoolbox survey. The main result is a \code{data.frame}
-#' for regular form and you have a \code{dm} for a form with repeating groups of questions.
+#' @details `kobo_data()` is the main function of robotoolbox. It downloads
+#' the submissions of a KoboToolbox survey. The result is a `data.frame` for a
+#' regular form and a `dm` object for a form with repeat groups.
 #'
-#' @returns A \code{data.frame} or A \code{dm} object if you have a repeating
-#' group of questions. It contains the responses from the Kobotoolbox survey.
-#' The \code{dm} has a \code{main} table and one table for each repeat group,
+#' Each select_multiple question gives its answers in one column, and one
+#' dummy column per choice, named after the question and the choice code. A
+#' question that already has the name of a dummy column, such as a text
+#' question `pet_other` next to the choice `other` of the question `pet`, is
+#' renamed `pet_other_1` with a message. The renamed column keeps its question
+#' name in the `kobo_question` attribute.
+#'
+#' The answers of a question moved to another group between form versions are
+#' merged into one column. Two questions with the same name in different
+#' groups that are answered in the same submission are kept apart, as `age`
+#' and `age_1`, with a message.
+#'
+#' The form of the survey is kept in memory for the rest of the R session, see
+#' [kobo_cache].
+#'
+#' A `kobo_asset` object describes the survey as it was when [kobo_asset()]
+#' was called. An object fetched before the first deployment of the survey
+#' gives an empty result, so fetch the asset again after a deployment.
+#'
+#' @returns A `data.frame`, or a `dm` object for a form with repeat groups. It
+#' contains the responses from the KoboToolbox survey.
+#' The `dm` has a `main` table and one table for each repeat group,
 #' in form order, linked to its parent table. A repeat group without data gives
 #' a table with zero rows. `_parent_table_name` gives the parent table of each
 #' row. A repeat group that has another parent in an older form version holds
@@ -241,10 +281,12 @@ kobo_data_ <- function(
 #' the deployed form, and a `_parent_index_<parent>` column points to each
 #' other parent.
 #'
+#' @family data functions
+#'
 #' @examples
 #' \dontrun{
 #' # Use your own URL and token
-#' kobo_setup(url = "https://kf.kobotoolbox.org/",
+#' kobo_setup(url = "https://kf.kobotoolbox.org",
 #'            token = "9et1814c285w094f6v9bd629df47a1a0e81x53a0")
 #' # Use your own unique identifier
 #' uid <- "a9cwEQcbWqWzA5hzkjRUWi"
@@ -266,34 +308,34 @@ kobo_data_ <- function(
 #' @export
 kobo_data <- function(
   x,
-  lang,
-  all_versions,
-  colnames_label,
-  select_multiple_label,
-  select_multiple_sep,
-  progress,
-  paginate,
-  page_size,
-  query,
-  fields
+  lang = NULL,
+  all_versions = TRUE,
+  colnames_label = FALSE,
+  select_multiple_label = FALSE,
+  select_multiple_sep = "_",
+  progress = FALSE,
+  paginate = NULL,
+  page_size = NULL,
+  query = NULL,
+  fields = NULL
 ) {
   UseMethod("kobo_data")
 }
 
-#' @name kobo_data
+#' @rdname kobo_data
 #' @export
 kobo_submissions <- function(
   x,
-  lang,
-  all_versions,
-  colnames_label,
-  select_multiple_label,
-  select_multiple_sep,
-  progress,
-  paginate,
-  page_size,
-  query,
-  fields
+  lang = NULL,
+  all_versions = TRUE,
+  colnames_label = FALSE,
+  select_multiple_label = FALSE,
+  select_multiple_sep = "_",
+  progress = FALSE,
+  paginate = NULL,
+  page_size = NULL,
+  query = NULL,
+  fields = NULL
 ) {
   UseMethod("kobo_submissions")
 }
@@ -317,9 +359,11 @@ kobo_data.kobo_asset <- function(
   }
   validate_query_(query)
   validate_fields_(fields)
+  fields_api <- fields_api_(fields, x)
+  fields <- fields_api$names
   res <- NULL
   if (!isFALSE(x$has_deployment)) {
-    size <- x$deployment__submission_count %||% 0L
+    size <- parse_api_count_(x$deployment__submission_count)
     if (!is.null(query)) {
       size <- try_fetch(
         get_filtered_count_(x$uid, query),
@@ -339,7 +383,8 @@ kobo_data.kobo_asset <- function(
         page_size = page_size,
         size = size,
         query = query,
-        fields = fields
+        fields = fields,
+        fields_api = fields_api$api
       )
     }
   }
@@ -349,7 +394,6 @@ kobo_data.kobo_asset <- function(
   res
 }
 
-#' @name kobo_data
 #' @export
 kobo_submissions.kobo_asset <- kobo_data.kobo_asset
 
@@ -385,7 +429,6 @@ kobo_data.character <- function(
   )
 }
 
-#' @name kobo_data
 #' @export
 kobo_submissions.character <- kobo_data.character
 
@@ -406,12 +449,14 @@ kobo_data.default <- function(
   abort("You need to use a 'kobo_asset' or a valid asset uid")
 }
 
-#' @name kobo_data
 #' @export
 kobo_submissions.default <- kobo_data.default
 
 #' @noRd
-kobo_attachment_download_ <- function(attachments, folder, overwrite, n_retry) {
+check_folder_ <- function(folder) {
+  if (!is.character(folder) || length(folder) != 1L || is.na(folder)) {
+    abort("`folder` must be the path of an existing folder", call = NULL)
+  }
   if (!dir.exists(folder)) {
     abort(
       paste(
@@ -421,6 +466,13 @@ kobo_attachment_download_ <- function(attachments, folder, overwrite, n_retry) {
       call = NULL
     )
   }
+  invisible(folder)
+}
+
+#' @noRd
+kobo_attachment_download_ <- function(attachments, folder, overwrite, n_retry,
+                                      progress = FALSE) {
+  check_folder_(folder)
   if (nrow(attachments) == 0) {
     return(invisible(character()))
   }
@@ -459,45 +511,63 @@ kobo_attachment_download_ <- function(attachments, folder, overwrite, n_retry) {
         terminate_on = 404
       )
     })
-    res <- AsyncQueue$new(
-      .list = reqs,
-      bucket_size = 15L,
-      sleep = 0.05
-    )
-    res$request()
-    cond <- res$status_code() >= 300L
-    if (any(cond)) {
-      msg <- res$content()[cond]
-      abort(error_msg(msg[[1]]), call = NULL)
+    tick <- if (isTRUE(progress)) {
+      progress_ticker_("Downloading files", total = length(reqs))
     }
-    walk2(
-      res$content(),
-      urls$path,
-      \(x, y) writeBin(x, con = y)
+    async_fetch_batches_(
+      reqs,
+      handle = function(content, i) write_file_(content, urls$path[i]),
+      tick = tick
     )
+    progress_done_(tick)
   }
   invisible(urls$path)
 }
 
+#' Write a downloaded file
+#'
+#' The file is written under a temporary name and then renamed, so a failed
+#' write never leaves a truncated file under its final name.
+#' @noRd
+write_file_ <- function(content, path) {
+  if (dir.exists(path)) {
+    abort(paste0("Can't write the file `", path, "`, a folder has this name."),
+          call = NULL)
+  }
+  tmp <- tempfile(paste0(basename(path), "."), tmpdir = dirname(path), fileext = ".part")
+  on.exit(unlink(tmp))
+  writeBin(content, con = tmp)
+  done <- suppressWarnings(file.rename(tmp, path)) ||
+    file.copy(tmp, path, overwrite = TRUE)
+  if (!done) {
+    abort(paste0("Can't write the file `", path, "`."), call = NULL)
+  }
+  path
+}
+
 #' Download submitted files associated to KoboToolbox API asset
 #'
-#' Download submitted files associated to a KoboToolbox API asset
+#' Download the files submitted with the answers of a KoboToolbox survey, such
+#' as pictures and recordings, into a folder.
 #'
-#' @importFrom crul AsyncQueue
-#' @importFrom purrr walk2
 #'
 #' @name kobo_attachment_download
 #'
-#' @param x the asset uid or the \code{kobo_asset} object.
-#' @param folder character, the folder where you store the downloaded files.
-#' @param progress logical, whether or not you want to see the progess via message.
-#' Default to `FALSE`.
-#' @param overwrite logical, whether or not you want to overwrite existing media files.
-#' Default to `TRUE`.
-#' @param n_retry integer, Number of time you should retry the failed request.
-#' Default to 3L.
+#' @inheritParams kobo_data
+#' @param folder character, the folder where the downloaded files are stored.
+#'   It must exist.
+#' @param overwrite logical, whether to download again the files that are
+#'   already in `folder`. Defaults to `TRUE`.
+#' @param n_retry integer, the number of times a failed request is tried again.
+#'   Defaults to `3L`.
 #'
-#' @returns Silently returns a vector of files paths.
+#' @details Each file is saved under the unique identifier of its attachment
+#' followed by its name, so two files with the same name do not overwrite each
+#' other.
+#'
+#' @returns The paths of the downloaded files, invisibly.
+#'
+#' @family data functions
 #'
 #' @examples
 #' \dontrun{
@@ -507,7 +577,13 @@ kobo_attachment_download_ <- function(attachments, folder, overwrite, n_retry) {
 #' }
 #'
 #' @export
-kobo_attachment_download <- function(x, folder, progress, overwrite, n_retry) {
+kobo_attachment_download <- function(
+  x,
+  folder,
+  progress = FALSE,
+  overwrite = TRUE,
+  n_retry = 3L
+) {
   UseMethod("kobo_attachment_download")
 }
 
@@ -519,6 +595,10 @@ kobo_attachment_download.character <- function(
   overwrite = TRUE,
   n_retry = 3L
 ) {
+  if (!assert_uid(x)) {
+    abort(message = "Invalid asset uid")
+  }
+  check_folder_(folder)
   if (isTRUE(progress)) {
     cli_progress_step("Listing files")
   }
@@ -530,7 +610,8 @@ kobo_attachment_download.character <- function(
     subs,
     folder = folder,
     overwrite = overwrite,
-    n_retry = n_retry
+    n_retry = n_retry,
+    progress = progress
   )
 }
 
@@ -542,6 +623,7 @@ kobo_attachment_download.kobo_asset <- function(
   overwrite = TRUE,
   n_retry = 3L
 ) {
+  check_folder_(folder)
   if (isTRUE(progress)) {
     cli_progress_step("Listing files")
   }
@@ -553,7 +635,8 @@ kobo_attachment_download.kobo_asset <- function(
     subs,
     folder = folder,
     overwrite = overwrite,
-    n_retry = n_retry
+    n_retry = n_retry,
+    progress = progress
   )
 }
 

@@ -3,68 +3,23 @@
 \name{kobo_data}
 \alias{kobo_data}
 \alias{kobo_submissions}
-\alias{kobo_submissions.kobo_asset}
-\alias{kobo_submissions.character}
-\alias{kobo_submissions.default}
 \title{Get all submissions from a KoboToolbox API asset}
 \usage{
 kobo_data(
   x,
-  lang,
-  all_versions,
-  colnames_label,
-  select_multiple_label,
-  select_multiple_sep,
-  progress,
-  paginate,
-  page_size,
-  query,
-  fields
+  lang = NULL,
+  all_versions = TRUE,
+  colnames_label = FALSE,
+  select_multiple_label = FALSE,
+  select_multiple_sep = "_",
+  progress = FALSE,
+  paginate = NULL,
+  page_size = NULL,
+  query = NULL,
+  fields = NULL
 )
 
 kobo_submissions(
-  x,
-  lang,
-  all_versions,
-  colnames_label,
-  select_multiple_label,
-  select_multiple_sep,
-  progress,
-  paginate,
-  page_size,
-  query,
-  fields
-)
-
-\method{kobo_submissions}{kobo_asset}(
-  x,
-  lang = NULL,
-  all_versions = TRUE,
-  colnames_label = FALSE,
-  select_multiple_label = FALSE,
-  select_multiple_sep = "_",
-  progress = FALSE,
-  paginate = NULL,
-  page_size = NULL,
-  query = NULL,
-  fields = NULL
-)
-
-\method{kobo_submissions}{character}(
-  x,
-  lang = NULL,
-  all_versions = TRUE,
-  colnames_label = FALSE,
-  select_multiple_label = FALSE,
-  select_multiple_sep = "_",
-  progress = FALSE,
-  paginate = NULL,
-  page_size = NULL,
-  query = NULL,
-  fields = NULL
-)
-
-\method{kobo_submissions}{default}(
   x,
   lang = NULL,
   all_versions = TRUE,
@@ -79,9 +34,12 @@ kobo_submissions(
 )
 }
 \arguments{
-\item{x}{the asset uid or the \code{kobo_asset} object.}
+\item{x}{the unique identifier of a specific asset (\code{character}) or
+a \code{kobo_asset} object.}
 
-\item{lang}{character, form language used for the variable and value labels.}
+\item{lang}{character, form language used for the variable and value labels.
+\code{\link[=kobo_lang]{kobo_lang()}} lists the languages of a form. Defaults to \code{NULL}, the first
+language of the form.}
 
 \item{all_versions}{logical, whether to use the forms of older versions
 too. The deployed form always gives the labels. With \code{TRUE}, the forms
@@ -93,25 +51,32 @@ repeat group it lacks, or recorded under a parent the repeat group no
 longer has, are dropped. Both return every submission, and keep the
 values of a question moved to another group. To keep the submissions of
 one version, use \code{query}, for example
-\code{'{"__version__": "vZpLmSfX3dfu6gTXtGPcS8"}'}. Default to \code{TRUE}.}
+\code{'{"__version__": "vZpLmSfX3dfu6gTXtGPcS8"}'}. Defaults to \code{TRUE}.}
 
 \item{colnames_label}{logical, whether or not to use variable labels
 in lieu of column names based on form question names. Each column keeps
-its question name in the \code{kobo_name} attribute. Default to \code{FALSE}.}
+its question name in the \code{kobo_name} attribute. Defaults to \code{FALSE}.}
 
 \item{select_multiple_label}{logical, whether or not to replace
 select_multiple columns values by labels. The labels of an answer are
-separated by spaces, and \code{kobo_lang_set()} translates them. Default to
+separated by spaces, and \code{kobo_lang_set()} translates them. Defaults to
 \code{FALSE}.}
 
-\item{select_multiple_sep}{character, column and choices separator for newly created dummy variables. Default to "_".}
+\item{select_multiple_sep}{character, separator between the question name
+and the choice code in the names of the dummy columns of select_multiple
+questions. Defaults to \code{"_"}.}
 
-\item{progress}{logical, whether or not you want to see the progess via message.
-Default to \code{FALSE}.}
+\item{progress}{logical, whether to show the progress of the download. A
+message is printed at each stage, and an interactive terminal also shows
+a progress bar. Defaults to \code{FALSE}.}
 
-\item{paginate}{logical, split submissions by page_size. Default to \code{NULL}.}
+\item{paginate}{logical. With \code{TRUE}, and when \code{page_size} is not given, a
+download that fits in one request is split into two requests of half its
+size. It never reduces the number of requests. A form with more
+submissions than \code{page_size}, or than the limit of the server, always
+takes several requests. Defaults to \code{NULL}.}
 
-\item{page_size}{integer, number of submissions per request. Default to the
+\item{page_size}{integer, number of submissions per request. Defaults to the
 value set with \code{kobo_setup(page_size = )}, 1000 unless changed. Servers may
 return fewer submissions per request than asked. \code{kobo_data()} detects this
 limit and requests the missing submissions, so no submission is lost when
@@ -122,26 +87,29 @@ server-side. For example, \code{'{"field_name": "value"}'} to return only
 submissions where \code{field_name} equals \code{"value"}. The query filters
 submissions (main table rows) based on top-level fields only. You cannot
 filter on fields inside a repeat group. All repeat group rows belonging to
-matching submissions are returned. Default to \code{NULL} (no filtering).}
+matching submissions are returned. Defaults to \code{NULL} (no filtering).}
 
 \item{fields}{character vector of field names to return. When provided, only
 these fields (plus \verb{__version__}) are fetched from the server. The server
 may still include system fields such as \verb{_id} and \verb{_uuid}.
 
+A question is selected by its name, also when it is inside a group. Its
+path, such as \code{"household/age"}, is accepted too.
+
 For repeat-group forms, \code{fields} supports individual selection of
 main-table columns and table-level selection of top-level repeat groups.
 A selected repeat group is always returned in full. Selecting individual
 child columns within a repeat group (for example, \code{"my_repeat/age"}) is
-not supported. Nested repeat groups cannot be selected independently, you'll
-need to include their ancestor repeat group instead.
+not supported. Nested repeat groups cannot be selected independently.
+Include their ancestor repeat group instead.
 
 Repeat-group forms always return a \code{dm} object. If no repeat group is
-selected, the returned \code{dm} contains only the \code{main} table. Default to
+selected, the returned \code{dm} contains only the \code{main} table. Defaults to
 \code{NULL} (all fields).}
 }
 \value{
-A \code{data.frame} or A \code{dm} object if you have a repeating
-group of questions. It contains the responses from the Kobotoolbox survey.
+A \code{data.frame}, or a \code{dm} object for a form with repeat groups. It
+contains the responses from the KoboToolbox survey.
 The \code{dm} has a \code{main} table and one table for each repeat group,
 in form order, linked to its parent table. A repeat group without data gives
 a table with zero rows. \verb{_parent_table_name} gives the parent table of each
@@ -152,17 +120,36 @@ other parent.
 }
 \description{
 Get all submissions from a KoboToolbox API asset through a \code{kobo_asset} or
-asset unique identifier.
+asset unique identifier. \code{kobo_submissions()} is an alias of \code{kobo_data()}.
 }
 \details{
-\code{\link{kobo_data}} is the main function of \code{robotoolbox}, it is used
-pull submissions from your Kobotoolbox survey. The main result is a \code{data.frame}
-for regular form and you have a \code{dm} for a form with repeating groups of questions.
+\code{kobo_data()} is the main function of robotoolbox. It downloads
+the submissions of a KoboToolbox survey. The result is a \code{data.frame} for a
+regular form and a \code{dm} object for a form with repeat groups.
+
+Each select_multiple question gives its answers in one column, and one
+dummy column per choice, named after the question and the choice code. A
+question that already has the name of a dummy column, such as a text
+question \code{pet_other} next to the choice \code{other} of the question \code{pet}, is
+renamed \code{pet_other_1} with a message. The renamed column keeps its question
+name in the \code{kobo_question} attribute.
+
+The answers of a question moved to another group between form versions are
+merged into one column. Two questions with the same name in different
+groups that are answered in the same submission are kept apart, as \code{age}
+and \code{age_1}, with a message.
+
+The form of the survey is kept in memory for the rest of the R session, see
+\link{kobo_cache}.
+
+A \code{kobo_asset} object describes the survey as it was when \code{\link[=kobo_asset]{kobo_asset()}}
+was called. An object fetched before the first deployment of the survey
+gives an empty result, so fetch the asset again after a deployment.
 }
 \examples{
 \dontrun{
 # Use your own URL and token
-kobo_setup(url = "https://kf.kobotoolbox.org/",
+kobo_setup(url = "https://kf.kobotoolbox.org",
            token = "9et1814c285w094f6v9bd629df47a1a0e81x53a0")
 # Use your own unique identifier
 uid <- "a9cwEQcbWqWzA5hzkjRUWi"
@@ -182,3 +169,10 @@ if (require(dplyr)) {
 }
 
 }
+\seealso{
+Other data functions:
+\code{\link[=kobo_attachment_download]{kobo_attachment_download()}},
+\code{\link[=kobo_audit]{kobo_audit()}},
+\code{\link[=kobo_form]{kobo_form()}}
+}
+\concept{data functions}

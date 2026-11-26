@@ -18,6 +18,8 @@
 #'
 #' The cache is cleared when the R session ends, or with
 #' `kobo_cache_clear()`.
+#'
+#' @family cache functions
 NULL
 
 # Session-level cache environment
@@ -28,19 +30,24 @@ NULL
 
 #' Clear the metadata cache
 #'
+#' Remove the forms, the languages and the server page limits that robotoolbox
+#' keeps in memory, described in [kobo_cache].
+#'
 #' @param uid Optional asset uid. If provided, clears the forms and languages
 #'   of that asset only, on every server.
 #' @param type Character, which cache to clear: "all" (default), "forms", or
 #'   "langs". "all" also clears the recorded server page limits.
 #'
-#' @returns Invisibly returns TRUE
+#' @returns `TRUE`, invisibly.
+#'
+#' @family cache functions
 #'
 #' @examples
-#' \dontrun{
-#' kobo_cache_clear()
-#' kobo_cache_clear("aXf4gH7kL9mN2pQrStUvWx")
+#' form <- kobo_form(asset_ml)
+#' kobo_cache_info()$n_forms
+#' kobo_cache_clear(asset_ml$uid)
 #' kobo_cache_clear(type = "langs")
-#' }
+#' kobo_cache_clear()
 #'
 #' @export
 kobo_cache_clear <- function(uid = NULL, type = c("all", "forms", "langs")) {
@@ -70,12 +77,22 @@ kobo_cache_clear <- function(uid = NULL, type = c("all", "forms", "langs")) {
 
 #' Get cache statistics
 #'
-#' @returns A list with cache statistics
+#' Count and list the forms and the languages that robotoolbox keeps in
+#' memory, described in [kobo_cache].
+#'
+#' @returns A list with four elements.
+#' - `n_forms` the number of cached forms
+#' - `form_keys` the keys of the cached forms, each made of the server URL,
+#'   the asset uid and the form version
+#' - `n_langs` the number of cached language lists
+#' - `lang_keys` the keys of the cached language lists, made the same way
+#'
+#' @family cache functions
 #'
 #' @examples
-#' \dontrun{
+#' form <- kobo_form(asset_ml)
 #' kobo_cache_info()
-#' }
+#' kobo_cache_clear()
 #'
 #' @export
 kobo_cache_info <- function() {
@@ -90,7 +107,7 @@ kobo_cache_info <- function() {
 #' @importFrom rlang %||%
 #' @noRd
 cache_server_ <- function() {
-  sub("/+$", "", Sys.getenv("KOBOTOOLBOX_URL"))
+  server_url_()
 }
 
 #' @noRd

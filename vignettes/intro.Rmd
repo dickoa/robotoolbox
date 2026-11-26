@@ -31,7 +31,7 @@ We use the environment variables `KOBOTOOLBOX_URL` and `KOBOTOOLBOX_TOKEN` for t
 The following examples will utilize UNHCR `KoboToolbox` server URL (https://kobo.unhcr.org/). You can replace this URL by the one you use, it can be https://kf.kobotoolbox.org/, https://eu.kobotoolbox.org/ or any other `KoboToolbox` server URL you typically use.
 
 ```{bash, eval = FALSE, engine = "sh"}
-KOBOTOOLBOX_URL="https://kobo.unhcr.org/"
+KOBOTOOLBOX_URL="https://kobo.unhcr.org"
 KOBOTOOLBOX_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
@@ -43,7 +43,7 @@ kobo_setup(url = "https://kobo.unhcr.org",
            token = "xxxxxxxxxxxxxxxxxxxxxxxxxx")
 ```
 
-By default, `kobo_setup` asks for 1,000 submissions per API request, the limit of public KoboToolbox servers since KoboToolbox KPI version 2.026.03 (March 2026). Some private servers allow more, and a larger `page_size` then means fewer requests. When a server returns fewer submissions than asked, `kobo_data` detects its limit and requests the missing submissions, so a large value never loses data. You can set it with the `page_size` parameter or the `KOBOTOOLBOX_PAGE_SIZE` environment variable:
+By default, `kobo_setup` asks for 1,000 submissions per API request, the limit of public KoboToolbox servers. A private server that allows more can be given a larger `page_size`, as explained in `?kobo_setup`.
 
 ```{r, eval = FALSE}
 kobo_setup(url = "https://my-private-server.org",

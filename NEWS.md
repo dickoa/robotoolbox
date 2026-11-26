@@ -1,10 +1,21 @@
-robotoolbox 1.9.0 (2026-11-11)
+robotoolbox 1.10.0
 ======================
 
+This section lists every change since 1.6.2, the previous CRAN release. It
+includes the changes of versions 1.8.0 and 1.9.0, which were released on
+GitLab only.
+
 ### NEW FEATURES
+- With `progress = TRUE`, `kobo_data()`, `kobo_audit()` and
+  `kobo_attachment_download()` show a progress bar in an interactive
+  terminal. It counts the submissions received, the form versions read, the
+  tables processed, and the audit or attachment files downloaded. The
+  messages printed at each stage are unchanged, and they remain the only
+  output in scripts and reports. `kobo_audit()` has a new "Listing audit
+  files" message.
 - `kobo_asset_version_list()` returns a new `version_number` column with the
   version label shown in the form history of KoboToolbox, such as `"12"` for a
-  deployment and `"11.4"` for a draft saved after it (KoboToolbox KPI 2.026.30
+  deployment and `"11.4"` for a draft saved after it (KoboToolbox KPI 2.026.33
   or later, `NA` on older servers). It links the `__version__` uids found in
   the submissions to the versions users see in KoboToolbox.
 - `kobo_setup()` accepts self-hosted servers on `localhost`, an IP address, a
@@ -12,8 +23,97 @@ robotoolbox 1.9.0 (2026-11-11)
 - `kobo_data()` with `all_versions = TRUE` also reads the versions listed in
   `meta/formVersions` (KoboToolbox KPI 2.026.33 or later). The server writes
   every version an edited submission went through there.
+- `kobo_asset_list()` gains a `minimal` argument. `minimal = TRUE` uses the
+  `/api/v2/assets/minimal-list/` endpoint (KoboToolbox KPI 2.026.21 or later)
+  and returns only `uid`, `name` and `deployment_status`. It was about seven
+  times faster than the full listing on a 92-asset account. Older servers, which
+  answer 404 for this endpoint, fall back to the full listing. Other errors are
+  reported.
+- `kobo_asset_list()` returns a new `created_by` column with the account that
+  created each asset (KoboToolbox KPI 2.026.23 or later).
 
 ### BUG FIXES
+- A question named like a dummy column of a select_multiple question lost its
+  answers, for example a text question `pet_other` next to the choice `other`
+  of the question `pet`. `kobo_data()` renames such a column `pet_other_1`,
+  and it was then read as an integer, so text answers became `NA` and `"007"`
+  became `7`. The dummy column `pet_other` took the label of the text
+  question, and with a select_one question it became a text column with the
+  value labels of that question. The renamed column lost its label and moved
+  to the last position. It now keeps the type, the labels and the position of
+  its question, also with `colnames_label = TRUE` and after `kobo_lang_set()`,
+  and the dummy column keeps its `Question::Choice` label. The renamed column
+  records its question name in a `kobo_question` attribute. Column names are
+  unchanged. When the renamed question is itself a select_multiple,
+  `kobo_data()` stopped with "non-character argument". It now gives its
+  dummy columns too.
+- A column absent from the form was read as an integer when its name started
+  with the name of a select_multiple question and an underscore, such as
+  `pet_notes` with `all_versions = FALSE`. Its text answers became `NA`.
+- The rename of a question named like a dummy column replaced an existing
+  column `pet_other_1`. The next free suffix is now used.
+- Two questions with the same name in different groups, such as `father/age`
+  and `mother/age`, were merged into one column, and one of the two answers of
+  each submission was lost. Columns are now merged only when no submission has
+  a value in two of them, which is the case of a question moved to another
+  group between form versions. Otherwise they are kept as `age` and `age_1`,
+  with a message.
+- A request that failed during a download of several pages gave a generic
+  error. `kobo_data()` now gives the same message as for a single page when
+  the data endpoint answers 404, and the errors of `kobo_audit()`,
+  `kobo_attachment_download()` and the form version requests have the class
+  `robotoolbox_http_<status>` too.
+- `kobo_data()` failed with "Column `choices` doesn't exist" on a form without
+  choice list, for example when its only select question is a
+  `select_multiple_from_file`. So did `kobo_lang_set()` and the empty result
+  of a form without submissions. The dummy columns of such a question are now
+  built from the codes found in the answers.
+- A column without any answer had the type logical, and the columns of a
+  result without rows were all text, so `kobo_data()` results could fail to
+  bind, for example a filtered result without rows and one with rows. Such
+  columns now have the type they get with answers, such as integer for an
+  integer question or a dummy column, and date for a date question. A
+  select_one column without rows also has its value labels.
+- `kobo_data(fields = )` returned a column of `NA` for a question inside a
+  group, without an error. The server knows such a question by its path,
+  such as `household/age`, and that path was refused. A question is now
+  selected by its name wherever it is, and its path is accepted too. A field
+  inside a repeat group still cannot be selected on its own.
+- A question named like a derived spatial column, such as a text question
+  `track_wkt` next to a geotrace `track`, lost its answers to the generated
+  column. It is now renamed `track_wkt_1` with a message, as a question
+  named like a dummy column is.
+- `kobo_audit()` silently returned the start of an audit file when one of
+  its rows had fewer values than the header. Such a row is now kept, with
+  `NA` for the values it lacks, and any other problem of a file gives a
+  warning that names the submission.
+- `kobo_token()` called with the URL of another server returned the token of
+  the current server and pointed the session to the new URL, so the next
+  request sent that token to the other server. A token is now reused only
+  for its own server, and the URL and the token change together once the
+  new server has answered.
+- A geoshape whose last point differs from its first, and a geotrace or
+  geoshape mixing points with and without altitude, gave invalid WKT. They
+  now give `NA`.
+- `kobo_setup()` called without `page_size` reset the page size to 1,000,
+  even when the `KOBOTOOLBOX_PAGE_SIZE` environment variable was set. It now
+  keeps the value of the variable, as it does for the URL and the token.
+- `kobo_audit()` dropped the audit log of a submission when its file held a
+  byte that is not valid UTF-8. Such a byte is now written as its code, for
+  example `<ff>`.
+- A server URL ending with a slash gave request URLs with a double slash in
+  downloads of several pages and in form version requests. `kobo_setup()` and
+  `kobo_token()` now remove every trailing slash.
+- `kobo_attachment_download()` reported a missing `folder` only after listing
+  every submission, and did not check the uid. Both are now checked before
+  any request.
+- The columns derived from spatial questions were labeled with their own
+  names. For a geopoint labeled "Record a location", `pt_latitude`,
+  `pt_longitude`, `pt_altitude`, `pt_precision` and `pt_wkt` are now labeled
+  `"Record a location::latitude"` to `"Record a location::wkt"`, and the
+  `_wkt` column of a geotrace or geoshape likewise. With
+  `colnames_label = TRUE` these labels become the column names.
+  `kobo_lang_set()` translates them.
 - Large projects can report their submission count as `"many"`, or
   `"unknown"` when counting takes too long (KoboToolbox KPI 2.026.43 or later,
   when the server operator enables the limit). `kobo_data()`, `kobo_audit()`
@@ -21,6 +121,8 @@ robotoolbox 1.9.0 (2026-11-11)
   operator", and `kobo_data(query = )` with "missing value where TRUE/FALSE
   needed". They now follow the next page links until the last submission.
   `kobo_asset_list()` no longer compares the listed assets with such a count.
+  A count given as a string in the asset itself is accepted too, and
+  `kobo_asset_list()` binds pages that give the count in different types.
 - `kobo_data()` with `all_versions = TRUE` ignored older form versions when a
   question name contained `_version_`, such as `app_version_num`. Their
   questions were missing from the data.
@@ -56,45 +158,6 @@ robotoolbox 1.9.0 (2026-11-11)
   instead of an error.
 - `kobo_setup(page_size = NA)` and `kobo_data(page_size = NA)` gave "missing
   value where TRUE/FALSE needed" instead of the page size error.
-
-### PERFORMANCE
-- `kobo_data()` is faster on large forms with many versions. On a form with
-  6,088 submissions, 29 versions and 26 repeat groups, the first call went
-  from 44 to 29 seconds and later calls in the session from 27 to 18 seconds.
-  About 16 seconds of that is the download itself. Output is unchanged.
-  - Responses are parsed from their raw bytes, without building a string
-    first.
-  - The version listing is no longer requested when the asset already lists
-    its deployed versions, nor when the data holds a single version.
-  - Form versions are read faster, and only the columns that `kobo_data()`
-    uses are kept when versions are stacked.
-  - Column types, select_multiple choices and labels are computed once per
-    call instead of once per table, and columns are set on plain lists.
-- `kobo_audit()` reads the older form versions only when the deployed form
-  has no `audit` question.
-
-### OTHER CHANGES
-- Asset and version requests end with a slash. Without it the server answered
-  with a redirect, which doubled the requests.
-- A request made before `kobo_setup()` now says that no server is configured,
-  instead of a curl error about the URL.
-- Server errors such as 403 (permission denied) and 429 (rate limit) now show
-  the message of the server.
-- Every request retries on status 429, 500, 502, 503 and 504, waiting as long
-  as the server asks, and sends the robotoolbox User-Agent.
-- `kobo_settings()` shows `<unset>` when no token is set.
-- `kobo_token()` removes a trailing slash from the server URL before storing
-  it in `KOBOTOOLBOX_URL`, as `kobo_setup()` does.
-- Unused code to read external CSV choices is removed, along with the
-  `tools` import.
-- Documentation fixes in `kobo_asset_file_list()`, the example data and the
-  README. The multilanguage vignette shows `kobo_lang_set()` and
-  `kobo_lang_get()`.
-
-robotoolbox 1.8.0 (2026-10-17)
-======================
-
-### BUG FIXES
 - `kobo_data()` no longer loses submissions when `page_size` exceeds the limit
   of the server. KoboToolbox servers return at most `MAX_API_PAGE_SIZE`
   submissions per request (1,000 on public servers) and silently ignore larger
@@ -240,17 +303,67 @@ robotoolbox 1.8.0 (2026-10-17)
 - `%||%` is now imported from `rlang`. The package relied on the base R
   version, which only exists from R 4.4, whereas `DESCRIPTION` requires R 4.1.
 
-### NEW FEATURES
-- `kobo_asset_list()` gains a `minimal` argument. `minimal = TRUE` uses the
-  `/api/v2/assets/minimal-list/` endpoint (KoboToolbox KPI 2.026.21 or later)
-  and returns only `uid`, `name` and `deployment_status`. It was about seven
-  times faster than the full listing on a 92-asset account. Older servers, which
-  answer 404 for this endpoint, fall back to the full listing. Other errors are
-  reported.
-- `kobo_asset_list()` returns a new `created_by` column with the account that
-  created each asset (KoboToolbox KPI 2.026.23 or later).
+### PERFORMANCE
+- `kobo_data()` is faster on large forms with many versions. On a form with
+  6,088 submissions, 29 versions and 26 repeat groups, the first call went
+  from 44 to 29 seconds and later calls in the session from 27 to 18 seconds.
+  About 16 seconds of that is the download itself. Output is unchanged.
+  - Responses are parsed from their raw bytes, without building a string
+    first.
+  - The version listing is no longer requested when the asset already lists
+    its deployed versions, nor when the data holds a single version.
+  - Form versions are read faster, and only the columns that `kobo_data()`
+    uses are kept when versions are stacked.
+  - Column types, select_multiple choices and labels are computed once per
+    call instead of once per table, and columns are set on plain lists.
+- `kobo_audit()` reads the older form versions only when the deployed form
+  has no `audit` question.
+
+### DOCUMENTATION
+- Help pages link to each other. Each function page lists the related
+  functions under "See also", and `?kobo_data`, `?kobo_form` and `?kobo_lang`
+  link to `?kobo_cache`.
+- The usage of `kobo_data()`, `kobo_audit()` and `kobo_attachment_download()`
+  shows the default value of each argument, and `?kobo_lang` shows its three
+  functions without their methods.
+- The help pages of `kobo_form()`, `kobo_lang()`, `kobo_settings()` and the
+  cache functions have examples that run on the bundled data.
+- `?kobo_audit` documents `start_int` and `end_int`, `?kobo_settings` the
+  three elements it returns, and `?kobo_cache_info` its four elements. The
+  audit vignette no longer says that the columns depend on the audit
+  parameters of the form.
 
 ### OTHER CHANGES
+- Downloads of several pages or files send their requests in batches of 15
+  and handle each batch as it arrives. A failed request stops the download
+  before the next batch is sent. `kobo_attachment_download()` then keeps
+  the files of the batches already received, and a new call with
+  `overwrite = FALSE` downloads the others. Each file is written under a
+  temporary name first, so an interrupted download leaves no truncated file.
+- Older form versions are requested 15 at a time instead of all at once.
+- `labelled` 2.12.0 or later is required. The package uses
+  `labelled::set_label_attribute()`, which older versions lack.
+- `bit64` is now a declared dependency. `kobo_audit()` already returned
+  `start_int` and `end_int` as `integer64`.
+- `roxygen2`, `devtools`, `covr` and `DiagrammeRsvg` are no longer suggested
+  packages.
+- Asset and version requests end with a slash. Without it the server answered
+  with a redirect, which doubled the requests.
+- A request made before `kobo_setup()` now says that no server is configured,
+  instead of a curl error about the URL.
+- Server errors such as 403 (permission denied) and 429 (rate limit) now show
+  the message of the server.
+- Every request retries on status 429, 500, 502, 503 and 504, and sends the
+  robotoolbox User-Agent. A single request waits for the number of seconds
+  the server gives in `Retry-After`.
+- `kobo_settings()` shows `<unset>` when no token is set.
+- `kobo_token()` removes a trailing slash from the server URL before storing
+  it in `KOBOTOOLBOX_URL`, as `kobo_setup()` does.
+- Unused code to read external CSV choices is removed, along with the
+  `tools` import.
+- Documentation fixes in `kobo_asset_file_list()`, the example data and the
+  README. The multilanguage vignette shows `kobo_lang_set()` and
+  `kobo_lang_get()`.
 - KoboToolbox removed the legacy `/api/v1/` API in KPI version 2.026.23.
   robotoolbox only uses `/api/v2/` and is not affected.
 - `glue` is no longer a dependency.

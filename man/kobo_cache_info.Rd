@@ -7,14 +7,28 @@
 kobo_cache_info()
 }
 \value{
-A list with cache statistics
+A list with four elements.
+\itemize{
+\item \code{n_forms} the number of cached forms
+\item \code{form_keys} the keys of the cached forms, each made of the server URL,
+the asset uid and the form version
+\item \code{n_langs} the number of cached language lists
+\item \code{lang_keys} the keys of the cached language lists, made the same way
+}
 }
 \description{
-Get cache statistics
+Count and list the forms and the languages that robotoolbox keeps in
+memory, described in \link{kobo_cache}.
 }
 \examples{
-\dontrun{
+form <- kobo_form(asset_ml)
 kobo_cache_info()
-}
+kobo_cache_clear()
 
 }
+\seealso{
+Other cache functions:
+\code{\link{kobo_cache}},
+\code{\link[=kobo_cache_clear]{kobo_cache_clear()}}
+}
+\concept{cache functions}

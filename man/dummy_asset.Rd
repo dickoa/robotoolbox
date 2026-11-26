@@ -39,4 +39,9 @@ asset_audit
 \description{
 Examples of KoboToolbox assets and list of assets.
 }
+\seealso{
+Other example datasets:
+\code{\link{dummy_data}}
+}
+\concept{example datasets}
 \keyword{datasets}
